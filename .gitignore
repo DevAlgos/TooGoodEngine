@@ -3,6 +3,12 @@
 ##
 ## Get latest from https://github.com/github/gitignore/blob/main/VisualStudio.gitignore
 
+
+*.vcxproj
+*.vcxproj.filters
+*.vcxproj.user
+*.sln
+
 # User-specific files
 *.rsuser
 *.suo
@@ -53,6 +59,10 @@ nunit-*.xml
 [Dd]ebugPS/
 [Rr]eleasePS/
 dlldata.c
+bin/
+bin-int/
+obj/
+x64/
 
 # Benchmark Results
 BenchmarkDotNet.Artifacts/
@@ -111,6 +121,7 @@ ipch/
 *.cachefile
 *.VC.db
 *.VC.VC.opendb
+
 
 # Visual Studio profiler
 *.psess
