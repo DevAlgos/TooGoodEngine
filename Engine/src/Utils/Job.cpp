@@ -5,11 +5,86 @@
 namespace
 {
 	static size_t IDCounter = 0;
+	static Utils::JobManagerData s_ManagerData;
 }
 
 
 namespace Utils
 {
+
+	template<typename T>
+	inline PriorityQueue<T>::PriorityQueue()
+		: m_Stack(new T[10]), m_Size(10)
+	{
+	}
+	template<typename T>
+	PriorityQueue<T>::PriorityQueue(size_t Size)
+		: m_Stack(new T[Size]), m_Size(Size)
+	{
+	}
+
+
+	template<typename T>
+	PriorityQueue<T>::~PriorityQueue()
+	{
+		delete[] m_Stack;
+		delete m_Bottom;
+	}
+
+	template<typename T>
+	void PriorityQueue<T>::Resize(size_t NewSize)
+	{
+		static_assert(NewSize < m_Index && "New size is smaller than number of elements in Queue");
+		T* temp[] = new T[NewSize];
+		temp = m_Stack;
+		delete[] m_Stack;
+		m_Stack = temp;
+		m_Size = NewSize;
+	}
+
+	template<typename T>
+	void PriorityQueue<T>::PushBack(const T& elem)
+	{
+		if (m_Index >= m_Size)
+		{
+			size_t NewSize = m_Size * 1.5;
+			Resize(NewSize);
+		}
+
+		m_Stack[m_Index] = elem;
+		m_Index++;
+	}
+
+	template<typename T>
+	void PriorityQueue<T>::Pop()
+	{
+		m_Stack[m_Index] = nullptr;
+		m_Index--;
+	}
+
+	void JobManager::InitalizeManager()
+	{
+		s_ManagerData.ThreadPool.resize(s_ManagerData.NumberOfThreads);
+
+		for (Job& job : s_ManagerData.ThreadPool)
+			job.Init();
+	}
+
+	void JobManager::AttachWork(size_t ThreadID, const Work& work)
+	{
+	}
+
+	void JobManager::AttachWork(const Work& work)
+	{
+	}
+
+	void JobManager::ShutdownManager()
+	{
+	}
+
+
+
+
 	void Job::Init()
 	{
 		m_ThreadActive = true;
@@ -21,27 +96,26 @@ namespace Utils
 	}
 
 
-	void Job::Attach(std::function<void()> Work)
+	void Job::Attach(const Work& work)
 	{
-		std::unique_lock<std::mutex> lock(m_JobMutex);
-		m_WorkQueue.push(Work);
-		m_JobCondition.notify_one();
-		m_ExecuteCount += 1;
-	}
+		if (m_ThreadActive)
+		{
+			std::unique_lock<std::mutex> lock(m_JobMutex);
+			m_WorkQueue.push(work);
+			m_JobCondition.notify_one();
+			m_ExecuteCount += 1;
+		}
 
+	}
 	
 	void Job::Join()
 	{
-		while (GetExecuteCount() != 0 && !m_ThreadActive)
-		{
-			//wait until it equals 0
-		}
-
 		{
 			std::unique_lock<std::mutex> Lock(m_JobMutex);
 			m_ThreadActive = false;
 			m_JobCondition.notify_all();
 		}
+
 		if (_ThisJobThread.joinable()) { //not needed because using jthread but still good to have
 			_ThisJobThread.join();
 		}
@@ -65,31 +139,37 @@ namespace Utils
 			std::function<void()> ThisFunc;
 
 
-			while (m_WorkQueue.empty() && m_ThreadActive)
-				m_JobCondition.wait(lock);
-
-			while (!m_WorkQueue.empty())
+			while (!m_WorkQueue.empty() && m_ThreadActive)
 			{
-				//std::cout << "This is a thread" << std::endl;
-				ThisFunc = m_WorkQueue.front();
+				ThisFunc = m_WorkQueue.front().Func;
 
 				ThisFunc();
 				m_WorkQueue.pop();
 				m_JobCondition.notify_one();
 				m_ExecuteCount--;
-				if (m_ExecuteCount == 0 && m_ThreadActive)
-				{
-					m_Execute = false;
-					m_ThreadActive = true;
+			}
 
-					continue;
-				}
-				else
+			while (m_WorkQueue.empty() && m_ThreadActive)
+				m_JobCondition.wait(lock);
+			
+		}
+
+
+		if (!m_WorkQueue.empty())
+		{
+			std::function<void()> ThisFunc;
+			while (!m_WorkQueue.empty())
+			{
+				if (m_WorkQueue.front().MustFinishOnClose)
 				{
-					m_ThreadActive = false;
-					break;
+					ThisFunc = m_WorkQueue.front().Func;
+					ThisFunc();
 				}
+				else continue;
+
+				m_WorkQueue.pop();
 			}
 		}
 	}
+	
 }

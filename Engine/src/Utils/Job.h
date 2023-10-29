@@ -8,6 +8,56 @@
 
 namespace Utils
 {
+	enum class Priority {None = 0, Low, Middle, Top};
+	
+	template<typename T>
+	class PriorityQueue
+	{
+	public:
+		PriorityQueue();
+		PriorityQueue(size_t Size);
+		~PriorityQueue();
+
+		void Resize(size_t NewSize);
+		
+		void PushBack(const T& elem);
+		void Pop();
+
+		inline T& Front() { return m_Stack[m_Index]; };
+
+
+	private:
+		T* m_Stack[];
+		size_t m_Size;
+		size_t m_Index = 0;
+	};
+
+
+	struct Work
+	{
+		std::function<void()> Func;
+		bool MustFinishOnClose;
+	};
+
+	struct JobManagerData
+	{
+		uint32_t NumberOfThreads = std::thread::hardware_concurrency();
+
+		std::vector<Job> ThreadPool;
+	};
+
+	class JobManager
+	{
+	public:
+		static void InitalizeManager();
+
+		static void AttachWork(size_t ThreadID, const Work& work);
+		static void AttachWork(const Work& work);
+
+		static void ShutdownManager();
+	};
+
+	
 
 	class Job
 	{
@@ -17,7 +67,7 @@ namespace Utils
 
 		void Init();
 
-		void Attach(std::function<void()> Work);
+		void Attach(const Work& work);
 		void Join();
 		void Wait();
 		bool IsWorkDone();
@@ -28,7 +78,6 @@ namespace Utils
 			return m_ExecuteCount;
 		}
 
-		const int8_t GetMaxJobCount() const { return MaxJobCount; }
 		const uint16_t GetJobID() const { return JobID; }
 
 
@@ -36,17 +85,17 @@ namespace Utils
 		void Worker();
 
 	private:
-		const int8_t MaxJobCount = 10;
 		uint16_t JobID;
 
 		uint16_t m_ExecuteCount = 0;
 
 		std::jthread _ThisJobThread;
-		bool m_ThreadActive;
-		bool m_Execute;
+		volatile bool m_ThreadActive;
+		volatile bool m_Execute;
 
-		std::queue<std::function<void()>> m_WorkQueue;
+		std::queue<Work> m_WorkQueue;
 		std::mutex m_JobMutex;
 		std::condition_variable m_JobCondition;
 	};
+	
 }
