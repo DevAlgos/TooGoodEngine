@@ -7,9 +7,16 @@
 
 
 namespace Utils
-{
-	enum class Priority {None = 0, Low, Middle, Top};
-	
+{	
+	enum class Priority { Bottom = 0, Middle, Top };
+
+	template<typename T>
+	struct PriorityData
+	{
+		Priority p = Priority::Bottom;
+		T data;
+	};
+
 	template<typename T>
 	class PriorityQueue
 	{
@@ -18,16 +25,29 @@ namespace Utils
 		PriorityQueue(size_t Size);
 		~PriorityQueue();
 
+		T& operator[](size_t Index)
+		{
+			return m_Stack[Index];
+		}
+
+
+
 		void Resize(size_t NewSize);
-		
+
 		void PushBack(const T& elem);
+		void PushBack(T&& elem);
+
+
+		void PushBack(const PriorityData<T>& elem);
+		void PushBack(PriorityData<T>&& elem);
+
 		void Pop();
 
-		inline T& Front() { return m_Stack[m_Index]; };
+		inline T& Front() { return m_Stack[m_Index - 1]; };
 
 
 	private:
-		T* m_Stack[];
+		PriorityData<T>* m_Stack;
 		size_t m_Size;
 		size_t m_Index = 0;
 	};
@@ -39,31 +59,11 @@ namespace Utils
 		bool MustFinishOnClose;
 	};
 
-	struct JobManagerData
-	{
-		uint32_t NumberOfThreads = std::thread::hardware_concurrency();
-
-		std::vector<Job> ThreadPool;
-	};
-
-	class JobManager
-	{
-	public:
-		static void InitalizeManager();
-
-		static void AttachWork(size_t ThreadID, const Work& work);
-		static void AttachWork(const Work& work);
-
-		static void ShutdownManager();
-	};
-
-	
-
 	class Job
 	{
 	public:
-		//Job();
-		//~Job();
+		Job();
+		~Job();
 
 		void Init();
 
@@ -97,5 +97,27 @@ namespace Utils
 		std::mutex m_JobMutex;
 		std::condition_variable m_JobCondition;
 	};
+
+	struct JobManagerData
+	{
+		uint32_t NumberOfThreads = std::thread::hardware_concurrency();
+
+		std::vector<std::unique_ptr<Job>> ThreadPool;
+	};
+
+	class JobManager
+	{
+	public:
+		static void InitalizeManager();
+
+		static void AttachWork(size_t ThreadID, const Work& work);
+		static void AttachWork(const Work& work);
+
+		static void ShutdownManager();
+	};
+
+	
+
+	
 	
 }

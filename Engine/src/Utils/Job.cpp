@@ -28,16 +28,13 @@ namespace Utils
 	PriorityQueue<T>::~PriorityQueue()
 	{
 		delete[] m_Stack;
-		delete m_Bottom;
 	}
 
 	template<typename T>
 	void PriorityQueue<T>::Resize(size_t NewSize)
 	{
-		static_assert(NewSize < m_Index && "New size is smaller than number of elements in Queue");
-		T* temp[] = new T[NewSize];
+		T* temp = new T[NewSize];
 		temp = m_Stack;
-		delete[] m_Stack;
 		m_Stack = temp;
 		m_Size = NewSize;
 	}
@@ -56,32 +53,35 @@ namespace Utils
 	}
 
 	template<typename T>
-	void PriorityQueue<T>::Pop()
+	void PriorityQueue<T>::PushBack(T&& elem)
 	{
-		m_Stack[m_Index] = nullptr;
+		if (m_Index >= m_Size)
+		{
+			size_t NewSize = m_Size * 1.5;
+			Resize(NewSize);
+		}
+
+		m_Stack[m_Index] = elem;
+		m_Index++;
+	}
+
+	template<typename T>
+	void PriorityQueue<T>::Pop() //Data can be overwritten in the above index if needed
+	{
 		m_Index--;
 	}
 
-	void JobManager::InitalizeManager()
+	Job::Job()
+		: _ThisJobThread(std::jthread(&Job::Worker, this)), m_ThreadActive(true)
 	{
-		s_ManagerData.ThreadPool.resize(s_ManagerData.NumberOfThreads);
-
-		for (Job& job : s_ManagerData.ThreadPool)
-			job.Init();
+		JobID = IDCounter;
+		IDCounter++;
 	}
 
-	void JobManager::AttachWork(size_t ThreadID, const Work& work)
+	Job::~Job()
 	{
+		Join();
 	}
-
-	void JobManager::AttachWork(const Work& work)
-	{
-	}
-
-	void JobManager::ShutdownManager()
-	{
-	}
-
 
 
 
@@ -107,7 +107,7 @@ namespace Utils
 		}
 
 	}
-	
+
 	void Job::Join()
 	{
 		{
@@ -119,7 +119,7 @@ namespace Utils
 		if (_ThisJobThread.joinable()) { //not needed because using jthread but still good to have
 			_ThisJobThread.join();
 		}
-		
+
 	}
 	void Job::Wait()
 	{
@@ -151,7 +151,7 @@ namespace Utils
 
 			while (m_WorkQueue.empty() && m_ThreadActive)
 				m_JobCondition.wait(lock);
-			
+
 		}
 
 
@@ -171,5 +171,25 @@ namespace Utils
 			}
 		}
 	}
+
+	void JobManager::InitalizeManager()
+	{
+		s_ManagerData.ThreadPool.resize(s_ManagerData.NumberOfThreads);
+
+	}
+
+	void JobManager::AttachWork(size_t ThreadID, const Work& work)
+	{
+	}
+
+	void JobManager::AttachWork(const Work& work)
+	{
+	}
+
+	void JobManager::ShutdownManager()
+	{
+	}
+
+	
 	
 }

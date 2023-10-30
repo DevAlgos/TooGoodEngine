@@ -17,14 +17,18 @@ void operator delete(void* block, size_t size)
 
 #endif
 
+#include <Utils/Job.h>
+
 int main()
 {
-	std::unique_ptr<Application> App = std::make_unique<Application>();
-#ifdef _DEBUG
-	App->MainLoop(MemoryStats);
-#else
-	App->MainLoop();
-#endif
+//	std::unique_ptr<Application> App = std::make_unique<Application>();
+//#ifdef _DEBUG
+//	App->MainLoop(MemoryStats);
+//#else
+//	App->MainLoop();
+//#endif
+
+	Utils::PriorityQueue<char> TestQueue(10);
 	
 	
 }
