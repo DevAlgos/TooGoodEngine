@@ -18,12 +18,10 @@ namespace Graphics
 			particle.IsActive = false;
 
 		
-		TestJob.Init();
 	}
 
 	ParticleScene::~ParticleScene()
 	{
-		TestJob.Join();
 	}
 
 	void ParticleScene::Update(OrthoGraphicCamera& Camera, float deltaTime)

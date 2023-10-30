@@ -18,7 +18,6 @@ namespace Graphics
 
 	private:
 		static const int ParticleCount = 1000;
-		Utils::Job TestJob;
 		std::array<Particle, ParticleCount> m_Particles;
 		uint16_t m_ParticleIndex = ParticleCount - 1;
 		glm::mat4 m_ParticleModel;

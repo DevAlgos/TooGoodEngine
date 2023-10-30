@@ -31,17 +31,13 @@ namespace Utils
 	{
 		std::string message = color + prefix + ": " + msg + "\x1b[0m\n";
 
-		Work work;
-		work.Func = [message]() { printf(message.c_str()); };
-		work.MustFinishOnClose = true;
-
-		s_Job->Attach(work);
+		s_Job->Attach({ [message]() { printf(message.c_str()); }, false });
 		
 	}
 
 	void Logger::ShutDown()
 	{
-	
+		s_Job->~Job();
 	}
 
 	Logger* Logger::Create()

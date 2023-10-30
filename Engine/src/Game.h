@@ -21,7 +21,6 @@ private:
 	OrthoGraphicCamera m_OrthoCam;
 	std::unique_ptr<Graphics::ParticleScene> pScene;
 	std::unique_ptr<Graphics::Framebuffer> TestFrameBuffer;
-	Utils::Job LoadJob;
 
 	std::unique_ptr<Graphics::Shader> ComputeShader;
 

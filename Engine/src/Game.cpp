@@ -86,9 +86,6 @@ void Game::OnInit()
 
 	m_OrthoCam.SetCam(CameraData);
 
-
-	
-	LoadJob.Init();
 	
 	Graphics::TextureData BackGroundData;
 	BackGroundData.FileLocation = "Engine/src/resources/Background.png";
@@ -226,6 +223,8 @@ void Game::OnUpdate(float delta)
 
 		double x, y;
 		InputManager::GetMousePos(x, y);
+		std::string s = std::to_string(x) + " " + std::to_string(y);
+		LOG(s);
 
 		int viewport[4];
 
@@ -259,7 +258,7 @@ void Game::OnUpdate(float delta)
 	
 	
 	LightTest.Position = { x, y, 1.0f };
-	LightTest.Color = { x,y,x/y * 10.0f };
+	LightTest.Color = { x,y,1.0f };
 	if (InputManager::IsKeyDown(KEY_RIGHT))
 	{
 		x += 0.01f;
@@ -322,6 +321,5 @@ void Game::OnUpdate(float delta)
 
 void Game::ShutDown()
 {
-	LoadJob.Join();
 }
 

@@ -28,7 +28,10 @@
 #include <random>
 #include <execution>
 
-#include <Utils/Job.h>
+#include <Utils/Threading/PriorityQueue.h>
+#include <Utils/Threading/Job.h>
+#include <Utils/Threading/ThreadManager.h>
+
 #include <Utils/Utils.h>
 #include <Utils/InputManager.h>
 #include <Utils/Camera.h>
