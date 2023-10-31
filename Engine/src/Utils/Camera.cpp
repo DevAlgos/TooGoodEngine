@@ -54,13 +54,13 @@ void OrthoGraphicCamera::Update(float dt)
 	glm::vec3 movement(0.0f);
 
 	if (keyWPressed) 
-		movement -= m_CameraData.CameraSpeed * m_CameraData.Up * dt;
-	if (keySPressed)
 		movement += m_CameraData.CameraSpeed * m_CameraData.Up * dt;
+	if (keySPressed)
+		movement -= m_CameraData.CameraSpeed * m_CameraData.Up * dt;
 	if (keyAPressed)
-		movement += glm::normalize(glm::cross(m_CameraData.Front, m_CameraData.Up)) * m_CameraData.CameraSpeed * dt;
-	if (keyDPressed)
 		movement -= glm::normalize(glm::cross(m_CameraData.Front, m_CameraData.Up)) * m_CameraData.CameraSpeed * dt;
+	if (keyDPressed)
+		movement += glm::normalize(glm::cross(m_CameraData.Front, m_CameraData.Up)) * m_CameraData.CameraSpeed * dt;
 
 
 	m_CameraData.Position += movement;
