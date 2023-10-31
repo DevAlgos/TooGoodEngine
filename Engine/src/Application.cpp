@@ -11,7 +11,36 @@ namespace
 
 }
 
+class Testlayer : public Utils::BaseLayer
+{
+public:
+	Testlayer() = default;
+	~Testlayer() = default;
+
+	virtual void OnInit() override
+	{
+		printf("Init\n");
+
+	}
+
+	virtual void OnUpdate() override
+	{
+		printf("Updating\n");
+	}
+
+	virtual void OnGUIUpdate() override
+	{
+		printf("Gui Updating\n");
+	}
+
+	virtual void OnShutdown() override
+	{
+		printf("Shutting down\n");
+	}
+};
+
 Application::Application()
+	: Manager()
 {
 	Utils::Logger::Init(Utils::Logger::Platform::Windows);
 	Utils::JobManager::InitalizeManager();
@@ -38,6 +67,7 @@ Application::Application()
 	ImGui_ImplOpenGL3_Init("#version 330");
 
 	//glfwSwapInterval(1);
+	Manager.PushLayer(std::make_unique<Testlayer>());
 }
 
 Application::~Application()
@@ -77,6 +107,8 @@ void Application::MainLoop()
 		glfwGetFramebufferSize(s_MainWindow.GetWindow(), &display_w, &display_h);
 		glViewport(0, 0, display_w, display_h);
 		ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
+
+		Manager.UpdateLayers();
 	}
 
 

@@ -300,7 +300,7 @@ void Game::OnUpdate(float delta)
 
 	ComputeShader->Use();
 	glBindImageTexture(0, TestFrameBuffer->GetTexture(0), 0, GL_FALSE, 0, GL_WRITE_ONLY, GL_RGBA32F);
-	ComputeShader->Compute(1280 / 8, 720 / 4, 1);
+	ComputeShader->Compute(Application::GetMainWindow().GetWidth() / 8, Application::GetMainWindow().GetHeight() / 4, 1);
 
 
 	TestFrameBuffer->Unbind();

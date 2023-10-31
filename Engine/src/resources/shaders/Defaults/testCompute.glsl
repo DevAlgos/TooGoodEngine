@@ -7,17 +7,13 @@ layout(rgba32f, binding = 0) uniform image2D screen;
 
 void main()
 {
-	vec4 value = vec4(0.0, 0.0, 1.0, 1.0);
-    ivec2 texelCoord = ivec2(gl_GlobalInvocationID.xy);
-	float v = float(1/texelCoord);
+	vec4 value = vec4(0.0, 0.0, 0.0, 1.0);
+	ivec2 texelCoord = ivec2(gl_GlobalInvocationID.xy);
 
-	float radius = 0.8;
+	value.x = 1.0/gl_NumWorkGroups.x;
+	value.y = 1.0/gl_NumWorkGroups.x;
 
-	if(v > radius)
-	{
-		imageStore(screen, texelCoord,value);
-	}
-
+	imageStore(screen, texelCoord, value);
 	
 }
 

@@ -28,6 +28,9 @@
 #include <random>
 #include <execution>
 
+#include <Utils/Layers/BaseLayer.h>
+#include <Utils/Layers/LayerManager.h>
+
 #include <Utils/Threading/PriorityQueue.h>
 #include <Utils/Threading/Job.h>
 #include <Utils/Threading/ThreadManager.h>

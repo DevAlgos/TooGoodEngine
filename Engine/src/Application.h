@@ -17,6 +17,6 @@ public:
 
 private:
     static void DisplayDebugInfo(MemoryData stats);
-
+    Utils::LayerManager Manager;
 
 };
