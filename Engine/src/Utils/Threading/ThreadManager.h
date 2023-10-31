@@ -12,15 +12,6 @@ namespace Utils
 		std::unique_ptr<Job> Thread;
 	};
 
-	/*essage : 'Utils::ThreadData::ThreadData(const Utils::ThreadData &)': 
-	function was implicitly deleted because a data member invokes a deleted or 
-	inaccessible function '
-	std::unique_ptr<Utils::Job,
-	std::default_delete<Utils::Job>>::
-	unique_ptr(const 
-	std::unique_ptr<Utils::Job,std::
-	default_delete<Utils::Job>> &)*/
-
 	struct JobManagerData
 	{
 		uint32_t MaxThreads = std::thread::hardware_concurrency() - 1; //1 thread reserved for logger

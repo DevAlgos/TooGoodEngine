@@ -10,13 +10,15 @@ public:
     ~Application();
 
     void MainLoop();
-    void MainLoop(MemoryData stats);
 
     static Graphics::Window& GetMainWindow();
 
+    long long GetCurrentTime();
+    static float GetCurrentDelta();
 
 private:
     static void DisplayDebugInfo(MemoryData stats);
     Utils::LayerManager Manager;
+    
 
 };

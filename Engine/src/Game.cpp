@@ -22,8 +22,11 @@ namespace //These are all for sandbox not going to be used in real engine (only 
 	std::vector<uint32_t> xValues;
 	std::vector<uint32_t> yValues;
 
+	static int frames = 0;
+	static float framerate = 1;
+	float average = 0.0f;
 
-
+	std::unique_ptr<Utils::Clock> steady_clock;
 }
 
 namespace RandomNumberGenerator
@@ -42,7 +45,7 @@ namespace RandomNumberGenerator
 
 void Game::OnInit()
 {
-		
+	steady_clock = std::make_unique<Utils::Clock>();
 	pScene = std::make_unique<Graphics::ParticleScene>();
 
 	LightTest.Position = glm::vec3(1.0f, 1.0f, 1.0f);
@@ -185,10 +188,9 @@ float x, y = 1.0;
 
 
 
-void Game::OnUpdate(float delta)
+void Game::OnUpdate()
 {
-
-	m_OrthoCam.Update(delta);
+	m_OrthoCam.Update(Application::GetCurrentDelta());
 
 	TestFrameBuffer->Bind();
 	Graphics::Renderer2D::ClearColor({ 1.0f, 1.0f, 1.0f });
@@ -237,9 +239,9 @@ void Game::OnUpdate(float delta)
 		glm::vec4 mousePositionInWorld = inverserOrthoMatrix * mousePositionInNDC;
 
 		test.Position = glm::vec3(mousePositionInWorld.x - 0.5f, mousePositionInWorld.y - 0.5f, 0.0f);
-		test.xVelocity = RandomNumberGenerator::RandomNumber(-0.05f, 0.05f) * abs(delta) * 100;
-		test.yVelocity = RandomNumberGenerator::RandomNumber(-0.01f, 0.01f) * abs(delta) * 100;
-		test.Rotation = RandomNumberGenerator::RandomNumber(0.0f, 360.0f) * delta; //*In degrees
+		test.xVelocity = RandomNumberGenerator::RandomNumber(-0.05f, 0.05f) * Application::GetCurrentDelta() * 100;
+		test.yVelocity = RandomNumberGenerator::RandomNumber(-0.01f, 0.01f) * Application::GetCurrentDelta() * 100;
+		test.Rotation = RandomNumberGenerator::RandomNumber(0.0f, 360.0f) * Application::GetCurrentDelta(); //*In degrees
 		test.Color = glm::vec3(0.4f, 0.2f, 1.0f);
 		test.EndColor = glm::vec3(0.0f, 0.4f, 0.0f);
 
@@ -282,7 +284,7 @@ void Game::OnUpdate(float delta)
 
 	}
 		
-	CurrrentTimeS += abs(delta);
+	CurrrentTimeS += Application::GetCurrentDelta();
 	
 	if (CurrrentTimeS > 1.0f / 6.0f)
 	{
@@ -294,31 +296,33 @@ void Game::OnUpdate(float delta)
 
 	}
 	
-	pScene->Update(m_OrthoCam, delta);
+	pScene->Update(m_OrthoCam, Application::GetCurrentDelta());
 
 	Graphics::Renderer2D::EndScene();
 
-	ComputeShader->Use();
+	/*ComputeShader->Use();
 	glBindImageTexture(0, TestFrameBuffer->GetTexture(0), 0, GL_FALSE, 0, GL_WRITE_ONLY, GL_RGBA32F);
-	ComputeShader->Compute(Application::GetMainWindow().GetWidth() / 8, Application::GetMainWindow().GetHeight() / 4, 1);
+	ComputeShader->Compute(Application::GetMainWindow().GetWidth() / 8, Application::GetMainWindow().GetHeight() / 4, 1);*/
 
 
 	TestFrameBuffer->Unbind();
 	TestFrameBuffer->UseFramebuffer();
 	TestFrameBuffer->BindTexture(0);
+	
 	TestFrameBuffer->Draw();
 
-
-	ImGui::Begin("Debug Window");
-	ImGui::Text("FPS: %.1f", ImGui::GetIO().Framerate);
-	ImGui::Text("Number of quads drawn: %i", numbOfQuads);
-	ImGui::End();	
+	
 
 	numbOfQuads = 0;
 
 }
 
-void Game::ShutDown()
+void Game::OnGUIUpdate()
 {
 }
+
+void Game::OnShutdown()
+{
+}
+
 

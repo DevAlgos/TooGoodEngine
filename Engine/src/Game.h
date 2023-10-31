@@ -4,15 +4,16 @@
 
 //Sandbox Game for testing
 
-class Game
+class Game : public Utils::BaseLayer
 {
 public:
 	Game() = default;
 	~Game() = default;
 
-	void OnInit();
-	void OnUpdate(float delta);
-	void ShutDown();
+	virtual void OnInit() override;
+	virtual void OnUpdate() override;
+	virtual void OnGUIUpdate() override;
+	virtual void OnShutdown() override;
 
 private:
 

@@ -16,11 +16,13 @@ namespace Utils
 	void LayerManager::PushLayer(std::unique_ptr<BaseLayer> layer)
 	{
 		m_LayerStack.push_back(std::move(layer));
+		m_LayerStack[m_LayerIndex]->OnInit();
 		m_LayerIndex++;
 	}
 	void LayerManager::PopLayer()
 	{
 		m_LayerStack[m_LayerIndex].release();
+		m_LayerStack.pop_back();
 		m_LayerIndex--;
 	}
 	void LayerManager::UpdateLayers()
