@@ -14,6 +14,8 @@ namespace
 Application::Application()
 {
 	Utils::Logger::Init(Utils::Logger::Platform::Windows);
+	Utils::JobManager::InitalizeManager();
+
 
 	s_MainWindow.Create(1280, 720, "Engine");
 	s_MainWindow.Init();
@@ -42,8 +44,8 @@ Application::~Application()
 {
 	SandBox.ShutDown();
 	Graphics::Renderer2D::ShutDown();
+	Utils::JobManager::ShutdownManager();
 	Utils::Logger::ShutDown();
-
 
 }
 

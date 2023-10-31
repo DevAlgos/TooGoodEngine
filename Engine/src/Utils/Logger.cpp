@@ -3,7 +3,7 @@
 
 namespace
 {
-	static std::unique_ptr<Utils::Job> s_Job;
+	static std::unique_ptr<Utils::Job> s_Job; // Logger created with raw job as Threading manager needs logging
 	static Utils::Logger* s_Instance = nullptr;
 
 	static Utils::Logger::Platform s_Platform;
@@ -31,13 +31,13 @@ namespace Utils
 	{
 		std::string message = color + prefix + ": " + msg + "\x1b[0m\n";
 
-		s_Job->Attach({ [message]() { printf(message.c_str()); }, false });
+		s_Job->Attach({ [message]() { printf(message.c_str()); }, false }, Priority::Bottom);
 		
 	}
 
 	void Logger::ShutDown()
 	{
-		s_Job->~Job();
+		s_Job.release();
 	}
 
 	Logger* Logger::Create()

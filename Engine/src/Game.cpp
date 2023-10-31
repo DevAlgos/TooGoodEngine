@@ -176,7 +176,6 @@ void Game::OnInit()
 
 	ComputeShader = std::make_unique<Graphics::Shader>(ComputeShaderList);
 
-
 }
 
 float CurrrentTimeS = 0.0f;

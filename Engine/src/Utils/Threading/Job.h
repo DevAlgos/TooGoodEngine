@@ -5,13 +5,15 @@
 #include <mutex>
 #include <queue>
 
+#include "PriorityQueue.h"
+
 
 namespace Utils
 {
 	struct Work
 	{
 		std::function<void()> Func;
-		bool MustFinishOnClose;
+		bool MustFinishOnClose = false;
 	};
 
 	class Job
@@ -22,7 +24,7 @@ namespace Utils
 
 		void Init();
 
-		void Attach(const Work& work);
+		void Attach(const Work& work, const Utils::Priority& priority);
 		void Join();
 		void Wait();
 		bool IsWorkDone();
@@ -47,7 +49,7 @@ namespace Utils
 		std::jthread m_JobThread;
 		volatile bool m_ThreadActive;
 
-		std::queue<Work> m_WorkQueue;
+		Utils::PriorityQueue<Work> m_WorkQueue;
 		std::mutex m_JobMutex;
 		std::condition_variable m_JobCondition;
 	};
