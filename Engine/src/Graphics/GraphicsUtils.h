@@ -10,13 +10,26 @@ namespace Graphics
 	struct Vertex //What every single Vertex will contain
 	{
 		glm::vec3 Position;
-		glm::vec3 Normal;
 		glm::vec4 Color;
+		glm::vec3 Normal;
 		glm::vec2 TextureCoordinates;
 		float TextureUnit; //Will combine texture unit and material unit in the future
 		float MaterialUnit;
 		glm::mat4 ModelMatrix; //rotations, translations etc...
 	};
+
+	struct CircleVertex
+	{
+		glm::vec3 Position;
+		glm::vec4 Color;
+		glm::vec3 Normal;
+		float Radius;
+		float Thickness;
+		float TextureUnit;
+		float MaterialUnit;
+		glm::mat4 ModelMatrix;
+	};
+
 	struct Material {
 		glm::vec3 ambient = { 0.2f, 0.2f, 0.2f };
 		float padding1; //these are so the formatting in glsl doesn't missalign the data.
@@ -242,6 +255,105 @@ namespace Graphics
 		vertex->ModelMatrix = ModelMatrix;
 		vertex++;
 
+
+		return vertex;
+	}
+
+	static CircleVertex* CreateCircle(CircleVertex* vertex, const glm::vec3& Position, float Radius,float Thickness, float TextureUnit, float MaterialUnit,  const glm::mat4& ModelMatrix)
+	{
+		const glm::vec4 color = { 1.0f, 1.0f, 1.0f, 1.0f };
+
+		vertex->Position = Position;
+		vertex->Normal = glm::vec3(0.0f, 0.0f, 1.0f);
+		vertex->Color = color;
+		vertex->Radius = Radius;
+		vertex->Thickness = Thickness;
+		vertex->TextureUnit = TextureUnit;
+		vertex->MaterialUnit = MaterialUnit;
+		vertex->ModelMatrix = ModelMatrix;
+		vertex++;
+
+		vertex->Position = glm::vec3(Position.x + Radius, Position.y, Position.z);
+		vertex->Normal = glm::vec3(0.0f, 0.0f, 1.0f);
+		vertex->Color = color;
+		vertex->Radius = Radius;
+		vertex->Thickness = Thickness;
+		vertex->TextureUnit = TextureUnit;
+		vertex->MaterialUnit = MaterialUnit;
+		vertex->ModelMatrix = ModelMatrix;
+		vertex++;
+
+
+
+		vertex->Position = glm::vec3(Position.x + Radius, Position.y + Radius, Position.z);
+		vertex->Normal = glm::vec3(0.0f, 0.0f, 1.0f);
+		vertex->Color = color;
+		vertex->Radius = Radius;
+		vertex->Thickness = Thickness;
+		vertex->TextureUnit = TextureUnit;
+		vertex->MaterialUnit = MaterialUnit;
+		vertex->ModelMatrix = ModelMatrix;
+		vertex++;
+
+
+
+		vertex->Position = glm::vec3(Position.x, Position.y + Radius, Position.z);
+		vertex->Normal = glm::vec3(0.0f, 0.0f, 1.0f);
+		vertex->Color = color;
+		vertex->Radius = Radius;
+		vertex->Thickness = Thickness;
+		vertex->TextureUnit = TextureUnit;
+		vertex->MaterialUnit = MaterialUnit;
+		vertex->ModelMatrix = ModelMatrix;
+		vertex++;
+
+		return vertex;
+	}
+	static CircleVertex* CreateCircle(CircleVertex* vertex, const glm::vec3& Position, float Radius,float Thickness, const glm::vec4& color, float MaterialUnit, const glm::mat4& ModelMatrix)
+	{
+		vertex->Position = Position;
+		vertex->Normal = glm::vec3(0.0f, 0.0f, 1.0f);
+		vertex->Color = color;
+		vertex->Radius = Radius;
+		vertex->Thickness = Thickness;
+		vertex->TextureUnit = 0.0f;
+		vertex->MaterialUnit = MaterialUnit;
+		vertex->ModelMatrix = ModelMatrix;
+		vertex++;
+
+		vertex->Position = glm::vec3(Position.x + Radius, Position.y, Position.z);
+		vertex->Normal = glm::vec3(0.0f, 0.0f, 1.0f);
+		vertex->Color = color;
+		vertex->Radius = Radius;
+		vertex->Thickness = Thickness;
+		vertex->TextureUnit = 0.0f;
+		vertex->MaterialUnit = MaterialUnit;
+		vertex->ModelMatrix = ModelMatrix;
+		vertex++;
+
+
+
+		vertex->Position = glm::vec3(Position.x + Radius, Position.y + Radius, Position.z);
+		vertex->Normal = glm::vec3(0.0f, 0.0f, 1.0f);
+		vertex->Color = color;
+		vertex->Radius = Radius;
+		vertex->Thickness = Thickness;
+		vertex->TextureUnit = 0.0f;
+		vertex->MaterialUnit = MaterialUnit;
+		vertex->ModelMatrix = ModelMatrix;
+		vertex++;
+
+
+
+		vertex->Position = glm::vec3(Position.x, Position.y + Radius, Position.z);
+		vertex->Normal = glm::vec3(0.0f, 0.0f, 1.0f);
+		vertex->Color = color;
+		vertex->Radius = Radius;
+		vertex->Thickness = Thickness;
+		vertex->TextureUnit = 0.0f;
+		vertex->MaterialUnit = MaterialUnit;
+		vertex->ModelMatrix = ModelMatrix;
+		vertex++;
 
 		return vertex;
 	}

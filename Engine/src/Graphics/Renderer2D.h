@@ -11,9 +11,10 @@ namespace Graphics
 {
 	struct RendererData2D
 	{
-		static const int32_t MaxQuads = 1000;
-		static const int32_t MaxIndicies = MaxQuads * 6;
-		static const int32_t MaxVertices = MaxQuads * 4;
+		static const uint32_t MaxQuads = 1000;
+
+		static const uint32_t MaxIndicies = MaxQuads * 6;
+		static const uint32_t MaxVertices = MaxQuads * 4;
 
 		static const size_t MaxLightSources = 6;
 
@@ -22,15 +23,21 @@ namespace Graphics
 		Vertex* Buffer = nullptr;
 		Vertex* BufferIndex = nullptr;
 
-		std::unique_ptr<Framebuffer> TestFrameBuffer;
+		CircleVertex* CircleBuffer = nullptr;
+		CircleVertex* CircleBufferIndex = nullptr;
 
-		std::unique_ptr<BufferObject> VertexBuffer;
-		std::unique_ptr<BufferObject> IndexBuffer;
-		std::unique_ptr<BufferObject> UniformBuffer; //Material Buffer
-		std::unique_ptr<BufferObject> LightUniformBuffer; //Light Buffer;
-		std::unique_ptr<VertexArrayObject> VertexArray;
+		std::unique_ptr<BufferObject>       VertexBuffer;
+		std::unique_ptr<BufferObject>       IndexBuffer;
+		std::unique_ptr<BufferObject>       UniformBuffer; //Material Buffer
+		std::unique_ptr<BufferObject>       LightUniformBuffer; //Light Buffer;
+		std::unique_ptr<VertexArrayObject>  VertexArray;
+		std::unique_ptr<Shader>				DefaultShader;
 
-		std::unique_ptr<Shader> DefaultShader;
+
+		std::unique_ptr<BufferObject>			CircleVertexBuffer;
+		std::unique_ptr<VertexArrayObject>		CircleVertexArray;
+		std::unique_ptr<Shader>					CircleShader;
+
 
 		uint32_t Indicies[MaxQuads * 6];
 
@@ -44,6 +51,7 @@ namespace Graphics
 
 		uint32_t DefaultTexture;
 		uint32_t IndexCount;
+		uint32_t CircleIndexCount;
 
 		size_t MaterialStride = sizeof(Material);
 		size_t LightStride = sizeof(LightSource);
@@ -74,11 +82,15 @@ namespace Graphics
 		static void PushQuad(const glm::vec3& Position, float size, const glm::vec4& color, Material& material, const glm::mat4& ModelMatrix);
 		static void PushSprite(const glm::vec3& Position, float size, uint32_t ID, SpriteSheet sheet, Material& material, const glm::mat4& ModelMatrix);
 
+		static void PushCircle(const glm::vec3& Position, float Radius, float Thickness, uint32_t ID, const glm::mat4& ModelMatrix);
+		static void PushCircle(const glm::vec3& Position, float Radius, float Thickness, const glm::vec4& color, const glm::mat4& ModelMatrix);
+
 		static void PushLight(const LightSource& light);
 
 		static void SetUniformVec3(const glm::vec3& data, const char* name);
 
-		static void Draw();
+		static void DrawQuad();
+		static void DrawCircle();
 
 		static void EndScene();
 		static void ShutDown();

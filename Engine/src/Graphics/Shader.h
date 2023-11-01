@@ -24,6 +24,7 @@ namespace Graphics {
 		void SetUniformIntV(const std::string& name, int value[], int numb);
 
 		void SetUniformFloat(const std::string& name, float value);
+		void SetUniformFloat2(const std::string& name, float v0, float v1);
 		void SetUniformFloat3(const std::string& name, float v0, float v1, float v2);
 		void SetUniformFloat3V(const std::string& name, glm::vec3 floats, int numb);
 		void SetUniformFloat4(const std::string& name, float v0, float v1, float v2, float v3);

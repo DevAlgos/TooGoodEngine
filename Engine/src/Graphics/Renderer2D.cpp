@@ -66,7 +66,7 @@ namespace Graphics
 
 		RenderData.VertexBuffer = std::make_unique<BufferObject>(BufferObject::BufferType::VertexBuffer, VertexData);
 
-		const GLsizei VertexStride = sizeof(Vertex);
+		constexpr GLsizei VertexStride = sizeof(Vertex);
 
 		RenderData.VertexArray->AttribPointer(0, 3, GL_FLOAT, GL_FALSE, VertexStride, (void*)offsetof(Vertex,  Vertex::Position)); //All vertex attributes that will be passed to shader are set up here
 		RenderData.VertexArray->AttribPointer(1, 4, GL_FLOAT, GL_FALSE, VertexStride, (void*)offsetof(Vertex,  Vertex::Color));
@@ -79,7 +79,40 @@ namespace Graphics
 		RenderData.VertexArray->AttribPointer(8, 4, GL_FLOAT, GL_FALSE, VertexStride, (void*)(offsetof(Vertex, Vertex::ModelMatrix) + (sizeof(GLfloat) * 8))); // col 2
 		RenderData.VertexArray->AttribPointer(9, 4, GL_FLOAT, GL_FALSE, VertexStride, (void*)(offsetof(Vertex, Vertex::ModelMatrix) + (sizeof(GLfloat) * 12))); // col 3
 
+		RenderData.CircleBuffer = new CircleVertex[RenderData.MaxVertices];
+		RenderData.CircleBufferIndex = RenderData.CircleBuffer;
 
+		std::map<GLenum, const char*> CircleShaderList;
+		CircleShaderList[GL_VERTEX_SHADER] = "Engine/src/resources/shaders/Defaults/circleVertex.glsl";
+		CircleShaderList[GL_FRAGMENT_SHADER] = "Engine/src/resources/shaders/Defaults/circleFragment.glsl";
+
+		RenderData.CircleShader = std::make_unique<Shader>(CircleShaderList);
+		RenderData.CircleShader->Use();
+		RenderData.CircleShader->SetUniformIntV("samplerTextures", samplers, RenderData.MaxTextureSlots);
+
+		BufferData CircleVertexData; 
+		CircleVertexData.DrawType = GL_DYNAMIC_DRAW;
+		CircleVertexData.data = nullptr;
+		CircleVertexData.VertexSize = sizeof(CircleVertex) * RenderData.MaxVertices;
+
+		RenderData.CircleVertexArray = std::make_unique<VertexArrayObject>();
+		RenderData.CircleVertexArray->Create();
+
+		RenderData.CircleVertexBuffer = std::make_unique<BufferObject>(BufferObject::BufferType::VertexBuffer, CircleVertexData);
+
+		constexpr GLsizei CircleVertexStride = sizeof(CircleVertex);
+
+		RenderData.CircleVertexArray->AttribPointer(0,  3,  GL_FLOAT, GL_FALSE, CircleVertexStride, (void*)offsetof(CircleVertex,  CircleVertex::Position));
+		RenderData.CircleVertexArray->AttribPointer(1,  4,  GL_FLOAT, GL_FALSE, CircleVertexStride, (void*)offsetof(CircleVertex,  CircleVertex::Color));
+		RenderData.CircleVertexArray->AttribPointer(2,  3,  GL_FLOAT, GL_FALSE, CircleVertexStride, (void*)offsetof(CircleVertex,  CircleVertex::Normal));              
+		RenderData.CircleVertexArray->AttribPointer(3,  1,  GL_FLOAT, GL_FALSE, CircleVertexStride, (void*)offsetof(CircleVertex,  CircleVertex::Radius));
+		RenderData.CircleVertexArray->AttribPointer(4,  1,  GL_FLOAT, GL_FALSE, CircleVertexStride, (void*)offsetof(CircleVertex,  CircleVertex::Thickness));
+		RenderData.CircleVertexArray->AttribPointer(5,  1,  GL_FLOAT, GL_FALSE, CircleVertexStride, (void*)offsetof(CircleVertex,  CircleVertex::TextureUnit));
+		RenderData.CircleVertexArray->AttribPointer(6,  1,  GL_FLOAT, GL_FALSE, CircleVertexStride, (void*)offsetof(CircleVertex,  CircleVertex::MaterialUnit));
+		RenderData.CircleVertexArray->AttribPointer(7,  4,  GL_FLOAT, GL_FALSE, CircleVertexStride, (void*)offsetof(CircleVertex,  CircleVertex::ModelMatrix));
+		RenderData.CircleVertexArray->AttribPointer(8,  4,  GL_FLOAT, GL_FALSE, CircleVertexStride, (void*)(offsetof(CircleVertex, CircleVertex::ModelMatrix) + (sizeof(GLfloat) * 4)));
+		RenderData.CircleVertexArray->AttribPointer(9,  4,  GL_FLOAT, GL_FALSE, CircleVertexStride, (void*)(offsetof(CircleVertex, CircleVertex::ModelMatrix) + (sizeof(GLfloat) * 8)));
+		RenderData.CircleVertexArray->AttribPointer(10, 4,  GL_FLOAT, GL_FALSE, CircleVertexStride, (void*)(offsetof(CircleVertex, CircleVertex::ModelMatrix) + (sizeof(GLfloat) * 12)));
 
 		uint32_t offset = 0;
 		for (int i = 0; i < RenderData.MaxIndicies; i += 6) //Init of indicies ready to be used for rendering
@@ -149,16 +182,24 @@ namespace Graphics
 	void Renderer2D::BeginScene(OrthoGraphicCamera& Camera)
 	{
 		RenderData.BufferIndex = RenderData.Buffer;
+		RenderData.CircleBufferIndex = RenderData.CircleBuffer;
+
 		RenderData.Camera = Camera;
 
 		RenderData.DefaultShader->Use();
 		RenderData.DefaultShader->setUniformMat4("view", Camera.GetView());
 		RenderData.DefaultShader->setUniformMat4("projection", Camera.GetProjection());
 
+		RenderData.CircleShader->Use();
+		RenderData.CircleShader->setUniformMat4("view", Camera.GetView());
+		RenderData.CircleShader->setUniformMat4("projection", Camera.GetProjection());
+
 	}
 	void Renderer2D::BeginScene()
 	{
 		RenderData.BufferIndex = RenderData.Buffer;
+		RenderData.CircleBufferIndex = RenderData.CircleBuffer;
+
 	}
 
 	void Renderer2D::PushQuad(const glm::vec3& Position, float size, uint32_t ID, const glm::mat4& ModelMatrix)
@@ -415,6 +456,49 @@ namespace Graphics
 		RenderData.BufferIndex = CreateSprite(RenderData.BufferIndex, Position, {size, size}, sheet, TextureIndex, MaterialIndex, ModelMatrix);
 		RenderData.IndexCount += 6;
 	}
+	void Renderer2D::PushCircle(const glm::vec3& Position, float Radius, float Thickness, uint32_t ID, const glm::mat4& ModelMatrix)
+	{
+		if (RenderData.CircleIndexCount >= RenderData.MaxVertices) {
+			FlushScene();
+		}
+
+		if (RenderData.CurrentTextureSlot > RenderData.MaxTextureSlots - 1)
+			RenderData.CurrentTextureSlot = 1;
+
+		float TextureIndex = 0.0f;
+
+
+		for (int i = 1; i < RenderData.CurrentTextureSlot; i++)
+		{
+			if (RenderData.TextureSlots[i] == ID)
+			{
+				TextureIndex = (float)i;
+				break;
+			}
+		}
+
+		if (TextureIndex == 0.0f)
+		{
+			TextureIndex = (float)RenderData.CurrentTextureSlot;
+			RenderData.TextureSlots[RenderData.CurrentTextureSlot] = ID;
+			RenderData.CurrentTextureSlot++;
+
+		}
+
+		RenderData.CircleBufferIndex = CreateCircle(RenderData.CircleBufferIndex, Position, Radius, Thickness, TextureIndex, 0.0f, ModelMatrix);
+		RenderData.CircleIndexCount += 6;;
+	}
+	void Renderer2D::PushCircle(const glm::vec3& Position, float Radius, float Thickness, const glm::vec4& color, const glm::mat4& ModelMatrix)
+	{
+		if (RenderData.CircleIndexCount >= RenderData.MaxVertices) {
+			FlushScene();
+		}
+
+
+		RenderData.CircleBufferIndex = CreateCircle(RenderData.CircleBufferIndex, Position, Radius, Thickness, color, 0.0f, ModelMatrix);
+
+		RenderData.CircleIndexCount += 6;
+	}
 	void Renderer2D::PushLight(const LightSource& light)
 	{
 		if (RenderData.CurrentLightSlot >= RenderData.MaxLightSources)
@@ -450,30 +534,48 @@ namespace Graphics
 
 
 	}
-	void Renderer2D::Draw()
+	void Renderer2D::DrawQuad()
 	{
 		
 		RenderData.DefaultShader->Use();
 
 		RenderData.VertexArray->Bind();
+		RenderData.VertexBuffer->Bind();
 		RenderData.IndexBuffer->Bind();
 
-		for (int i = 0; i < RenderData.CurrentTextureSlot; i++) {
+		for (int i = 0; i < RenderData.CurrentTextureSlot; i++) 
 			glBindTextureUnit(i, RenderData.TextureSlots[i]);
-		}
+		
 
 		glDrawElements(GL_TRIANGLES, RenderData.IndexCount, GL_UNSIGNED_INT, nullptr);
 
 		RenderData.IndexCount = 0;
 		
 	}
-	void Renderer2D::EndScene()
+	void Renderer2D::DrawCircle() //checked off
 	{
-		GLsizeiptr size = (uint8_t*)RenderData.BufferIndex - (uint8_t*)RenderData.Buffer;
+		RenderData.CircleShader->Use();
+
+		RenderData.CircleVertexArray->Bind();
+		RenderData.CircleVertexBuffer->Bind();
+		RenderData.IndexBuffer->Bind();
+
+		for (int i = 0; i < RenderData.CurrentTextureSlot; i++)
+			glBindTextureUnit(i, RenderData.TextureSlots[i]);
+
+		glDrawElements(GL_TRIANGLES, RenderData.CircleIndexCount, GL_UNSIGNED_INT, nullptr);
+
+		RenderData.CircleIndexCount = 0;
+
+	}
+	void Renderer2D::EndScene() //checked off
+	{
+		GLsizeiptr QuadSize = (uint8_t*)RenderData.BufferIndex - (uint8_t*)RenderData.Buffer;
+
 		DynamicData Buffer;
 		Buffer.data = RenderData.Buffer;
 		Buffer.Offset = 0;
-		Buffer.VertexSize = size;
+		Buffer.VertexSize = QuadSize;
 
 		RenderData.VertexBuffer->PushData(Buffer);
 
@@ -490,9 +592,28 @@ namespace Graphics
 
 		RenderData.LightUniformBuffer->PushData(Buffer);
 
+		RenderData.DefaultShader->Use();
 		RenderData.DefaultShader->SetUniformFloat("NumberOfLightSources", RenderData.CurrentLightSlot);
+		DrawQuad();
 
-		Draw();
+		GLsizeiptr CircleSize = (uint8_t*)RenderData.CircleBufferIndex - (uint8_t*)RenderData.CircleBuffer;
+
+		DynamicData CircleBufferData;
+		CircleBufferData.data = RenderData.CircleBuffer;
+		CircleBufferData.Offset = 0;
+		CircleBufferData.VertexSize = CircleSize;
+
+		RenderData.CircleVertexBuffer->PushData(CircleBufferData);
+
+		RenderData.CircleShader->Use();
+		RenderData.CircleShader->SetUniformFloat("NumberOfLightSources", RenderData.CurrentLightSlot);
+		RenderData.CircleShader->SetUniformFloat2("ViewportResolution", (float)Application::GetMainWindow().GetWidth(),
+			(float)Application::GetMainWindow().GetHeight());
+
+		/*ViewportResolution*/
+
+		DrawCircle();
+
 	}
 
 	void Renderer2D::ShutDown()
@@ -500,6 +621,7 @@ namespace Graphics
 		glDeleteTextures(1, &RenderData.DefaultTexture);
 
 		delete[] RenderData.Buffer;
+		delete[] RenderData.CircleBuffer;
 
 	}
 	void Renderer2D::FlushScene()

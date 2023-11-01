@@ -5,9 +5,7 @@
 
 namespace Graphics
 {
-
-
-	class ParticleScene //calculations needs to be on the GPU instead of the CPU
+	class ParticleScene 
 	{
 	public:
 		ParticleScene(); 

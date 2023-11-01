@@ -229,25 +229,16 @@ namespace Graphics
 		if (m_TextureData.FileLocation)
 		{
 			if (m_TextureData.Immutable)
-			{
 				UploadTextureImmutable(TextureType, m_TextureData.FileLocation);
-			} 
 			else
-			{
 				UploadTexture(TextureType, m_TextureData.FileLocation);
-			}
 		}
 		else
 		{
 			if (m_TextureData.Immutable)
-			{
 				UploadTextureImmutable(TextureType);
-			}
 			else
-			{
 				UploadTexture(TextureType);
-			}
-
 		}
 
 

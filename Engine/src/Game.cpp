@@ -208,11 +208,12 @@ void Game::OnUpdate()
 	}
 
 
+
 	Graphics::Renderer2D::PushLight(LightTest);
 	Graphics::Renderer2D::PushLight(LightTest2);
 
 	Graphics::Renderer2D::PushQuad(glm::vec3(0.0f, 0.0f, 0.0f), 1.0f, Bens[index], glm::mat4(1.0f));
-	
+	Graphics::Renderer2D::PushCircle(glm::vec3(1.0f, 1.0f, 0.0f), 50.0f, 5.0f, glm::vec4(1.0f), glm::mat4(1.0f));
 	
 	
 	LightTest.Position = { x, y, 1.0f };

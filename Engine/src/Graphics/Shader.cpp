@@ -81,6 +81,19 @@ namespace Graphics {
 
 		}
 	}
+	void Shader::SetUniformFloat2(const std::string& name, float v0, float v1)
+	{
+		GLfloat location = glGetUniformLocation(m_Program, name.c_str());
+		if (location != -1)
+			glUniform2f(location, v0, v1);
+		else {
+			std::string msg = name;
+			std::string msg1 = "Unform Location Failed At: " + msg;
+
+			LOGWARNING(msg1);
+
+		}
+	}
 	void Shader::SetUniformFloat3(const std::string& name, float v0, float v1, float v2)
 	{
 		GLfloat location = glGetUniformLocation(m_Program, name.c_str());

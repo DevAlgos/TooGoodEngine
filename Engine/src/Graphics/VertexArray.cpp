@@ -17,6 +17,7 @@ namespace Graphics
 		glVertexAttribPointer(index, size, type, normalised, stride, start);
 		glEnableVertexAttribArray(index);
 
+
 		Unbind();
 
 	}

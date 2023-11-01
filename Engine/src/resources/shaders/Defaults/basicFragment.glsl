@@ -23,8 +23,6 @@ in vec2 TexCoord;
 in float TexID;
 in float MaterialID;
 
-
-in vec3 LightPos;
 in vec3 Position;
 
 
@@ -55,7 +53,6 @@ void main()
     vec3 diffuse = MatSlots.Materials[MatID].Diffuse;
     vec3 specular = MatSlots.Materials[MatID].Specular;
     float shininess = MatSlots.Materials[MatID].SpecularStrength;
-    vec3 normal = Normal;
     
     vec3 TotalDiffuse = vec3(0.0);
     vec3 FinalLightColor = vec3(0.0);
@@ -67,7 +64,7 @@ void main()
         vec3 LightDistance = normalize(Lights.LightSrc[i].Position - Position);
         float Attenuation = float(1/0.2 + LightDistance*LightDistance);
     
-        vec3 FinalDiffuse = vec3(dot(normal, LightDistance));
+        vec3 FinalDiffuse = vec3(dot(Normal, LightDistance));
         FinalDiffuse *= diffuse * Attenuation;
         TotalDiffuse += FinalDiffuse;
 
