@@ -192,14 +192,13 @@ void Game::OnUpdate()
 {
 	m_OrthoCam.Update(Application::GetCurrentDelta());
 
-	TestFrameBuffer->Bind();
-	Graphics::Renderer2D::ClearColor({ 1.0f, 1.0f, 1.0f });
+	Graphics::Renderer2D::ClearColor({ 0.4f, 0.2f, 0.8f });
 	Graphics::Renderer2D::BeginScene(m_OrthoCam);
 
 
-	for (int i = -50; i < 50; i++)
+	for (int i = -10; i < 10; i++)
 	{
-		for (int j = -50; j < 50; j++)
+		for (int j = -10; j < 10; j++)
 		{
 
 			Graphics::Renderer2D::PushQuad(glm::vec3(i, j, 0.0f), 1.0f, BackGround->Get(), glm::mat4(1.0f));
@@ -215,73 +214,28 @@ void Game::OnUpdate()
 	Graphics::Renderer2D::PushQuad(glm::vec3(0.0f, 0.0f, 0.0f), 1.0f, Bens[index], glm::mat4(1.0f));
 	
 	
-		
-	if (InputManager::IsMouseButtonDown(LEFT_MOUSE))
-	{
-
-		Graphics::Particle test;
-		test.DecaySpeed = 0.005f;
-
-		double x, y;
-		InputManager::GetMousePos(x, y);
-		std::string s = std::to_string(x) + " " + std::to_string(y);
-		LOG(s);
-
-		int viewport[4];
-
-		glGetIntegerv(GL_VIEWPORT, viewport);
-
-		float normalizedX = ((x * 2.0f) / viewport[2]) - 1.0f;
-		float normalizedY = (1.0f - (y * 2.0f) / viewport[3]) - 0.0f;
-
-		glm::mat4 inverserOrthoMatrix = glm::inverse(m_OrthoCam.GetProjection());
-		glm::vec4 mousePositionInNDC(normalizedX, normalizedY, 0.0f, 1.0f);
-		glm::vec4 mousePositionInWorld = inverserOrthoMatrix * mousePositionInNDC;
-
-		test.Position = glm::vec3(mousePositionInWorld.x - 0.5f, mousePositionInWorld.y - 0.5f, 0.0f);
-		test.xVelocity = RandomNumberGenerator::RandomNumber(-0.05f, 0.05f) * Application::GetCurrentDelta() * 100;
-		test.yVelocity = RandomNumberGenerator::RandomNumber(-0.01f, 0.01f) * Application::GetCurrentDelta() * 100;
-		test.Rotation = RandomNumberGenerator::RandomNumber(0.0f, 360.0f) * Application::GetCurrentDelta(); //*In degrees
-		test.Color = glm::vec3(0.4f, 0.2f, 1.0f);
-		test.EndColor = glm::vec3(0.0f, 0.4f, 0.0f);
-
-
-
-		if (particleIndex > 999)
-			particleIndex = 0;
-
-		test.ParticleMaterial = particleMaterials[0];
-
-		pScene->PushParticle(test);
-
-		numbOfQuads += 1;
-	}
-	
 	
 	LightTest.Position = { x, y, 1.0f };
 	LightTest.Color = { x,y,1.0f };
+
 	if (InputManager::IsKeyDown(KEY_RIGHT))
 	{
 		x += 0.01f;
-		//m_ModelForModel = glm::translate(m_ModelForModel, glm::vec3(0.01f, 0.0f, 0.0f));
 	}
 	if (InputManager::IsKeyDown(KEY_LEFT))
 	{
 		x -= 0.01f;
-		//m_ModelForModel = glm::translate(m_ModelForModel, glm::vec3(-0.01f, 0.0f, 0.0f));
 
 	}
 	if (InputManager::IsKeyDown(KEY_UP))
 	{
 		y += 0.01f;
-		//m_ModelForModel = glm::translate(m_ModelForModel, glm::vec3(0.0f, 0.01f, 0.0f));
+		
 
 	}
 	if (InputManager::IsKeyDown(KEY_DOWN))
 	{
 		y -= 0.01f;
-		//m_ModelForModel = glm::translate(m_ModelForModel, glm::vec3(0.0f, -0.01f, 0.0f));
-
 	}
 		
 	CurrrentTimeS += Application::GetCurrentDelta();
@@ -295,23 +249,9 @@ void Game::OnUpdate()
 		CurrrentTimeS = 0;
 
 	}
-	
-	pScene->Update(m_OrthoCam, Application::GetCurrentDelta());
 
 	Graphics::Renderer2D::EndScene();
 
-	/*ComputeShader->Use();
-	glBindImageTexture(0, TestFrameBuffer->GetTexture(0), 0, GL_FALSE, 0, GL_WRITE_ONLY, GL_RGBA32F);
-	ComputeShader->Compute(Application::GetMainWindow().GetWidth() / 8, Application::GetMainWindow().GetHeight() / 4, 1);*/
-
-
-	TestFrameBuffer->Unbind();
-	TestFrameBuffer->UseFramebuffer();
-	TestFrameBuffer->BindTexture(0);
-	
-	TestFrameBuffer->Draw();
-
-	
 
 	numbOfQuads = 0;
 

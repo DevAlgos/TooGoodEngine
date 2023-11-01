@@ -10,10 +10,10 @@ public:
 	Game() = default;
 	~Game() = default;
 
-	virtual void OnInit() override;
-	virtual void OnUpdate() override;
-	virtual void OnGUIUpdate() override;
-	virtual void OnShutdown() override;
+	virtual void OnInit()       override;
+	virtual void OnUpdate()		override;
+	virtual void OnGUIUpdate()  override;
+	virtual void OnShutdown()   override;
 
 private:
 

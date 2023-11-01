@@ -24,6 +24,7 @@ namespace Utils
 {
 	void DebuggingLayer::OnInit()
 	{
+		
 	}
 
 	void DebuggingLayer::OnUpdate() 
@@ -33,12 +34,16 @@ namespace Utils
 
 	void DebuggingLayer::OnGUIUpdate() 
 	{
-		ImGui::Begin("Debug Window");
-		ImGui::Text("FPS: %.1f", 1.0f/Application::GetCurrentDelta());
-		ImGui::Text("Memory Allocated %i", s_MemoryData.AllocatedMemory);
-		ImGui::Text("Memory Freed %i",     s_MemoryData.FreedMemory);
-		ImGui::Text("Memory Using: %i",    s_MemoryData.CurrentlyUsingMemory());
-		ImGui::End();
+
+		if (ImGui::Begin("Debug Window"))
+		{
+			ImGui::Text("FPS: %.1f", ImGui::GetIO().Framerate);
+			ImGui::Text("Memory Allocated %i", s_MemoryData.AllocatedMemory);
+			ImGui::Text("Memory Freed %i", s_MemoryData.FreedMemory);
+			ImGui::Text("Memory Using: %i", s_MemoryData.CurrentlyUsingMemory());
+			ImGui::End();
+		}
+	
 	}
 
 	void DebuggingLayer::OnShutdown()

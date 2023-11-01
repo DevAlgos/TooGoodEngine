@@ -13,6 +13,8 @@ namespace
 	static float end = 0.0f;
 	static float start = 0.0f;
 	static float elapsedTime;
+
+	
 }
 
 Application::Application()
@@ -24,7 +26,7 @@ Application::Application()
 
 	
 
-	s_MainWindow.Create(1280, 720, "Engine");
+	s_MainWindow.Create(1600, 900, "Engine");
 	s_MainWindow.Init();
 
 	Graphics::Renderer2D::Init();
@@ -50,8 +52,8 @@ Application::Application()
 
 	//glfwSwapInterval(1);
 	Manager.PushLayer(std::make_unique<Utils::DebuggingLayer>());
+	Manager.PushLayer(std::make_unique<Utils::EditorLayer>());
 	Manager.PushLayer(std::make_unique<Game>());
-
 	
 }
 
@@ -81,8 +83,7 @@ void Application::MainLoop()
 
 		Manager.UpdateLayers();
 
-		
-
+	
 		ImGui::GetIO().DisplaySize = ImVec2(s_MainWindow.GetWidth(), s_MainWindow.GetHeight());
 
 		ImGui::Render();
@@ -98,8 +99,6 @@ void Application::MainLoop()
 
 		end = glfwGetTime();
 		deltaTime = end - start;
-		std::string msg = "IO delta: " + std::to_string(ImGui::GetIO().DeltaTime);
-		LOG(msg);
 	}
 
 
@@ -119,13 +118,4 @@ long long Application::GetCurrentTime()
 float Application::GetCurrentDelta()
 {
 	return deltaTime;
-}
-
-void Application::DisplayDebugInfo(MemoryData stats)
-{
-	ImGui::Begin("Memory Usage");
-	ImGui::Text("Memory Allocated %i", stats.AllocatedMemory);
-	ImGui::Text("Memory Freed %i", stats.FreedMemory);
-	ImGui::Text("Memory Using: %i", stats.CurrentlyUsingMemory());
-	ImGui::End();
 }

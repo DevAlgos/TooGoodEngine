@@ -2,6 +2,9 @@
 
 #include "VertexArray.h"
 #include "GraphicsUtils.h"
+#include "Buffers.h"
+#include <Utils/Camera.h>
+#include <memory>
 
 
 namespace Graphics

@@ -1,6 +1,8 @@
 #pragma once
 
 #include <glad/glad.h>
+#include "Shader.h"
+#include "VertexArray.h"
 #include <map>
 
 namespace Graphics
