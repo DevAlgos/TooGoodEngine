@@ -39,6 +39,7 @@ namespace Graphics
 		std::unique_ptr<Shader>					CircleShader;
 
 
+
 		uint32_t Indicies[MaxQuads * 6];
 
 		std::vector<uint32_t> TextureSlots;
@@ -74,16 +75,15 @@ namespace Graphics
 		static void BeginScene(OrthoGraphicCamera& Camera);
 		static void BeginScene();
 
-		static void PushQuad(const glm::vec3& Position, float size, uint32_t ID, const glm::mat4& ModelMatrix);
-		static void PushQuad(const glm::vec3& Position, float size, const glm::vec4& color, const glm::mat4& ModelMatrix);
-		static void PushSprite(const glm::vec3& Position, float size, uint32_t ID, SpriteSheet sheet, const glm::mat4& ModelMatrix);
+		static void PushQuad(const glm::vec3& Position, const glm::vec2& size, float Rotation, uint32_t ID);
+		static void PushQuad(const glm::vec3& Position, const glm::vec2& size, float Rotation, const glm::vec4& color);
+		static void PushSprite(const glm::vec3& Position, const glm::vec2& size, float Rotation, uint32_t ID, SpriteSheet sheet);
 
-		static void PushQuad(const glm::vec3& Position, float size, uint32_t ID, Material& material, const glm::mat4& ModelMatrix);
-		static void PushQuad(const glm::vec3& Position, float size, const glm::vec4& color, Material& material, const glm::mat4& ModelMatrix);
-		static void PushSprite(const glm::vec3& Position, float size, uint32_t ID, SpriteSheet sheet, Material& material, const glm::mat4& ModelMatrix);
+		static void PushQuad(const glm::vec3& Position, const glm::vec2& size, float Rotation, uint32_t ID, Material& material);
+		static void PushQuad(const glm::vec3& Position, const glm::vec2& size, float Rotation, const glm::vec4& color, Material& material);
+		static void PushSprite(const glm::vec3& Position, const glm::vec2& size, float Rotation, uint32_t ID, SpriteSheet sheet, Material& material);
 
-		static void PushCircle(const glm::vec3& Position, float Radius, float Thickness, uint32_t ID, const glm::mat4& ModelMatrix);
-		static void PushCircle(const glm::vec3& Position, float Radius, float Thickness, const glm::vec4& color, const glm::mat4& ModelMatrix);
+		static void PushCircle(const glm::vec3& Position, const glm::vec2& size, float Rotation, float Thickness, const glm::vec4& color);
 
 		static void PushLight(const LightSource& light);
 

@@ -7,6 +7,15 @@
 
 namespace Graphics
 {
+	static glm::vec3 QuadVertices[4] = 
+	{
+		{-1.0f, -1.0f, 0.0f},
+		{ 1.0f, -1.0f, 0.0f},
+		{ 1.0f, 1.0f, 0.0f}, 
+		{-1.0f, 1.0f, 0.0f}
+
+	};
+
 	struct Vertex //What every single Vertex will contain
 	{
 		glm::vec3 Position;
@@ -23,9 +32,7 @@ namespace Graphics
 		glm::vec3 Position;
 		glm::vec4 Color;
 		glm::vec3 Normal;
-		float Radius;
 		float Thickness;
-		float TextureUnit;
 		float MaterialUnit;
 		glm::mat4 ModelMatrix;
 	};
@@ -106,12 +113,12 @@ namespace Graphics
 	};
 
 	//All of these sets the vertices and vertex attributes for a quad.
-	static Vertex* CreateQuad(Vertex* vertex, const glm::vec3& Position, const glm::vec2& size, float TextureUnit, float MaterialUnit, const glm::mat4& ModelMatrix)
+	static Vertex* CreateQuad(Vertex* vertex, float TextureUnit, float MaterialUnit, const glm::mat4& ModelMatrix)
 	{
 
 		glm::vec4 color = { 1.0f, 1.0f, 1.0f, 1.0f };
 
-		vertex->Position = glm::vec3(Position);
+		vertex->Position = QuadVertices[0];
 		vertex->Normal = glm::vec3(0.0f, 0.0f, 1.0f);
 		vertex->Color = color;
 		vertex->TextureCoordinates = glm::vec2(0.0f, 0.0f);
@@ -121,7 +128,7 @@ namespace Graphics
 		vertex++;
 
 
-		vertex->Position = glm::vec3(Position.x + size.x, Position.y, Position.z);
+		vertex->Position = QuadVertices[1];
 		vertex->Normal = glm::vec3(0.0f, 0.0f, 1.0f);
 		vertex->Color = color;
 		vertex->TextureCoordinates = glm::vec2(1.0f, 0.0f);
@@ -132,7 +139,7 @@ namespace Graphics
 
 
 
-		vertex->Position = glm::vec3(Position.x + size.x, Position.y + size.y, Position.z);
+		vertex->Position = QuadVertices[2];
 		vertex->Normal = glm::vec3(0.0f, 0.0f, 1.0f);
 		vertex->Color = color;
 		vertex->TextureCoordinates = glm::vec2(1.0f, 1.0f);
@@ -143,7 +150,7 @@ namespace Graphics
 
 
 
-		vertex->Position = glm::vec3(Position.x, Position.y + size.y, Position.z);
+		vertex->Position = QuadVertices[3];
 		vertex->Normal = glm::vec3(0.0f, 0.0f, 1.0f);
 		vertex->Color = color;
 		vertex->TextureCoordinates = glm::vec2(0.0f, 1.0f);
@@ -155,9 +162,9 @@ namespace Graphics
 
 		return vertex;
 	}
-	static Vertex* CreateQuad(Vertex* vertex, const glm::vec3& Position, const glm::vec2& size, const glm::vec4& color, float MaterialUnit, const glm::mat4& ModelMatrix)
+	static Vertex* CreateQuad(Vertex* vertex, const glm::vec4& color, float MaterialUnit, const glm::mat4& ModelMatrix)
 	{
-		vertex->Position = glm::vec3(Position);
+		vertex->Position = QuadVertices[0];
 		vertex->Normal = glm::vec3(0.0f, 0.0f, 1.0f);
 		vertex->Color = color;
 		vertex->TextureCoordinates = glm::vec2(0.0f, 0.0f);
@@ -167,7 +174,7 @@ namespace Graphics
 		vertex++;
 
 
-		vertex->Position = glm::vec3(Position.x + size.x, Position.y, Position.z);
+		vertex->Position = QuadVertices[1];
 		vertex->Normal = glm::vec3(0.0f, 0.0f, 1.0f);
 		vertex->Color = color;
 		vertex->TextureCoordinates = glm::vec2(1.0f, 0.0f);
@@ -178,7 +185,7 @@ namespace Graphics
 
 
 
-		vertex->Position = glm::vec3(Position.x + size.x, Position.y + size.y, Position.z);
+		vertex->Position = QuadVertices[2];
 		vertex->Normal = glm::vec3(0.0f, 0.0f, 1.0f);
 		vertex->Color = color;
 		vertex->TextureCoordinates = glm::vec2(1.0f, 1.0f);
@@ -189,7 +196,7 @@ namespace Graphics
 
 
 
-		vertex->Position = glm::vec3(Position.x, Position.y + size.y, Position.z);
+		vertex->Position = QuadVertices[3];
 		vertex->Normal = glm::vec3(0.0f, 0.0f, 1.0f);
 		vertex->Color = color;
 		vertex->TextureCoordinates = glm::vec2(0.0f, 1.0f);
@@ -201,7 +208,7 @@ namespace Graphics
 
 		return vertex;
 	}
-	static Vertex* CreateSprite(Vertex* vertex, const glm::vec3& Position, const glm::vec2& size, const SpriteSheet& sheet,
+	static Vertex* CreateSprite(Vertex* vertex, const SpriteSheet& sheet,
 		float TextureUnit, float MaterialUnit, const glm::mat4& ModelMatrix)
 	{
 		glm::vec4 color = { 1.0f, 1.0f, 1.0f, 1.0f };
@@ -214,7 +221,7 @@ namespace Graphics
 		float y = sheet.YIndex * Height;
 
 
-		vertex->Position = glm::vec3(Position);
+		vertex->Position = QuadVertices[0];
 		vertex->Normal = glm::vec3(0.0f, 0.0f, 1.0f);
 		vertex->Color = color;
 		vertex->TextureCoordinates = glm::vec2(x, y);
@@ -224,7 +231,7 @@ namespace Graphics
 		vertex++;
 
 
-		vertex->Position = glm::vec3(Position.x + size.x, Position.y, Position.z);
+		vertex->Position = QuadVertices[1];
 		vertex->Normal = glm::vec3(0.0f, 0.0f, 1.0f);
 		vertex->Color = color;
 		vertex->TextureCoordinates = glm::vec2(x + Width, y);
@@ -235,7 +242,7 @@ namespace Graphics
 
 
 
-		vertex->Position = glm::vec3(Position.x + size.x, Position.y + size.y, Position.z);
+		vertex->Position = QuadVertices[2];
 		vertex->Normal = glm::vec3(0.0f, 0.0f, 1.0f);
 		vertex->Color = color;
 		vertex->TextureCoordinates = glm::vec2(x + Width, y + Height);
@@ -246,7 +253,7 @@ namespace Graphics
 
 
 
-		vertex->Position = glm::vec3(Position.x, Position.y + size.y, Position.z);
+		vertex->Position = QuadVertices[3];
 		vertex->Normal = glm::vec3(0.0f, 0.0f, 1.0f);
 		vertex->Color = color;
 		vertex->TextureCoordinates = glm::vec2(x, y + Height);
@@ -259,98 +266,40 @@ namespace Graphics
 		return vertex;
 	}
 
-	static CircleVertex* CreateCircle(CircleVertex* vertex, const glm::vec3& Position, float Radius,float Thickness, float TextureUnit, float MaterialUnit,  const glm::mat4& ModelMatrix)
+	static CircleVertex* CreateCircle(CircleVertex* vertex, float Thickness, const glm::vec4& color, float MaterialUnit, const glm::mat4& ModelMatrix)
 	{
-		const glm::vec4 color = { 1.0f, 1.0f, 1.0f, 1.0f };
-
-		vertex->Position = Position;
+		vertex->Position = QuadVertices[0];
 		vertex->Normal = glm::vec3(0.0f, 0.0f, 1.0f);
 		vertex->Color = color;
-		vertex->Radius = Radius;
 		vertex->Thickness = Thickness;
-		vertex->TextureUnit = TextureUnit;
 		vertex->MaterialUnit = MaterialUnit;
 		vertex->ModelMatrix = ModelMatrix;
 		vertex++;
 
-		vertex->Position = glm::vec3(Position.x + Radius, Position.y, Position.z);
+		vertex->Position = QuadVertices[1];
 		vertex->Normal = glm::vec3(0.0f, 0.0f, 1.0f);
 		vertex->Color = color;
-		vertex->Radius = Radius;
 		vertex->Thickness = Thickness;
-		vertex->TextureUnit = TextureUnit;
 		vertex->MaterialUnit = MaterialUnit;
 		vertex->ModelMatrix = ModelMatrix;
 		vertex++;
 
 
 
-		vertex->Position = glm::vec3(Position.x + Radius, Position.y + Radius, Position.z);
+		vertex->Position = QuadVertices[2];
 		vertex->Normal = glm::vec3(0.0f, 0.0f, 1.0f);
 		vertex->Color = color;
-		vertex->Radius = Radius;
 		vertex->Thickness = Thickness;
-		vertex->TextureUnit = TextureUnit;
 		vertex->MaterialUnit = MaterialUnit;
 		vertex->ModelMatrix = ModelMatrix;
 		vertex++;
 
 
 
-		vertex->Position = glm::vec3(Position.x, Position.y + Radius, Position.z);
+		vertex->Position = QuadVertices[3];
 		vertex->Normal = glm::vec3(0.0f, 0.0f, 1.0f);
 		vertex->Color = color;
-		vertex->Radius = Radius;
 		vertex->Thickness = Thickness;
-		vertex->TextureUnit = TextureUnit;
-		vertex->MaterialUnit = MaterialUnit;
-		vertex->ModelMatrix = ModelMatrix;
-		vertex++;
-
-		return vertex;
-	}
-	static CircleVertex* CreateCircle(CircleVertex* vertex, const glm::vec3& Position, float Radius,float Thickness, const glm::vec4& color, float MaterialUnit, const glm::mat4& ModelMatrix)
-	{
-		vertex->Position = Position;
-		vertex->Normal = glm::vec3(0.0f, 0.0f, 1.0f);
-		vertex->Color = color;
-		vertex->Radius = Radius;
-		vertex->Thickness = Thickness;
-		vertex->TextureUnit = 0.0f;
-		vertex->MaterialUnit = MaterialUnit;
-		vertex->ModelMatrix = ModelMatrix;
-		vertex++;
-
-		vertex->Position = glm::vec3(Position.x + Radius, Position.y, Position.z);
-		vertex->Normal = glm::vec3(0.0f, 0.0f, 1.0f);
-		vertex->Color = color;
-		vertex->Radius = Radius;
-		vertex->Thickness = Thickness;
-		vertex->TextureUnit = 0.0f;
-		vertex->MaterialUnit = MaterialUnit;
-		vertex->ModelMatrix = ModelMatrix;
-		vertex++;
-
-
-
-		vertex->Position = glm::vec3(Position.x + Radius, Position.y + Radius, Position.z);
-		vertex->Normal = glm::vec3(0.0f, 0.0f, 1.0f);
-		vertex->Color = color;
-		vertex->Radius = Radius;
-		vertex->Thickness = Thickness;
-		vertex->TextureUnit = 0.0f;
-		vertex->MaterialUnit = MaterialUnit;
-		vertex->ModelMatrix = ModelMatrix;
-		vertex++;
-
-
-
-		vertex->Position = glm::vec3(Position.x, Position.y + Radius, Position.z);
-		vertex->Normal = glm::vec3(0.0f, 0.0f, 1.0f);
-		vertex->Color = color;
-		vertex->Radius = Radius;
-		vertex->Thickness = Thickness;
-		vertex->TextureUnit = 0.0f;
 		vertex->MaterialUnit = MaterialUnit;
 		vertex->ModelMatrix = ModelMatrix;
 		vertex++;

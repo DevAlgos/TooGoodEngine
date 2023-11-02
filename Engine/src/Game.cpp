@@ -196,26 +196,43 @@ void Game::OnUpdate()
 	Graphics::Renderer2D::BeginScene(m_OrthoCam);
 
 
-	for (int i = -10; i < 10; i++)
+	for (float i = -10.0f; i < 10.0f; i++)
 	{
-		for (int j = -10; j < 10; j++)
+		for (float j = -10.0f; j < 10.0f; j++)
 		{
-
-			Graphics::Renderer2D::PushQuad(glm::vec3(i, j, 0.0f), 1.0f, BackGround->Get(), glm::mat4(1.0f));
-			numbOfQuads += 1;
-
+			Graphics::Renderer2D::PushQuad({ i,j,0.0f }, { 1.0f,1.0f }, 0.0f, BackGround->Get());
 		}
+
 	}
+	Graphics::Renderer2D::PushCircle(glm::vec3(5.0f, 1.0f, 0.0f), {1.0f, 1.0f}, 0.0f, 5.0f, glm::vec4(0.5f));
 
 
 
 	Graphics::Renderer2D::PushLight(LightTest);
 	Graphics::Renderer2D::PushLight(LightTest2);
 
-	Graphics::Renderer2D::PushQuad(glm::vec3(0.0f, 0.0f, 0.0f), 1.0f, Bens[index], glm::mat4(1.0f));
-	Graphics::Renderer2D::PushCircle(glm::vec3(1.0f, 1.0f, 0.0f), 50.0f, 5.0f, glm::vec4(1.0f), glm::mat4(1.0f));
+	Graphics::Renderer2D::PushQuad(glm::vec3(0.0f, 0.0f, 0.0f), {1.0f, 1.0f}, 0.0f, Bens[index]);
 	
 	
+	if (InputManager::IsMouseButtonDown(LEFT_MOUSE))
+	{
+		double x = 0, y = 0;
+		InputManager::GetMousePos(x,y);
+
+		Graphics::Particle Particle;
+		Particle.Position = { RandomNumberGenerator::RandomNumber(-5.0f, 5.0f),RandomNumberGenerator::RandomNumber(-5.0f, 5.0f),0.0f};
+		Particle.xVelocity = 0.005f;
+		Particle.yVelocity = 0.005f;
+		Particle.DecaySpeed = 0.005f;
+		Particle.Color = {0.5f, 0.4f, 0.2f};
+		Particle.EndColor = { 1.0f, 1.0f, 1.0f };
+		Particle.Rotation = RandomNumberGenerator::RandomNumber(0, 360.0f);
+
+		pScene->PushParticle(Particle);
+	}
+
+	pScene->Update(m_OrthoCam, Application::GetCurrentDelta());
+
 	LightTest.Position = { x, y, 1.0f };
 	LightTest.Color = { x,y,1.0f };
 

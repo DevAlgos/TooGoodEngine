@@ -55,16 +55,10 @@ namespace Graphics
 				particle.Position.x += particle.xVelocity;
 				particle.Position.y += particle.yVelocity;
 
-				m_ParticleModel = glm::translate(m_ParticleModel, glm::vec3(particle.Position.x, particle.Position.y, particle.Position.z))
-					* glm::rotate(m_ParticleModel, glm::degrees(particle.Rotation), glm::vec3(0.0f, 0.0f, 1.0f)) *
-					glm::scale(m_ParticleModel, glm::vec3(particle.Scale.x, particle.Scale.y, 1.0f));
-
-
-
 				if (particle.Texture == -1)
-					Renderer2D::PushQuad(glm::vec3(0.0f, 0.0f, 0.0f), InterpolatedSize, glm::vec4(InterpolatedColor, particle.Alpha), particle.ParticleMaterial, m_ParticleModel);
+					Renderer2D::PushQuad(glm::vec3(particle.Position.x, particle.Position.y, 0.0f), { InterpolatedSize,InterpolatedSize },particle.Rotation, glm::vec4(InterpolatedColor, particle.Alpha), particle.ParticleMaterial);
 				else
-					Renderer2D::PushQuad(glm::vec3(0.0f, 0.0f, 0.0f), InterpolatedSize, particle.Texture, particle.ParticleMaterial, m_ParticleModel);
+					Renderer2D::PushQuad(glm::vec3(particle.Position.x, particle.Position.y, 0.0f), { InterpolatedSize, InterpolatedSize },particle.Rotation, particle.Texture, particle.ParticleMaterial);
 
 					
 			}
