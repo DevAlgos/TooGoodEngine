@@ -1,5 +1,5 @@
 # ToGoodEngine
-![image](https://github.com/DevAlgos/TooGoodEngine/assets/56752913/ff353499-9b7a-4309-b279-183e7eb84d59)
+![image](https://github.com/DevAlgos/TooGoodEngine/assets/56752913/f645e78c-f56c-456d-a70d-87482644a697)
 
 # How to build
 All you have to do is have premake5 installed and in your path.
