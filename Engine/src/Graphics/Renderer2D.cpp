@@ -35,7 +35,7 @@ namespace Graphics
 
 		Material DefaultMaterial;
 		DefaultMaterial.ambient = glm::vec3(0.2, 0.2, 0.2);
-		DefaultMaterial.diffuse = glm::vec3(0.7, 0.2, 0.4);
+		DefaultMaterial.diffuse = glm::vec3(1.0, 1.0, 1.0);
 		DefaultMaterial.specular = glm::vec3(0.5, 0.5, 0.5);
 		DefaultMaterial.shininess = 32.0;
 
@@ -105,14 +105,13 @@ namespace Graphics
 		constexpr GLsizei CircleVertexStride = sizeof(CircleVertex);
 
 		RenderData.CircleVertexArray->AttribPointer(0,  3,  GL_FLOAT, GL_FALSE, CircleVertexStride, (void*)offsetof(CircleVertex,  CircleVertex::Position));
-		RenderData.CircleVertexArray->AttribPointer(1,  4,  GL_FLOAT, GL_FALSE, CircleVertexStride, (void*)offsetof(CircleVertex,  CircleVertex::Color));
-		RenderData.CircleVertexArray->AttribPointer(2,  3,  GL_FLOAT, GL_FALSE, CircleVertexStride, (void*)offsetof(CircleVertex,  CircleVertex::Normal));              
-		RenderData.CircleVertexArray->AttribPointer(3,  1,  GL_FLOAT, GL_FALSE, CircleVertexStride, (void*)offsetof(CircleVertex,  CircleVertex::Thickness));
-		RenderData.CircleVertexArray->AttribPointer(4,  1,  GL_FLOAT, GL_FALSE, CircleVertexStride, (void*)offsetof(CircleVertex,  CircleVertex::MaterialUnit));
-		RenderData.CircleVertexArray->AttribPointer(5,  4,  GL_FLOAT, GL_FALSE, CircleVertexStride, (void*)offsetof(CircleVertex,  CircleVertex::ModelMatrix));
-		RenderData.CircleVertexArray->AttribPointer(6,  4,  GL_FLOAT, GL_FALSE, CircleVertexStride, (void*)(offsetof(CircleVertex, CircleVertex::ModelMatrix) + (sizeof(GLfloat) * 4)));
-		RenderData.CircleVertexArray->AttribPointer(7,  4,  GL_FLOAT, GL_FALSE, CircleVertexStride, (void*)(offsetof(CircleVertex, CircleVertex::ModelMatrix) + (sizeof(GLfloat) * 8)));
-		RenderData.CircleVertexArray->AttribPointer(8,  4,  GL_FLOAT, GL_FALSE, CircleVertexStride, (void*)(offsetof(CircleVertex, CircleVertex::ModelMatrix) + (sizeof(GLfloat) * 12)));
+		RenderData.CircleVertexArray->AttribPointer(1,  4,  GL_FLOAT, GL_FALSE, CircleVertexStride, (void*)offsetof(CircleVertex,  CircleVertex::Color));            
+		RenderData.CircleVertexArray->AttribPointer(2,  1,  GL_FLOAT, GL_FALSE, CircleVertexStride, (void*)offsetof(CircleVertex,  CircleVertex::Thickness));
+		RenderData.CircleVertexArray->AttribPointer(3,  1,  GL_FLOAT, GL_FALSE, CircleVertexStride, (void*)offsetof(CircleVertex,  CircleVertex::MaterialUnit));
+		RenderData.CircleVertexArray->AttribPointer(4,  4,  GL_FLOAT, GL_FALSE, CircleVertexStride, (void*)offsetof(CircleVertex,  CircleVertex::ModelMatrix));
+		RenderData.CircleVertexArray->AttribPointer(5,  4,  GL_FLOAT, GL_FALSE, CircleVertexStride, (void*)(offsetof(CircleVertex, CircleVertex::ModelMatrix) + (sizeof(GLfloat) * 4)));
+		RenderData.CircleVertexArray->AttribPointer(6,  4,  GL_FLOAT, GL_FALSE, CircleVertexStride, (void*)(offsetof(CircleVertex, CircleVertex::ModelMatrix) + (sizeof(GLfloat) * 8)));
+		RenderData.CircleVertexArray->AttribPointer(7,  4,  GL_FLOAT, GL_FALSE, CircleVertexStride, (void*)(offsetof(CircleVertex, CircleVertex::ModelMatrix) + (sizeof(GLfloat) * 12)));
 
 		uint32_t offset = 0;
 		for (int i = 0; i < RenderData.MaxIndicies; i += 6) //Init of indicies ready to be used for rendering

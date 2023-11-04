@@ -17,12 +17,14 @@ namespace Utils
 	class PriorityQueue
 	{
 	public:
-		PriorityQueue();
+		constexpr PriorityQueue();
 		PriorityQueue(size_t Size);
 		~PriorityQueue();
 
-		T& operator[](size_t Index)
+		T& operator[](size_t Index) noexcept
 		{
+			if (Index > m_Index || Index < 0)
+				return nullptr; //Is index within range?
 			return m_Queue[Index].data;
 		}
 
@@ -31,11 +33,11 @@ namespace Utils
 		void PushBack(const PriorityData<T>& elem); //by default will be at bottom if priority not specified
 		void PushBack(PriorityData<T>&& elem);
 
-		void Pop();
+		void Pop() noexcept;
 
-		inline T& Front() { return m_Queue[m_Index - 1].data; };
-		inline PriorityData<T>& FrontStruct() { return m_Queue[m_Index - 1]; } //incase priority data is needed
-		inline bool IsEmpty() { return m_Index == 0; }
+		inline T& Front() noexcept { return m_Queue[m_Index - 1].data; };
+		inline PriorityData<T>& FrontStruct() noexcept { return m_Queue[m_Index - 1]; } //incase priority data is needed
+		inline bool IsEmpty() noexcept { return m_Index == 0; }
 
 	private:
 		void MoveQueue(size_t start); //moves all elements in stack up by 1 from starting point provided
@@ -46,12 +48,12 @@ namespace Utils
 	};
 
 	template<typename T>
-	PriorityQueue<T>::PriorityQueue()
+	constexpr PriorityQueue<T>::PriorityQueue()
 		: m_Queue(new PriorityData<T>[10]), m_Size(10)
 	{
 	}
 	template<typename T>
-	PriorityQueue<T>::PriorityQueue(size_t Size)
+    PriorityQueue<T>::PriorityQueue(size_t Size)
 		: m_Queue(new PriorityData<T>[Size]), m_Size(Size)
 	{
 	}
@@ -173,7 +175,7 @@ namespace Utils
 	}
 
 	template<typename T>
-	void PriorityQueue<T>::Pop() //Data can be overwritten in the above index if needed, data will also be deleted in destructor if not overwritten
+	void PriorityQueue<T>::Pop() noexcept //Data can be overwritten in the above index if needed, data will also be deleted in destructor if not overwritten
 	{
 		if (m_Index > 0)
 			m_Index--;

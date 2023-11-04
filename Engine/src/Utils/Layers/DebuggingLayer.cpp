@@ -7,6 +7,9 @@ namespace
 	Utils::MemoryData s_MemoryData;
 }
 
+
+#ifdef _DEBUG
+
 void* operator new(size_t size)
 {
 	s_MemoryData.AllocatedMemory += size;
@@ -19,6 +22,7 @@ void operator delete(void* block, size_t size)
 	return free(block);
 }
 
+#endif
 
 namespace Utils
 {
@@ -38,9 +42,9 @@ namespace Utils
 		if (ImGui::Begin("Debug Window"))
 		{
 			ImGui::Text("FPS: %.1f", ImGui::GetIO().Framerate);
-			ImGui::Text("Memory Allocated %i", s_MemoryData.AllocatedMemory);
-			ImGui::Text("Memory Freed %i", s_MemoryData.FreedMemory);
+#ifdef _DEBUG
 			ImGui::Text("Memory Using: %i", s_MemoryData.CurrentlyUsingMemory());
+#endif
 			ImGui::End();
 		}
 	

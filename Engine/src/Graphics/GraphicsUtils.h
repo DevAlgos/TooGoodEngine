@@ -9,10 +9,10 @@ namespace Graphics
 {
 	static glm::vec3 QuadVertices[4] = 
 	{
-		{-1.0f, -1.0f, 0.0f},
-		{ 1.0f, -1.0f, 0.0f},
-		{ 1.0f, 1.0f, 0.0f}, 
-		{-1.0f, 1.0f, 0.0f}
+		{-1.0f, -1.0f, 0.0f}, // bottom left
+		{ 1.0f, -1.0f, 0.0f}, // top left
+		{ 1.0f, 1.0f,  0.0f},  // top right
+		{-1.0f, 1.0f,  0.0f}   // bottom right
 
 	};
 
@@ -31,7 +31,6 @@ namespace Graphics
 	{
 		glm::vec3 Position;
 		glm::vec4 Color;
-		glm::vec3 Normal;
 		float Thickness;
 		float MaterialUnit;
 		glm::mat4 ModelMatrix;
@@ -269,7 +268,6 @@ namespace Graphics
 	static CircleVertex* CreateCircle(CircleVertex* vertex, float Thickness, const glm::vec4& color, float MaterialUnit, const glm::mat4& ModelMatrix)
 	{
 		vertex->Position = QuadVertices[0];
-		vertex->Normal = glm::vec3(0.0f, 0.0f, 1.0f);
 		vertex->Color = color;
 		vertex->Thickness = Thickness;
 		vertex->MaterialUnit = MaterialUnit;
@@ -277,7 +275,6 @@ namespace Graphics
 		vertex++;
 
 		vertex->Position = QuadVertices[1];
-		vertex->Normal = glm::vec3(0.0f, 0.0f, 1.0f);
 		vertex->Color = color;
 		vertex->Thickness = Thickness;
 		vertex->MaterialUnit = MaterialUnit;
@@ -287,17 +284,13 @@ namespace Graphics
 
 
 		vertex->Position = QuadVertices[2];
-		vertex->Normal = glm::vec3(0.0f, 0.0f, 1.0f);
 		vertex->Color = color;
 		vertex->Thickness = Thickness;
 		vertex->MaterialUnit = MaterialUnit;
 		vertex->ModelMatrix = ModelMatrix;
 		vertex++;
 
-
-
 		vertex->Position = QuadVertices[3];
-		vertex->Normal = glm::vec3(0.0f, 0.0f, 1.0f);
 		vertex->Color = color;
 		vertex->Thickness = Thickness;
 		vertex->MaterialUnit = MaterialUnit;

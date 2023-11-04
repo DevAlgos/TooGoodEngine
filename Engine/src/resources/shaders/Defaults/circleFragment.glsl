@@ -20,7 +20,6 @@ out vec4 FragColor;
 in vec3  Position;
 in vec3  WorldCoordinates;
 in vec4  Color;
-in vec3  Normal;
 in float Thickness;
 in float MaterialID;
 
@@ -40,12 +39,13 @@ layout(std140, binding = 1) uniform LightSources
 uniform float NumberOfLightSources;
 
 
- /*a = Bx^2 + By^2
-    b = (2BxAx - 2DBx) + (2ByAy - 2OBy)
-    c = (Ax^2 - 2DAx + D^2) + (Ay^2 - 2OAy + O^2) - R^2
+/*
+a = Bx^2 + By^2
+b = (2BxAx - 2DBx) + (2ByAy - 2OBy)
+c = (Ax^2 - 2DAx + D^2) + (Ay^2 - 2OAy + O^2) - R^2
 
-    Where (D,O) is the origin of the circle.
-    B is the directional vector of the ray and A is the origin of the ray.*/
+Where (D,O) is the origin of the circle.
+B is the directional vector of the ray and A is the origin of the ray.*/
 
 
 
@@ -62,7 +62,8 @@ vec3 CalculateQuadraticComponents(vec2 RayDirection, vec2 RayOrigin, vec2 Circle
     return vec3(a,b,c); 
 }
 
-vec3 CalculateIntersectionColor(float a, float b, float c, vec2 RayOrigin, vec2 RayDirection, vec3 Color)
+vec3 CalculateIntersectionColor(float a, float b, float c, vec2 RayOrigin, vec2 RayDirection, vec3 Color, 
+                                    vec2 CircleCenter)
 {
     vec3 IntersectionColor = vec3(0.0); //should be ambient by default
 
@@ -93,7 +94,15 @@ vec3 CalculateIntersectionColor(float a, float b, float c, vec2 RayOrigin, vec2 
             LightDistance + quadraticAttenuation * 
             LightDistance * LightDistance);
 
-            IntersectionColor = Color * Attenuation; 
+            vec2 Normal = normalize(IntersectionPoint1 - CircleCenter);
+            vec3 LightDirection = normalize(Lights.LightSrc[0].Position - vec3(RayOrigin,0.0));
+
+            vec3 FinalDiffuse = vec3(dot(vec3(Normal,1.0), LightDirection));
+
+            FinalDiffuse *= MatSlots.Materials[0].Diffuse * Attenuation;
+
+
+            IntersectionColor = Color * FinalDiffuse; 
         
         }
 
@@ -116,8 +125,8 @@ void main()
     vec3 Lightening = vec3(0.0f, 0.0f, 0.0f);
    
    //artificial ray for testing
-    vec2 RayDirection = normalize(vec2(1.0f, 0.0f));
-    vec2 RayOrigin = vec2(Lights.LightSrc[0].Position.x, Lights.LightSrc[0].Position.y);
+    vec2 RayDirection = normalize(vec2(1.0,1.0));
+    vec2 RayOrigin = vec2(Lights.LightSrc[0].Position.xy);
 
     //circle is positioned at 2.0f, 1.0f, with a radius of 1.0f
 
@@ -129,7 +138,7 @@ void main()
     vec3 Quadratic = CalculateQuadraticComponents(RayDirection, RayOrigin, CircleCenter);
 
     Lightening = CalculateIntersectionColor(Quadratic.x,Quadratic.y,Quadratic.z,RayOrigin,RayDirection, 
-        Lights.LightSrc[0].Color);
+        Lights.LightSrc[0].Color, CircleCenter);
 
     distancef = smoothstep(0.0, fade, distancef);
     distancef *= smoothstep(Thickness + fade, Thickness, distancef);

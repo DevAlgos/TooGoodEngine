@@ -30,6 +30,7 @@ namespace Graphics
 	}
 	void BufferObject::Create()
 	{
+		
 		switch (m_Type)
 		{
 		case Graphics::BufferObject::BufferType::VertexBuffer:
@@ -51,6 +52,7 @@ namespace Graphics
 			glCreateBuffers(1, &m_VBO);
 			glBindBuffer(GL_SHADER_STORAGE_BUFFER, m_VBO);
 			glBufferData(GL_SHADER_STORAGE_BUFFER, m_Data.VertexSize, m_Data.data, m_Data.DrawType);
+			break;
 		default:
 			break;
 		}
