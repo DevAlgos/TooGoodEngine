@@ -1,4 +1,4 @@
-workspace "ToGoodEngine"
+workspace "TooGoodEngine"
     architecture "x64"
     configurations { "Debug", "Release" }
 
