@@ -4,8 +4,8 @@
 
 [submodule "Libs/imgui"]
     path = Libs/imgui
-    url = https://github.com/ocornut/imgui.git
+    url = https://github.com/DevAlgos/imgui.git
 
 [submodule "Libs/glm"]
     path = Libs/glm
-    url = https://github.com/g-truc/glm.git
+    url = https://github.com/DevAlgos/glm.git
