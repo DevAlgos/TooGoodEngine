@@ -5,7 +5,7 @@ struct LightSource
     vec3 Position;
     vec3 Color;
     float ID;
-};
+}; 
 
 struct Material
 {
@@ -18,6 +18,7 @@ struct Material
 out vec4 FragColor;
 
 in vec3  Position;
+in vec3  WorldCoordinates;
 in vec4  Color;
 in vec3  Normal;
 in float Thickness;
@@ -38,17 +39,103 @@ layout(std140, binding = 1) uniform LightSources
 
 uniform float NumberOfLightSources;
 
+
+ /*a = Bx^2 + By^2
+    b = (2BxAx - 2DBx) + (2ByAy - 2OBy)
+    c = (Ax^2 - 2DAx + D^2) + (Ay^2 - 2OAy + O^2) - R^2
+
+    Where (D,O) is the origin of the circle.
+    B is the directional vector of the ray and A is the origin of the ray.*/
+
+
+
+vec3 CalculateQuadraticComponents(vec2 RayDirection, vec2 RayOrigin, vec2 CircleCenter) //calculates a,b,c for quadratic
+{
+    float a = dot(RayDirection,RayDirection);
+    float b = 
+    2 * (RayDirection.x*RayOrigin.x - CircleCenter.x*RayDirection.x) +
+    2 * (RayDirection.y*RayOrigin.y - CircleCenter.y*RayDirection.y);
+
+    float c = (RayOrigin.x * RayOrigin.x - 2 * CircleCenter.x * RayOrigin.x + CircleCenter.x*CircleCenter.x) + 
+    (RayOrigin.y * RayOrigin.y - 2 * CircleCenter.y * RayOrigin.y + CircleCenter.y*CircleCenter.y) - CircleCenter.y;
+
+    return vec3(a,b,c); 
+}
+
+vec3 CalculateIntersectionColor(float a, float b, float c, vec2 RayOrigin, vec2 RayDirection, vec3 Color)
+{
+    vec3 IntersectionColor = vec3(0.0); //should be ambient by default
+
+    float discriminant = b*b - 4 * a * c;
+    if(discriminant >= 0)
+    {
+         // Calculate the intersection points
+        float t1 = (-b + sqrt(discriminant)) / (2.0 * a);
+        float t2 = (-b - sqrt(discriminant)) / (2.0 * a);
+
+        vec2 IntersectionPoint1 = RayOrigin + t1 * RayDirection;
+        vec2 IntersectionPoint2 = RayOrigin + t2 * RayDirection;
+
+        float LightDistance1 = distance(IntersectionPoint1, RayOrigin);
+        float LightDistance2 = distance(IntersectionPoint2, RayOrigin);
+
+        float LightDistance = min(LightDistance1, LightDistance2);
+
+        float Attenuation = 1.0; 
+
+        if(LightDistance1 >= LightDistance2)
+        {
+            float constantAttenuation = 1.0;
+            float linearAttenuation = 0.1; 
+            float quadraticAttenuation = 0.05; 
+            Attenuation = 1.0 / (
+            constantAttenuation + linearAttenuation * 
+            LightDistance + quadraticAttenuation * 
+            LightDistance * LightDistance);
+
+            IntersectionColor = Color * Attenuation; 
+        
+        }
+
+       
+            
+        
+   }
+
+
+    return IntersectionColor;
+}
+
 void main()
 {
     float fade = 0.005;
+    float distancef = 1.0 - length(Position.xy);
     
-   float nLightSources = NumberOfLightSources;
-  
-   float distancef = 1.0 - length(Position.xy);
-   distancef = smoothstep(0.0, fade, distancef);
-   distancef *= smoothstep(Thickness + fade, Thickness, distancef);
+    float nLightSources = NumberOfLightSources;
+    
+    vec3 Lightening = vec3(0.0f, 0.0f, 0.0f);
+   
+   //artificial ray for testing
+    vec2 RayDirection = normalize(vec2(1.0f, 0.0f));
+    vec2 RayOrigin = vec2(Lights.LightSrc[0].Position.x, Lights.LightSrc[0].Position.y);
 
-   FragColor.w = distancef;
-   FragColor.rgb = Color.rgb;
+    //circle is positioned at 2.0f, 1.0f, with a radius of 1.0f
+
+    float xCoord = WorldCoordinates.x;
+    float yCoord = WorldCoordinates.y;
+
+    vec2 CircleCenter = vec2(xCoord,yCoord);
+
+    vec3 Quadratic = CalculateQuadraticComponents(RayDirection, RayOrigin, CircleCenter);
+
+    Lightening = CalculateIntersectionColor(Quadratic.x,Quadratic.y,Quadratic.z,RayOrigin,RayDirection, 
+        Lights.LightSrc[0].Color);
+
+    distancef = smoothstep(0.0, fade, distancef);
+    distancef *= smoothstep(Thickness + fade, Thickness, distancef);
+
+    FragColor.w = distancef;
+    FragColor.rgb = Color.rgb;
+    FragColor.rgb *= Lightening;
    
 }

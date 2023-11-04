@@ -25,8 +25,6 @@ private:
 
 	std::unique_ptr<Graphics::Shader> ComputeShader;
 
-	Graphics::VertexArrayObject m_LightVAO;
-
 	Graphics::Shader modelShader;
 
 	int numbOfQuads = 1;

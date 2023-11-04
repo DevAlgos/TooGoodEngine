@@ -20,6 +20,14 @@ namespace Graphics {
 	
 	struct TextureData
 	{
+		union
+		{
+			bool UseFile;
+			bool UseData8;
+			bool UseData16;
+			bool UseData32;
+		};
+
 		union 
 		{
 			const char* FileLocation = nullptr;

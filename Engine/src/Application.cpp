@@ -53,7 +53,7 @@ Application::Application()
 	//glfwSwapInterval(1);
 	Manager.PushLayer(std::make_unique<Utils::DebuggingLayer>());
 	Manager.PushLayer(std::make_unique<Utils::EditorLayer>());
-	Manager.PushLayer(std::make_unique<Game>());
+	//Manager.PushLayer(std::make_unique<Game>());
 	
 }
 

@@ -104,6 +104,7 @@ namespace Graphics
 		case Graphics::BufferObject::BufferType::ShaderStorageBuffer:
 			glBindBuffer(GL_SHADER_STORAGE_BUFFER, m_VBO);
 			glBufferSubData(GL_SHADER_STORAGE_BUFFER, data.Offset, data.VertexSize, data.data);
+			break;
 		default:
 			break;
 		}
@@ -131,7 +132,6 @@ namespace Graphics
 	Framebuffer::Framebuffer(std::vector<Attachment> Attachments, std::map<GLenum, const char*> ShaderList)
 		: m_Framebuffer(0)
 	{
-
 		FramebufferShader = std::make_unique<Shader>(ShaderList);
 		
 		FramebufferVAO = std::make_unique<VertexArrayObject>();

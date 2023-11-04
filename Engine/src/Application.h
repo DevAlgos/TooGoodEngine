@@ -17,7 +17,6 @@ public:
     static float GetCurrentDelta();
 
 private:
-    static void DisplayDebugInfo(MemoryData stats);
     Utils::LayerManager Manager;
     
 

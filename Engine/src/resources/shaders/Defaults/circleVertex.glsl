@@ -11,6 +11,7 @@ uniform mat4 view;
 uniform mat4 projection;
 
 out vec3 Position;
+out vec3 WorldCoordinates;
 out vec4 Color;
 out vec3 Normal;
 out float Thickness;
@@ -19,12 +20,14 @@ out float MaterialID;
 
 void main()
 {
-	  gl_Position =  projection * view * inModelMatrix * vec4(inPosition, 1.0);
+	gl_Position =  projection * view * inModelMatrix * vec4(inPosition, 1.0);
 	 
-	  Position = inPosition;
+	
+	WorldCoordinates = vec3(inModelMatrix * vec4(Position, 1.0));
+	Position = inPosition;
 
-	  Color =  inColor;
-	  Normal = inNormal;
-	  Thickness = inThickness;
-	  MaterialID = inMaterialID;
+    Color =  inColor;
+    Normal = inNormal;
+    Thickness = inThickness;
+    MaterialID = inMaterialID;
 }

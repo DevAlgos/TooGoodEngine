@@ -31,14 +31,14 @@ namespace Graphics
 		switch (TextureType)
 		{
 		case GL_TEXTURE_1D:
-			if (m_TextureData.Data8)
+			if (m_TextureData.UseData8)
 			{
 				glTextureStorage1D(m_Texture, m_TextureData.MipmapLevels, m_TextureData.InternalFormat, m_TextureData.Width);
 				glTexSubImage1D(GL_TEXTURE_1D, m_TextureData.MipmapLevels, 0, m_TextureData.Width, m_TextureData.InternalFormat,
 					GL_UNSIGNED_BYTE, m_TextureData.Data8);
 				glGenerateTextureMipmap(m_Texture);
 			}
-			else if (m_TextureData.Data16)
+			else if (m_TextureData.UseData16)
 			{
 
 				glTextureStorage1D(m_Texture, m_TextureData.MipmapLevels, m_TextureData.InternalFormat, m_TextureData.Width);
@@ -46,7 +46,7 @@ namespace Graphics
 					GL_UNSIGNED_SHORT, m_TextureData.Data16);
 				glGenerateTextureMipmap(m_Texture);
 			}
-			else if (m_TextureData.Data32)
+			else if (m_TextureData.UseData32)
 			{
 
 				glTextureStorage1D(m_Texture, m_TextureData.MipmapLevels, m_TextureData.InternalFormat, m_TextureData.Width);
@@ -60,14 +60,14 @@ namespace Graphics
 			}
 			break;
 		case GL_TEXTURE_2D:
-			if (m_TextureData.Data8)
+			if (m_TextureData.UseData8)
 			{
 				glTextureStorage2D(m_Texture, m_TextureData.MipmapLevels, m_TextureData.InternalFormat, m_TextureData.Width, m_TextureData.Height);
 				glTexSubImage2D(GL_TEXTURE_2D, m_TextureData.MipmapLevels, 0, 0, m_TextureData.Width, m_TextureData.Height, m_TextureData.InternalFormat,
 					GL_UNSIGNED_BYTE, m_TextureData.Data8);
 				glGenerateTextureMipmap(m_Texture);
 			}
-			else if (m_TextureData.Data16)
+			else if (m_TextureData.UseData16)
 			{
 
 				glTextureStorage2D(m_Texture, m_TextureData.MipmapLevels, m_TextureData.InternalFormat, m_TextureData.Width, m_TextureData.Height);
@@ -75,7 +75,7 @@ namespace Graphics
 					GL_UNSIGNED_BYTE, m_TextureData.Data16);
 				glGenerateTextureMipmap(m_Texture);
 			}
-			else if (m_TextureData.Data32)
+			else if (m_TextureData.UseData32)
 			{
 
 				glTextureStorage2D(m_Texture, m_TextureData.MipmapLevels, m_TextureData.InternalFormat, m_TextureData.Width, m_TextureData.Height);
@@ -132,19 +132,19 @@ namespace Graphics
 		switch (TextureType)
 		{
 		case GL_TEXTURE_1D:
-			if (m_TextureData.Data8)
+			if (m_TextureData.UseData8)
 			{
 				glTexImage1D(GL_TEXTURE_1D, m_TextureData.MipmapLevels, m_TextureData.InternalFormat, m_TextureData.Width, 0, m_TextureData.InternalFormat,
 					GL_UNSIGNED_BYTE, m_TextureData.Data8);
 				glGenerateTextureMipmap(m_Texture);
 			}
-			else if (m_TextureData.Data16)
+			else if (m_TextureData.UseData16)
 			{
 				glTexImage1D(GL_TEXTURE_1D, m_TextureData.MipmapLevels, m_TextureData.InternalFormat, m_TextureData.Width, 0, m_TextureData.InternalFormat,
 					GL_UNSIGNED_SHORT, m_TextureData.Data16);
 				glGenerateTextureMipmap(m_Texture);
 			} 
-			else if (m_TextureData.Data32)
+			else if (m_TextureData.UseData32)
 			{
 				glTexImage1D(GL_TEXTURE_1D, m_TextureData.MipmapLevels, m_TextureData.InternalFormat, m_TextureData.Width, 0, m_TextureData.InternalFormat,
 					GL_UNSIGNED_INT, m_TextureData.Data32);
@@ -160,19 +160,19 @@ namespace Graphics
 			}
 			break;
 		case GL_TEXTURE_2D:
-			if (m_TextureData.Data8)
+			if (m_TextureData.UseData8)
 			{
 				glTexImage2D(GL_TEXTURE_2D, m_TextureData.MipmapLevels, m_TextureData.InternalFormat, m_TextureData.Width, m_TextureData.Height, 0,
 					m_TextureData.InternalFormat, GL_UNSIGNED_BYTE, m_TextureData.Data8);
 				glGenerateTextureMipmap(m_Texture);
 			} 
-			else if (m_TextureData.Data16)
+			else if (m_TextureData.UseData16)
 			{
 				glTexImage2D(GL_TEXTURE_2D, m_TextureData.MipmapLevels, m_TextureData.InternalFormat, m_TextureData.Width, m_TextureData.Height, 0,
 					m_TextureData.InternalFormat, GL_UNSIGNED_SHORT, m_TextureData.Data16);
 				glGenerateTextureMipmap(m_Texture);
 			}
-			else if (m_TextureData.Data32)
+			else if (m_TextureData.UseData32)
 			{
 				glTexImage2D(GL_TEXTURE_2D, m_TextureData.MipmapLevels, m_TextureData.InternalFormat, m_TextureData.Width, m_TextureData.Height, 0,
 					m_TextureData.InternalFormat, GL_UNSIGNED_INT, m_TextureData.Data32);

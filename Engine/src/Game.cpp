@@ -204,7 +204,6 @@ void Game::OnUpdate()
 		}
 
 	}
-	Graphics::Renderer2D::PushCircle(glm::vec3(5.0f, 1.0f, 0.0f), {1.0f, 1.0f}, 0.0f, 5.0f, glm::vec4(0.5f));
 
 
 
@@ -232,6 +231,8 @@ void Game::OnUpdate()
 	}
 
 	pScene->Update(m_OrthoCam, Application::GetCurrentDelta());
+	Graphics::Renderer2D::PushCircle(glm::vec3(5.0f, 1.0f, 0.0f), { 5.0f, 5.0f }, 0.0f, 5.0f, glm::vec4(0.5f));
+
 
 	LightTest.Position = { x, y, 1.0f };
 	LightTest.Color = { x,y,1.0f };
