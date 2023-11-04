@@ -5,7 +5,6 @@
 
 namespace
 {
-	static size_t IDCounter = 0;
 }
 
 namespace Utils
@@ -13,8 +12,6 @@ namespace Utils
 	Job::Job()
 		: m_JobThread(std::jthread(&Job::Worker, this)), m_ThreadActive(true), m_WorkQueue(10)
 	{
-		JobID = IDCounter;
-		IDCounter++;
 	}
 
 	Job::~Job()
@@ -36,9 +33,6 @@ namespace Utils
 	{
 		m_ThreadActive = true;
 		m_JobThread = std::jthread(&Job::Worker, this);
-
-		JobID = IDCounter;
-		IDCounter++;
 	}
 
 

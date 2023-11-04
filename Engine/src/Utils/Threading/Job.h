@@ -35,15 +35,11 @@ namespace Utils
 			return m_ExecuteCount;
 		}
 
-		const uint16_t GetJobID() const { return JobID; }
-
 
 	private:
 		void Worker();
 
 	private:
-		uint16_t JobID;
-
 		uint16_t m_ExecuteCount = 0;
 
 		std::jthread m_JobThread;

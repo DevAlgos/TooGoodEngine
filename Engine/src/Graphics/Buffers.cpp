@@ -178,7 +178,7 @@ namespace Graphics
 						glCreateRenderbuffers(1, &m_Renderbuffers[RenderIndex]);
 						glBindRenderbuffer(GL_RENDERBUFFER, m_Renderbuffers[RenderIndex]);
 						glRenderbufferStorage(GL_RENDERBUFFER, GL_RGBA8, m_Attachments[i].Width, m_Attachments[i].Height);
-						glFramebufferRenderbuffer(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0 + nColorAttachments, GL_RENDERBUFFER, m_Renderbuffers[RenderIndex]);
+						glFramebufferRenderbuffer(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0 + (GLenum)nColorAttachments, GL_RENDERBUFFER, m_Renderbuffers[RenderIndex]);
 						RenderIndex++;
 					}
 					else
@@ -190,7 +190,7 @@ namespace Graphics
 						glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
 						glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
 
-						glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0 + nColorAttachments, GL_TEXTURE_2D, m_Textures[TextureIndex], 0);
+						glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0 + (GLenum)nColorAttachments, GL_TEXTURE_2D, m_Textures[TextureIndex], 0);
 						TextureIndex++;
 					}
 

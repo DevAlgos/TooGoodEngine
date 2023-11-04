@@ -40,11 +40,11 @@ namespace Graphics
 		DefaultMaterial.shininess = 32.0;
 
 
-		for (int i = 0; i < RenderData.MaxMaterialSlots - 1; i++)
+		for (int i = 0; i < (int)RenderData.MaxMaterialSlots - 1; i++)
 			RenderData.AllMaterials[i] = DefaultMaterial;
 
 		int* samplers = new int[RenderData.MaxTextureSlots];
-		for (int i = 0; i < RenderData.MaxTextureSlots; i++)
+		for (int i = 0; i < (int)RenderData.MaxTextureSlots; i++)
 			samplers[i] = i;
 
 
@@ -206,18 +206,17 @@ namespace Graphics
 	void Renderer2D::PushQuad(const glm::vec3& Position, const glm::vec2& size, float Rotation, uint32_t ID)
 	{
 
-		if (RenderData.IndexCount >= RenderData.MaxIndicies) {
+		if (RenderData.IndexCount >= RenderData.MaxIndicies || RenderData.CurrentTextureSlot > (uint32_t)RenderData.MaxTextureSlots - 1) {
 			FlushScene();
 		}
 
-
-		if (RenderData.CurrentTextureSlot > RenderData.MaxTextureSlots - 1)
+		if (RenderData.CurrentTextureSlot > (uint32_t)RenderData.MaxTextureSlots - 1)
 			RenderData.CurrentTextureSlot = 1;
 
 		float TextureIndex = 0.0f;
 
 
-		for (int i = 1; i < RenderData.CurrentTextureSlot; i++)
+		for (int i = 1; i < (int)RenderData.CurrentTextureSlot; i++)
 		{
 			if (RenderData.TextureSlots[i] == ID)
 			{
@@ -262,22 +261,20 @@ namespace Graphics
 	}
 	void Renderer2D::PushSprite(const glm::vec3& Position, const glm::vec2& size, float Rotation, uint32_t ID, SpriteSheet sheet)
 	{
-		if (RenderData.IndexCount >= RenderData.MaxIndicies) {
+		if (RenderData.IndexCount >= RenderData.MaxIndicies || RenderData.CurrentTextureSlot > (uint32_t)RenderData.MaxTextureSlots - 1) {
 			FlushScene();
 		}
 
-		if (RenderData.CurrentTextureSlot > RenderData.MaxTextureSlots - 1)
-		{
-			FlushScene();
+		if (RenderData.CurrentTextureSlot > (uint32_t)RenderData.MaxTextureSlots - 1)
 			RenderData.CurrentTextureSlot = 1;
-		}
+		
 
 
 
 		float TextureIndex = 0.0f;
 
 
-		for (int i = 1; i < RenderData.CurrentTextureSlot; ++i)
+		for (int i = 1; i < (int)RenderData.CurrentTextureSlot; ++i)
 		{
 			if (RenderData.TextureSlots[i] == ID)
 			{
@@ -306,29 +303,24 @@ namespace Graphics
 	}
 	void Renderer2D::PushQuad(const glm::vec3& Position, const glm::vec2& size, float Rotation, uint32_t ID, Material& material)
 	{
-		if (RenderData.IndexCount >= RenderData.MaxIndicies) {
+		if (RenderData.IndexCount >= RenderData.MaxIndicies || RenderData.CurrentTextureSlot > (uint32_t)RenderData.MaxTextureSlots - 1
+			|| RenderData.CurrentMaterialSlot > RenderData.MaxMaterialSlots) {
 			FlushScene();
 		}
 
-		if (RenderData.CurrentTextureSlot > RenderData.MaxTextureSlots - 1)
-		{
-			FlushScene();
+		if (RenderData.CurrentTextureSlot > (uint32_t)RenderData.MaxTextureSlots - 1)
 			RenderData.CurrentTextureSlot = 1;
-		}
-
-
+		
 		if (RenderData.CurrentMaterialSlot > RenderData.MaxMaterialSlots)
-		{
-			FlushScene();
 			RenderData.CurrentMaterialSlot = 1;
-		}
+		
 
 
 
 		float TextureIndex = 0.0f;
 
 
-		for (int i = 1; i < RenderData.CurrentTextureSlot; i++)
+		for (int i = 1; i < (int)RenderData.CurrentTextureSlot; i++)
 		{
 			if (RenderData.TextureSlots[i] == ID)
 			{
@@ -348,7 +340,7 @@ namespace Graphics
 
 		float MaterialIndex = 0.0f;
 
-		for (int i = 1; i < RenderData.CurrentMaterialSlot; i++)
+		for (int i = 1; i < (int)RenderData.CurrentMaterialSlot; i++)
 		{
 			if (RenderData.AllMaterials[i] == material)
 			{
@@ -377,21 +369,19 @@ namespace Graphics
 	void Renderer2D::PushQuad(const glm::vec3& Position, const glm::vec2& size, float Rotation, const glm::vec4& color, Material& material)
 	{
 
-		if (RenderData.IndexCount >= RenderData.MaxIndicies) {
+		if (RenderData.IndexCount >= RenderData.MaxIndicies || RenderData.CurrentMaterialSlot > RenderData.MaxMaterialSlots) {
 			FlushScene();
 		}
 
 		if (RenderData.CurrentMaterialSlot > RenderData.MaxMaterialSlots)
-		{
-			FlushScene();
 			RenderData.CurrentMaterialSlot = 1;
-		}
+		
 
 
 
 		float MaterialIndex = 0.0f;
 
-		for (int i = 1; i < RenderData.CurrentMaterialSlot; i++)
+		for (int i = 1; i < (int)RenderData.CurrentMaterialSlot; i++)
 		{
 			if (RenderData.AllMaterials[i] == material)
 			{
@@ -420,27 +410,22 @@ namespace Graphics
 	}
 	void Renderer2D::PushSprite(const glm::vec3& Position, const glm::vec2& size, float Rotation, uint32_t ID, SpriteSheet sheet, Material& material)
 	{
-		if (RenderData.IndexCount >= RenderData.MaxIndicies) {
+		if (RenderData.IndexCount >= RenderData.MaxIndicies || RenderData.CurrentTextureSlot > (uint32_t)RenderData.MaxTextureSlots - 1
+			|| RenderData.CurrentMaterialSlot > RenderData.MaxMaterialSlots) {
 			FlushScene();
 		}
 
-
-		if (RenderData.CurrentTextureSlot > RenderData.MaxTextureSlots - 1)
-		{
-			FlushScene();
+		if (RenderData.CurrentTextureSlot > (uint32_t)RenderData.MaxTextureSlots - 1)
 			RenderData.CurrentTextureSlot = 1;
-		}
-
+		
 		if (RenderData.CurrentMaterialSlot > RenderData.MaxMaterialSlots)
-		{
-			FlushScene();
 			RenderData.CurrentMaterialSlot = 1;
-		}
+		
 
 		float TextureIndex = 0.0f;
 
 
-		for (int i = 0; i < RenderData.CurrentTextureSlot; ++i)
+		for (int i = 0; i < (int)RenderData.CurrentTextureSlot; ++i)
 		{
 			if (RenderData.TextureSlots[i] == ID)
 			{
@@ -459,7 +444,7 @@ namespace Graphics
 
 		float MaterialIndex = 0.0f;
 
-		for (int i = 1; i < RenderData.CurrentMaterialSlot; i++)
+		for (int i = 1; i < (int)RenderData.CurrentMaterialSlot; i++)
 		{
 			if (RenderData.AllMaterials[i] == material)
 			{
@@ -543,7 +528,7 @@ namespace Graphics
 		RenderData.VertexBuffer->Bind();
 		RenderData.IndexBuffer->Bind();
 
-		for (int i = 0; i < RenderData.CurrentTextureSlot; i++) 
+		for (int i = 0; i < (int)RenderData.CurrentTextureSlot; i++) 
 			glBindTextureUnit(i, RenderData.TextureSlots[i]);
 		
 
@@ -590,7 +575,7 @@ namespace Graphics
 		RenderData.LightUniformBuffer->PushData(Buffer);
 
 		RenderData.DefaultShader->Use();
-		RenderData.DefaultShader->SetUniformFloat("NumberOfLightSources", RenderData.CurrentLightSlot);
+		RenderData.DefaultShader->SetUniformFloat("NumberOfLightSources", (float)RenderData.CurrentLightSlot);
 
 		RenderData.CircleVertexArray->Bind();
 		GLsizeiptr CircleSize = (uint8_t*)RenderData.CircleBufferIndex - (uint8_t*)RenderData.CircleBuffer;
@@ -603,7 +588,7 @@ namespace Graphics
 		RenderData.CircleVertexBuffer->PushData(CircleBufferData);
 
 		RenderData.CircleShader->Use();
-		RenderData.CircleShader->SetUniformFloat("NumberOfLightSources", RenderData.CurrentLightSlot);
+		RenderData.CircleShader->SetUniformFloat("NumberOfLightSources", (float)RenderData.CurrentLightSlot);
 
 		/*ViewportResolution*/
 

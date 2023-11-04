@@ -214,8 +214,8 @@ namespace Graphics
 		glm::vec4 color = { 1.0f, 1.0f, 1.0f, 1.0f };
 
 
-		float Width = 1.0 / (sheet.TotalWidth / sheet.CellWidth);
-		float Height = 1.0 / (sheet.TotalHeight / sheet.CellHeight);
+		float Width = 1.0f / (sheet.TotalWidth / sheet.CellWidth);
+		float Height = 1.0f / (sheet.TotalHeight / sheet.CellHeight);
 
 		float x = sheet.XIndex * Width;
 		float y = sheet.YIndex * Height;

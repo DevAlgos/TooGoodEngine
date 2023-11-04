@@ -70,7 +70,7 @@ namespace Graphics {
 	}
 	void Shader::SetUniformFloat(const std::string& name, float value)
 	{
-		GLfloat location = glGetUniformLocation(m_Program, name.c_str());
+		GLint location = glGetUniformLocation(m_Program, name.c_str());
 		if (location != -1)
 			glUniform1f(location, value);
 		else {
@@ -83,7 +83,7 @@ namespace Graphics {
 	}
 	void Shader::SetUniformFloat2(const std::string& name, float v0, float v1)
 	{
-		GLfloat location = glGetUniformLocation(m_Program, name.c_str());
+		GLint location = glGetUniformLocation(m_Program, name.c_str());
 		if (location != -1)
 			glUniform2f(location, v0, v1);
 		else {
@@ -96,7 +96,7 @@ namespace Graphics {
 	}
 	void Shader::SetUniformFloat3(const std::string& name, float v0, float v1, float v2)
 	{
-		GLfloat location = glGetUniformLocation(m_Program, name.c_str());
+		GLint location = glGetUniformLocation(m_Program, name.c_str());
 		if (location != -1)
 			glUniform3f(location, v0, v1, v2);
 		else {
@@ -109,7 +109,7 @@ namespace Graphics {
 	}
 	void Shader::SetUniformFloat4(const std::string& name, float v0, float v1, float v2, float v3)
 	{
-		GLfloat location = glGetUniformLocation(m_Program, name.c_str());
+		GLint location = glGetUniformLocation(m_Program, name.c_str());
 		if (location != -1)
 			glUniform4f(location, v0, v1, v2, v3);
 		else {
@@ -122,7 +122,7 @@ namespace Graphics {
 	}
 	void Shader::SetUniformFloat3V(const std::string& name, glm::vec3 floats, int numb)
 	{
-		GLfloat location = glGetUniformLocation(m_Program, name.c_str());
+		GLint location = glGetUniformLocation(m_Program, name.c_str());
 		if (location != -1)
 			glUniform3fv(location, numb, glm::value_ptr(floats));
 		else {
@@ -136,7 +136,7 @@ namespace Graphics {
 	void Shader::setUniformMat4(const std::string& name, const glm::mat4& matrix)
 	{
 
-		GLfloat location = glGetUniformLocation(m_Program, name.c_str());
+		GLint location = glGetUniformLocation(m_Program, name.c_str());
 		if (location != -1)
 			glUniformMatrix4fv(location, 1, GL_FALSE, glm::value_ptr(matrix));
 		else {

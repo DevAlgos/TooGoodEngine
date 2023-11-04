@@ -16,7 +16,7 @@ namespace Graphics
 		static const uint32_t MaxIndicies = MaxQuads * 6;
 		static const uint32_t MaxVertices = MaxQuads * 4;
 
-		static const size_t MaxLightSources = 6;
+		static const uint32_t MaxLightSources = 6;
 
 		OrthoGraphicCamera Camera;
 
@@ -43,11 +43,11 @@ namespace Graphics
 		uint32_t Indicies[MaxQuads * 6];
 
 		std::vector<uint32_t> TextureSlots;
-		uint8_t CurrentTextureSlot;
+		uint32_t CurrentTextureSlot;
 		GLint MaxTextureSlots;
 
 		std::vector<Material> AllMaterials;
-		int32_t MaxMaterialSlots = 32;
+		uint32_t MaxMaterialSlots = 32;
 		uint32_t CurrentMaterialSlot = 0;
 
 		uint32_t DefaultTexture;

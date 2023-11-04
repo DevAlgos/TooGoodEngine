@@ -40,8 +40,8 @@ namespace Utils
 		CameraData.Front = glm::vec3(0.0f, 0.0f, -1.0f);
 		CameraData.Up = glm::vec3(0.0f, 1.0f, 0.0f);
 
-		CameraData.AspectRatio = Application::GetMainWindow().GetWidth() / 
-			Application::GetMainWindow().GetHeight();
+		CameraData.AspectRatio = (float)Application::GetMainWindow().GetWidth() / 
+			(float)Application::GetMainWindow().GetHeight();
 
 		CameraData.ZoomLevel = 5.0f;
 		CameraData.CameraSpeed = 30.0f;

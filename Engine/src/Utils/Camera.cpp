@@ -68,7 +68,7 @@ void OrthoGraphicCamera::Update(float dt)
 	double yOffset = InputManager::GetScrollWheel().second;
 	if (InputManager::IsScrolled())
 	{ 
-		ZoomFactor += LinearInterpolation<float>(ZoomFactor, yOffset * 0.25f, m_CameraData.ZoomSpeed);
+		ZoomFactor += LinearInterpolation<float>(ZoomFactor, (float)yOffset * 0.25f, m_CameraData.ZoomSpeed);
 		
 
 		ZoomFactor = std::max(ZoomFactor, -10.0f);

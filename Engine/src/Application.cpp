@@ -71,7 +71,7 @@ void Application::MainLoop()
 
 	while (!s_MainWindow.WindowClosed())
 	{
-		start = glfwGetTime();
+		start = (float)glfwGetTime();
 
 		s_MainWindow.SwapBuffers();
 		s_MainWindow.PollEvents();
@@ -97,7 +97,7 @@ void Application::MainLoop()
 			glfwMakeContextCurrent(backupContext);
 		}
 
-		end = glfwGetTime();
+		end = (float)glfwGetTime();
 		deltaTime = end - start;
 	}
 
