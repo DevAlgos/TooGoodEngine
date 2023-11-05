@@ -42,6 +42,7 @@ namespace Utils
 		if (ImGui::Begin("Debug Window"))
 		{
 			ImGui::Text("FPS: %.1f", ImGui::GetIO().Framerate);
+			ImGui::Text("MS per frame: %.1f", Application::GetCurrentDelta());
 #ifdef _DEBUG
 			ImGui::Text("Memory Using: %i", s_MemoryData.CurrentlyUsingMemory());
 #endif

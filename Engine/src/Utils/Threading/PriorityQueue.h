@@ -10,7 +10,16 @@ namespace Utils
 	struct PriorityData
 	{
 		T data;
-		Priority p = Priority::Bottom;
+		Priority p;
+
+		PriorityData() : p(Priority::Bottom)
+		{}
+
+		PriorityData(T d, Priority priority) : data(d), p(priority)
+		{}
+
+		~PriorityData()
+		{}
 	};
 
 	template<typename T>
@@ -36,7 +45,7 @@ namespace Utils
 		void Pop() noexcept;
 
 		inline T& Front() noexcept { return m_Queue[m_Index - 1].data; };
-		inline PriorityData<T>& FrontStruct() noexcept { return m_Queue[m_Index - 1]; } //incase priority data is needed
+		inline PriorityData<T>& FrontStruct() noexcept { return m_Queue[m_Index - 1]; } //incase we need to check priority
 		inline bool IsEmpty() noexcept { return m_Index == 0; }
 
 	private:
@@ -112,6 +121,7 @@ namespace Utils
 	template<typename T>
 	void PriorityQueue<T>::PushBack(PriorityData<T>&& elem)
 	{
+		
 		if (m_Index >= m_Size)
 		{
 			size_t NewSize = m_Size * 2;
@@ -175,10 +185,12 @@ namespace Utils
 	}
 
 	template<typename T>
-	void PriorityQueue<T>::Pop() noexcept //Data can be overwritten in the above index if needed, data will also be deleted in destructor if not overwritten
+	void PriorityQueue<T>::Pop() noexcept 
 	{
 		if (m_Index > 0)
 			m_Index--;
+
+		m_Queue[m_Index].~PriorityData<T>();
 	}
 
 }

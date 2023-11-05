@@ -71,7 +71,7 @@ void Application::MainLoop()
 
 	while (!s_MainWindow.WindowClosed())
 	{
-		start = (float)glfwGetTime();
+		start = (float)ApplicationClock->TimeElapsed(Utils::TimeUnit::mili);
 
 		s_MainWindow.SwapBuffers();
 		s_MainWindow.PollEvents();
@@ -97,7 +97,7 @@ void Application::MainLoop()
 			glfwMakeContextCurrent(backupContext);
 		}
 
-		end = (float)glfwGetTime();
+		end = (float)ApplicationClock->TimeElapsed(Utils::TimeUnit::mili);
 		deltaTime = end - start;
 	}
 
@@ -112,10 +112,15 @@ Graphics::Window& Application::GetMainWindow()
 
 long long Application::GetCurrentTime()
 {
-	return ApplicationClock->GetCurrentTime(Utils::TimeUnit::second);
+	return ApplicationClock->TimeElapsed(Utils::TimeUnit::mili);
 }
 
-float Application::GetCurrentDelta()
+float Application::GetCurrentDelta() 
 {
 	return deltaTime;
+}
+
+float Application::GetCurrentDeltaSecond()
+{
+	return deltaTime / 1000.0f;
 }

@@ -25,10 +25,8 @@ namespace Utils
 	public:
 		static void InitalizeManager();
 
-		static void AttachWork(size_t ThreadID, const Work& work, 
-			const Priority& priority);
-		static void AttachWork(const char* ThreadName, const Work& work,
-			const Priority& priority);
+		static void AttachWork(size_t ThreadID, const Work& work);
+		static void AttachWork(const char* ThreadName, const Work& work);
 
 		static void CreateThread(const char* ThreadName);
 

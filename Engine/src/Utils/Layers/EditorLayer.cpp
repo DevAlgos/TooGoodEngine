@@ -71,7 +71,7 @@ namespace Utils
 	{
 		ViewFrame->Bind();
 
-		m_OrthoCam.Update(Application::GetCurrentDelta());
+		m_OrthoCam.Update(Application::GetCurrentDeltaSecond());
 		Graphics::Renderer2D::ClearColor({ 0.4f, 0.2f, 0.8f });
 		Graphics::Renderer2D::BeginScene(m_OrthoCam);
 

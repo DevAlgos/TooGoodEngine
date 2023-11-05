@@ -36,7 +36,7 @@ layout(std140, binding = 1) uniform LightSources
 } Lights;
 
 
-uniform float NumberOfLightSources;
+//uniform float NumberOfLightSources;
 
 
 /*
@@ -120,7 +120,7 @@ void main()
     float fade = 0.005;
     float distancef = 1.0 - length(Position.xy);
     
-    float nLightSources = NumberOfLightSources;
+    //float nLightSources = NumberOfLightSources;
     
     vec3 Lightening = vec3(0.0f, 0.0f, 0.0f);
    

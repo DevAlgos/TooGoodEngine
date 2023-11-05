@@ -21,7 +21,7 @@ static void OpenGLDebugCallback(GLenum source, GLenum type, GLuint id, GLenum se
 		LOGERROR(message);
 		break;
 	default:
-		LOG(message);
+		break;
 	}
 }
 

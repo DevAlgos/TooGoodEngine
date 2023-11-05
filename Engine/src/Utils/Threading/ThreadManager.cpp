@@ -17,23 +17,22 @@ namespace Utils
 
 	}
 
-	void JobManager::AttachWork(size_t ThreadID, const Work& work, 
-		const Priority& priority)
+	void JobManager::AttachWork(size_t ThreadID, const Work& work)
 	{
 		if (!(ThreadID > s_ManagerData.ThreadPool.size()))
-			s_ManagerData.ThreadPool[ThreadID].Thread->Attach(work, priority);
+			s_ManagerData.ThreadPool[ThreadID].Thread->Attach(work);
 		else
 			LOGWARNING("Thread ID out of index, work was not attached!");
 
 	}
 
-	void JobManager::AttachWork(const char* ThreadName, const Work& work, const Priority& priority)
+	void JobManager::AttachWork(const char* ThreadName, const Work& work)
 	{
 		for (size_t i = 0; i < s_ManagerData.ThreadPool.size(); i++)
 		{
 			if (s_ManagerData.ThreadPool[i].ThreadName == ThreadName)
 			{
-				s_ManagerData.ThreadPool[i].Thread->Attach(work, priority);
+				s_ManagerData.ThreadPool[i].Thread->Attach(work);
 				break;
 			}
 		}

@@ -26,16 +26,11 @@ namespace Utils
 		void StartTime();
 		void EndTime();
 		
-
 		long long TimeElapsed(TimeUnit unit);
-		long long GetCurrentTime(TimeUnit unit); //doesn't need an end, gets the current time elapsed without resetting start or end. 
-
 	private:
 		
 		std::chrono::time_point<std::chrono::steady_clock> StartTimePoint;
 		std::chrono::time_point<std::chrono::steady_clock> EndTimePoint;
-
-		bool started = false;
 
 	};
 }

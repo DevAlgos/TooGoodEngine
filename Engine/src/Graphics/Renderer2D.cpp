@@ -586,8 +586,8 @@ namespace Graphics
 
 		RenderData.CircleVertexBuffer->PushData(CircleBufferData);
 
-		RenderData.CircleShader->Use();
-		RenderData.CircleShader->SetUniformFloat("NumberOfLightSources", (float)RenderData.CurrentLightSlot);
+		//RenderData.CircleShader->Use();
+		//RenderData.CircleShader->SetUniformFloat("NumberOfLightSources", (float)RenderData.CurrentLightSlot);
 
 		/*ViewportResolution*/
 
