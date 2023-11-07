@@ -38,6 +38,7 @@ layout(std140, binding = 1) uniform LightSources
 } Lights;
 
 
+
 uniform sampler2D samplerTextures[32];
 uniform float NumberOfLightSources;
 

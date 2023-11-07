@@ -31,7 +31,7 @@ namespace Utils
 	{
 		std::string message = color + prefix + ": " + msg + "\x1b[0m\n";
 
-		s_Job->Attach({ [message]() { printf(message.c_str()); }, false });
+		s_Job->Attach({ [message]() { printf(message.c_str()); }, false }, Priority::Bottom);
 		
 	}
 

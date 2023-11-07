@@ -39,6 +39,8 @@ namespace Graphics
 		std::unique_ptr<Shader>					CircleShader;
 
 
+		std::unique_ptr<BufferObject>			ShaderStorage;
+		std::vector<glm::vec4>					ObjectAttributes;
 
 		uint32_t Indicies[MaxQuads * 6];
 

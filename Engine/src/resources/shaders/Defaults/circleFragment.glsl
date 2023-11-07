@@ -15,6 +15,12 @@ struct Material
     float SpecularStrength;
 };
 
+struct Object
+{
+    vec3 Position;
+    float Type; //0 is square, 1 is circle etc...
+};
+
 out vec4 FragColor;
 
 in vec3  Position;
@@ -35,8 +41,19 @@ layout(std140, binding = 1) uniform LightSources
     LightSource LightSrc[6];
 } Lights;
 
+layout(std430, binding = 2) readonly buffer ObjectPositions
+{
+    vec4 Attributes[]; //3 floats assigned for position, 1 signed for object type
+} OPositions;
 
-//uniform float NumberOfLightSources;
+/*
+Object Type      Corresponding float 
+Quad             0.0
+Circle           1.0
+*/
+ 
+uniform float NumberOfLightSources;
+uniform float NumberOfObjects;
 
 
 /*
@@ -47,6 +64,10 @@ c = (Ax^2 - 2DAx + D^2) + (Ay^2 - 2OAy + O^2) - R^2
 Where (D,O) is the origin of the circle.
 B is the directional vector of the ray and A is the origin of the ray.*/
 
+bool TraceRay(float a, float b,float c)
+{
+    return b*b - 4 * a * c >= 0; //ray will successfully hit if discriminant is >=0
+}
 
 
 vec3 CalculateQuadraticComponents(vec2 RayDirection, vec2 RayOrigin, vec2 CircleCenter) //calculates a,b,c for quadratic
@@ -120,9 +141,10 @@ void main()
     float fade = 0.005;
     float distancef = 1.0 - length(Position.xy);
     
-    //float nLightSources = NumberOfLightSources;
+    int nLightSources = int(NumberOfLightSources);
+    int nObjects = int(NumberOfObjects);
     
-    vec3 Lightening = vec3(0.0f, 0.0f, 0.0f);
+    vec3 Lightening = vec3(1.0f, 1.0f, 1.0f);
    
    //artificial ray for testing
     vec2 RayDirection = normalize(vec2(1.0,1.0));
@@ -137,8 +159,13 @@ void main()
 
     vec3 Quadratic = CalculateQuadraticComponents(RayDirection, RayOrigin, CircleCenter);
 
+
     Lightening = CalculateIntersectionColor(Quadratic.x,Quadratic.y,Quadratic.z,RayOrigin,RayDirection, 
         Lights.LightSrc[0].Color, CircleCenter);
+
+   
+
+  
 
     distancef = smoothstep(0.0, fade, distancef);
     distancef *= smoothstep(Thickness + fade, Thickness, distancef);

@@ -24,7 +24,7 @@ namespace Utils
 
 		void Init();
 
-		void Attach(const Work& work);
+		void Attach(const Work& work, const Priority& priority);
 		void Join();
 		void Wait();
 		bool IsWorkDone();
@@ -45,7 +45,7 @@ namespace Utils
 		std::jthread m_JobThread;
 		volatile bool m_ThreadActive;
 
-		std::queue<Work> m_WorkQueue;
+		Utils::PriorityQueue<Work> m_WorkQueue;
 		std::mutex m_JobMutex;
 		std::condition_variable m_JobCondition;
 	};

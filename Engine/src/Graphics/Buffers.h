@@ -36,6 +36,7 @@ namespace Graphics
 		void Bind();
 		void PushData(const DynamicData& data);
 		void BindRange(const DynamicData& data);
+		void BindBase(GLuint index);
 
 		~BufferObject();
 

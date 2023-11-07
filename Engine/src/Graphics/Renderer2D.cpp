@@ -176,6 +176,21 @@ namespace Graphics
 		glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, 1, 1, 0, GL_RGBA, GL_UNSIGNED_BYTE, &colour);
 		RenderData.TextureSlots[0] = RenderData.DefaultTexture;
 
+		GLint maxSSBOSize;
+		glGetIntegerv(GL_MAX_SHADER_STORAGE_BLOCK_SIZE, &maxSSBOSize);
+		msg = "Available shader storage block size: " + std::to_string(maxSSBOSize) + " bytes";
+		LOG(msg);
+
+		BufferData ShaderBufferData;
+		ShaderBufferData.data = nullptr;
+		ShaderBufferData.DrawType = GL_DYNAMIC_READ;
+		GLsizei AvailableSize = (maxSSBOSize / (sizeof(GLfloat) * 4)) /  5; //should use a 5th of available memory
+
+		ShaderBufferData.VertexSize = sizeof(GLfloat) * 4 * AvailableSize;
+
+		RenderData.ShaderStorage = std::make_unique<BufferObject>(
+			BufferObject::BufferType::ShaderStorageBuffer, ShaderBufferData);
+		RenderData.ShaderStorage->BindBase(3);
 
 	}
 	void Renderer2D::BeginScene(OrthoGraphicCamera& Camera)
@@ -241,6 +256,7 @@ namespace Graphics
 
 
 		RenderData.IndexCount += 6;
+		RenderData.ObjectAttributes.push_back({ Position, 0.0f });
 	}
 	void Renderer2D::PushQuad(const glm::vec3& Position, const glm::vec2& size, float Rotation, const glm::vec4& color)
 	{
@@ -256,6 +272,8 @@ namespace Graphics
 		RenderData.BufferIndex = CreateQuad(RenderData.BufferIndex, color, 0.0f, ModelMatrix);
 
 		RenderData.IndexCount += 6;
+		RenderData.ObjectAttributes.push_back({ Position, 0.0f });
+
 
 	}
 	void Renderer2D::PushSprite(const glm::vec3& Position, const glm::vec2& size, float Rotation, uint32_t ID, SpriteSheet sheet)
@@ -297,6 +315,7 @@ namespace Graphics
 
 		RenderData.BufferIndex = CreateSprite(RenderData.BufferIndex, sheet, TextureIndex, 0.0f, ModelMatrix);
 
+		RenderData.ObjectAttributes.push_back({ Position, 0.0f });
 		RenderData.IndexCount += 6;
 
 	}
@@ -363,6 +382,7 @@ namespace Graphics
 
 		RenderData.BufferIndex = CreateQuad(RenderData.BufferIndex, TextureIndex, MaterialIndex, ModelMatrix);
 
+		RenderData.ObjectAttributes.push_back({ Position, 0.0f });
 		RenderData.IndexCount += 6;
 	}
 	void Renderer2D::PushQuad(const glm::vec3& Position, const glm::vec2& size, float Rotation, const glm::vec4& color, Material& material)
@@ -403,6 +423,7 @@ namespace Graphics
 			* glm::scale(ModelMatrix, glm::vec3(size, 1.0f));
 
 		RenderData.BufferIndex = CreateQuad(RenderData.BufferIndex, color, MaterialIndex, ModelMatrix);
+		RenderData.ObjectAttributes.push_back({ Position, 0.0f });
 
 		RenderData.IndexCount += 6;
 
@@ -466,6 +487,7 @@ namespace Graphics
 			* glm::scale(ModelMatrix, glm::vec3(size, 1.0f));
 
 		RenderData.BufferIndex = CreateSprite(RenderData.BufferIndex, sheet, TextureIndex, MaterialIndex, ModelMatrix);
+		RenderData.ObjectAttributes.push_back({ Position, 0.0f });
 		RenderData.IndexCount += 6;
 	}
 	void Renderer2D::PushCircle(const glm::vec3& Position, const glm::vec2& size, float Rotation, float Thickness, const glm::vec4& color)
@@ -482,6 +504,7 @@ namespace Graphics
 
 		RenderData.CircleBufferIndex = CreateCircle(RenderData.CircleBufferIndex, Thickness, color, 0.0f, ModelMatrix);
 
+		RenderData.ObjectAttributes.push_back({ Position, 1.0f });
 		RenderData.CircleIndexCount += 6;
 	}
 	void Renderer2D::PushLight(const LightSource& light)
@@ -550,6 +573,8 @@ namespace Graphics
 	}
 	void Renderer2D::EndScene() //checked off
 	{
+		
+
 		RenderData.VertexArray->Bind();
 		GLsizeiptr QuadSize = (uint8_t*)RenderData.BufferIndex - (uint8_t*)RenderData.Buffer;
 
@@ -576,8 +601,15 @@ namespace Graphics
 		RenderData.DefaultShader->Use();
 		RenderData.DefaultShader->SetUniformFloat("NumberOfLightSources", (float)RenderData.CurrentLightSlot);
 
+		
+
 		RenderData.CircleVertexArray->Bind();
 		GLsizeiptr CircleSize = (uint8_t*)RenderData.CircleBufferIndex - (uint8_t*)RenderData.CircleBuffer;
+
+	
+		RenderData.CircleShader->Use();
+		RenderData.CircleShader->SetUniformFloat("NumberOfLightSources", (float)RenderData.CurrentLightSlot);
+		RenderData.CircleShader->SetUniformFloat("NumberOfObjects", (float)RenderData.ObjectAttributes.size());
 
 		DynamicData CircleBufferData;
 		CircleBufferData.data = RenderData.CircleBuffer;
@@ -586,10 +618,13 @@ namespace Graphics
 
 		RenderData.CircleVertexBuffer->PushData(CircleBufferData);
 
-		//RenderData.CircleShader->Use();
-		//RenderData.CircleShader->SetUniformFloat("NumberOfLightSources", (float)RenderData.CurrentLightSlot);
+		DynamicData ShaderData;
+		ShaderData.data = RenderData.ObjectAttributes.data();
+		ShaderData.VertexSize = RenderData.ObjectAttributes.size();
+		ShaderData.Offset = 0;
 
-		/*ViewportResolution*/
+		RenderData.ShaderStorage->PushData(ShaderData);
+		RenderData.ObjectAttributes.clear();
 
 		DrawQuad();
 		DrawCircle();

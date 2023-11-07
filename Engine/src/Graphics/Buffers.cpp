@@ -84,6 +84,30 @@ namespace Graphics
 			break;
 		}
 	}
+	void BufferObject::BindBase(GLuint index)
+	{
+		switch (m_Type)
+		{
+		case Graphics::BufferObject::BufferType::VertexBuffer:
+			glBindBuffer(GL_ARRAY_BUFFER, m_VBO);
+			glBindBufferBase(GL_ARRAY_BUFFER, index, m_VBO);
+			break;
+		case Graphics::BufferObject::BufferType::IndexBuffer:
+			glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, m_VBO);
+			glBindBufferBase(GL_ELEMENT_ARRAY_BUFFER, index, m_VBO);
+			break;
+		case Graphics::BufferObject::BufferType::UniformBuffer:
+			glBindBuffer(GL_UNIFORM_BUFFER, m_VBO);
+			glBindBufferBase(GL_UNIFORM_BUFFER, index, m_VBO);
+			break;
+		case Graphics::BufferObject::BufferType::ShaderStorageBuffer:
+			glBindBuffer(GL_SHADER_STORAGE_BUFFER, m_VBO);
+			glBindBufferBase(GL_SHADER_STORAGE_BUFFER, index, m_VBO);
+			break;
+		default:
+			break;
+		}
+	}
 	void BufferObject::PushData(const DynamicData& data)
 	{
 		if (!data.data)
@@ -123,6 +147,9 @@ namespace Graphics
 			break;
 		case Graphics::BufferObject::BufferType::UniformBuffer:
 			glBindBuffer(GL_UNIFORM_BUFFER, m_VBO);
+			break;
+		case Graphics::BufferObject::BufferType::ShaderStorageBuffer:
+			glBindBuffer(GL_SHADER_STORAGE_BUFFER, m_VBO);
 			break;
 		default:
 			break;
