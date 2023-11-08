@@ -64,6 +64,7 @@ c = (Ax^2 - 2DAx + D^2) + (Ay^2 - 2OAy + O^2) - R^2
 Where (D,O) is the origin of the circle.
 B is the directional vector of the ray and A is the origin of the ray.*/
 
+
 bool TraceRay(float a, float b,float c)
 {
     return b*b - 4 * a * c >= 0; //ray will successfully hit if discriminant is >=0
@@ -73,9 +74,7 @@ bool TraceRay(float a, float b,float c)
 vec3 CalculateQuadraticComponents(vec2 RayDirection, vec2 RayOrigin, vec2 CircleCenter) //calculates a,b,c for quadratic
 {
     float a = dot(RayDirection,RayDirection);
-    float b = 
-    2 * (RayDirection.x*RayOrigin.x - CircleCenter.x*RayDirection.x) +
-    2 * (RayDirection.y*RayOrigin.y - CircleCenter.y*RayDirection.y);
+    float b = 2.0 * dot(RayDirection, RayOrigin - CircleCenter);
 
     float c = (RayOrigin.x * RayOrigin.x - 2 * CircleCenter.x * RayOrigin.x + CircleCenter.x*CircleCenter.x) + 
     (RayOrigin.y * RayOrigin.y - 2 * CircleCenter.y * RayOrigin.y + CircleCenter.y*CircleCenter.y) - CircleCenter.y;
@@ -84,7 +83,7 @@ vec3 CalculateQuadraticComponents(vec2 RayDirection, vec2 RayOrigin, vec2 Circle
 }
 
 vec3 CalculateIntersectionColor(float a, float b, float c, vec2 RayOrigin, vec2 RayDirection, vec3 Color, 
-                                    vec2 CircleCenter)
+                                    vec2 CircleCenter, int index)
 {
     vec3 IntersectionColor = vec3(0.0); //should be ambient by default
 
@@ -107,20 +106,20 @@ vec3 CalculateIntersectionColor(float a, float b, float c, vec2 RayOrigin, vec2 
 
         if(LightDistance1 >= LightDistance2)
         {
-            float constantAttenuation = 1.0;
+            float constantAttenuation = 0.5;
             float linearAttenuation = 0.1; 
             float quadraticAttenuation = 0.05; 
-            Attenuation = 1.0 / (
-            constantAttenuation + linearAttenuation * 
+            Attenuation = 1.0 / 
+            constantAttenuation + (linearAttenuation * 
             LightDistance + quadraticAttenuation * 
             LightDistance * LightDistance);
 
             vec2 Normal = normalize(IntersectionPoint1 - CircleCenter);
-            vec3 LightDirection = normalize(Lights.LightSrc[0].Position - vec3(RayOrigin,0.0));
+            vec2 LightDirection = normalize(RayOrigin - CircleCenter);
 
-            vec3 FinalDiffuse = vec3(dot(vec3(Normal,1.0), LightDirection));
+            vec3 FinalDiffuse = vec3(dot(vec3(Normal,1.0), vec3(LightDirection,1.0)));
 
-            FinalDiffuse *= MatSlots.Materials[0].Diffuse * Attenuation;
+            FinalDiffuse *= MatSlots.Materials[index].Diffuse * Attenuation;
 
 
             IntersectionColor = Color * FinalDiffuse; 
@@ -134,6 +133,83 @@ vec3 CalculateIntersectionColor(float a, float b, float c, vec2 RayOrigin, vec2 
 
 
     return IntersectionColor;
+}
+
+float GetIntersection(vec2 RayDirection, vec2 CircleCenter, vec2 LightSourcePosition)
+{
+   vec3 Quadratic = CalculateQuadraticComponents(RayDirection, LightSourcePosition, CircleCenter);
+
+   float discriminant = Quadratic.y*Quadratic.y - 4 * Quadratic.x * Quadratic.z;
+   if(discriminant >= 0)
+        return distance(CircleCenter, LightSourcePosition);
+        
+    return -1.0;
+}
+
+vec3 TraceCircleRay(vec2 RayDir, vec2 CircleCenter, int ObjectIndex)
+{   
+    vec3 Color = vec3(1.0, 1.0, 1.0);
+
+    float ClosestIntersection = -1;
+
+
+    for(int j = 0; j < NumberOfLightSources; j++)
+    {
+        float CircleIntersection = GetIntersection(RayDir, vec2(WorldCoordinates.xy), Lights.LightSrc[j].Position.xy);
+        float ObjectIntersection = GetIntersection(RayDir, CircleCenter, Lights.LightSrc[j].Position.xy);
+        
+        if(CircleIntersection <= ObjectIntersection && CircleIntersection != -1)
+        {
+            vec3 Quadratic = CalculateQuadraticComponents(RayDir, Lights.LightSrc[j].Position.xy, CircleCenter);
+        
+            vec3 LocalColor = vec3(1.0);
+
+
+            LocalColor = CalculateIntersectionColor(Quadratic.x,Quadratic.y,Quadratic.z, Lights.LightSrc[j].Position.xy,RayDir, 
+            Lights.LightSrc[j].Color, CircleCenter, ObjectIndex);
+            Color += LocalColor;
+          
+        } else if (CircleIntersection > ObjectIntersection)
+        {
+            continue;
+        }
+
+    }
+
+
+    return Color;
+}
+
+
+
+vec3 TraceAllRays()
+{
+   vec2 RayDir = vec2(1.0, 0.0); //artificial for now but will be embedded in light
+   vec2 RayDir1 = vec2(0.0, 1.0);
+   
+   
+   
+   vec3 CircleColor = vec3(1.0);
+
+   vec2 RayDirection = normalize(vec2(1.0,0.0));
+
+   for(int i = 0; i < NumberOfObjects; i++)
+   {
+      vec2 CircleCenter = vec2(OPositions.Attributes[i].xy);
+      CircleColor *= TraceCircleRay(RayDir, CircleCenter, i);//TraceCircleRay(RayDir, OPositions.Attributes[i].xy)
+      CircleColor *= TraceCircleRay(RayDir1, CircleCenter, i);//TraceCircleRay(RayDir, OPositions.Attributes[i].xy)
+        
+
+      if(length(CircleColor) >= 0.0 && OPositions.Attributes[i].xy == WorldCoordinates.xy)
+      {
+             return CircleColor; //we have hit the circle we do not need to check for bounces etc..
+             break;
+      }
+        
+   }
+
+
+   return CircleColor;
 }
 
 void main()
@@ -157,11 +233,10 @@ void main()
 
     vec2 CircleCenter = vec2(xCoord,yCoord);
 
-    vec3 Quadratic = CalculateQuadraticComponents(RayDirection, RayOrigin, CircleCenter);
+    //vec3 Quadratic = CalculateQuadraticComponents(RayDirection, RayOrigin, CircleCenter);
 
 
-    Lightening = CalculateIntersectionColor(Quadratic.x,Quadratic.y,Quadratic.z,RayOrigin,RayDirection, 
-        Lights.LightSrc[0].Color, CircleCenter);
+    Lightening = TraceAllRays();
 
    
 

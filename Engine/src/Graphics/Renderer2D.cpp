@@ -14,10 +14,10 @@ namespace Graphics
 	{
 		std::map<GLenum, const char*> ShaderList = {
 			{GL_VERTEX_SHADER, "Engine/src/resources/shaders/Defaults/basicVertex.glsl"},
-			{GL_FRAGMENT_SHADER, "Engine/src/resources/shaders/Defaults/basicFragment.glsl"}, 
-		
+			{GL_FRAGMENT_SHADER, "Engine/src/resources/shaders/Defaults/basicFragment.glsl"},
+
 		};
-	
+
 		RenderData.DefaultShader = std::make_unique<Shader>(ShaderList);
 
 		RenderData.CurrentTextureSlot = 1;
@@ -69,13 +69,13 @@ namespace Graphics
 
 		constexpr GLsizei VertexStride = sizeof(Vertex);
 
-		RenderData.VertexArray->AttribPointer(0, 3, GL_FLOAT, GL_FALSE, VertexStride, (void*)offsetof(Vertex,  Vertex::Position)); //All vertex attributes that will be passed to shader are set up here
-		RenderData.VertexArray->AttribPointer(1, 4, GL_FLOAT, GL_FALSE, VertexStride, (void*)offsetof(Vertex,  Vertex::Color));
-		RenderData.VertexArray->AttribPointer(2, 3, GL_FLOAT, GL_FALSE, VertexStride, (void*)offsetof(Vertex,  Vertex::Normal));
-		RenderData.VertexArray->AttribPointer(3, 2, GL_FLOAT, GL_FALSE, VertexStride, (void*)offsetof(Vertex,  Vertex::TextureCoordinates));
-		RenderData.VertexArray->AttribPointer(4, 1, GL_FLOAT, GL_FALSE, VertexStride, (void*)offsetof(Vertex,  Vertex::TextureUnit));
-		RenderData.VertexArray->AttribPointer(5, 1, GL_FLOAT, GL_FALSE, VertexStride, (void*)offsetof(Vertex,  Vertex::MaterialUnit));
-		RenderData.VertexArray->AttribPointer(6, 4, GL_FLOAT, GL_FALSE, VertexStride, (void*)offsetof(Vertex,  Vertex::ModelMatrix)); //col 0
+		RenderData.VertexArray->AttribPointer(0, 3, GL_FLOAT, GL_FALSE, VertexStride, (void*)offsetof(Vertex, Vertex::Position)); //All vertex attributes that will be passed to shader are set up here
+		RenderData.VertexArray->AttribPointer(1, 4, GL_FLOAT, GL_FALSE, VertexStride, (void*)offsetof(Vertex, Vertex::Color));
+		RenderData.VertexArray->AttribPointer(2, 3, GL_FLOAT, GL_FALSE, VertexStride, (void*)offsetof(Vertex, Vertex::Normal));
+		RenderData.VertexArray->AttribPointer(3, 2, GL_FLOAT, GL_FALSE, VertexStride, (void*)offsetof(Vertex, Vertex::TextureCoordinates));
+		RenderData.VertexArray->AttribPointer(4, 1, GL_FLOAT, GL_FALSE, VertexStride, (void*)offsetof(Vertex, Vertex::TextureUnit));
+		RenderData.VertexArray->AttribPointer(5, 1, GL_FLOAT, GL_FALSE, VertexStride, (void*)offsetof(Vertex, Vertex::MaterialUnit));
+		RenderData.VertexArray->AttribPointer(6, 4, GL_FLOAT, GL_FALSE, VertexStride, (void*)offsetof(Vertex, Vertex::ModelMatrix)); //col 0
 		RenderData.VertexArray->AttribPointer(7, 4, GL_FLOAT, GL_FALSE, VertexStride, (void*)(offsetof(Vertex, Vertex::ModelMatrix) + (sizeof(GLfloat) * 4))); // col 1
 		RenderData.VertexArray->AttribPointer(8, 4, GL_FLOAT, GL_FALSE, VertexStride, (void*)(offsetof(Vertex, Vertex::ModelMatrix) + (sizeof(GLfloat) * 8))); // col 2
 		RenderData.VertexArray->AttribPointer(9, 4, GL_FLOAT, GL_FALSE, VertexStride, (void*)(offsetof(Vertex, Vertex::ModelMatrix) + (sizeof(GLfloat) * 12))); // col 3
@@ -91,7 +91,7 @@ namespace Graphics
 
 		RenderData.CircleShader = std::make_unique<Shader>(CircleShaderList);
 
-		BufferData CircleVertexData; 
+		BufferData CircleVertexData;
 		CircleVertexData.DrawType = GL_DYNAMIC_DRAW;
 		CircleVertexData.data = nullptr;
 		CircleVertexData.VertexSize = sizeof(CircleVertex) * RenderData.MaxVertices;
@@ -104,14 +104,14 @@ namespace Graphics
 
 		constexpr GLsizei CircleVertexStride = sizeof(CircleVertex);
 
-		RenderData.CircleVertexArray->AttribPointer(0,  3,  GL_FLOAT, GL_FALSE, CircleVertexStride, (void*)offsetof(CircleVertex,  CircleVertex::Position));
-		RenderData.CircleVertexArray->AttribPointer(1,  4,  GL_FLOAT, GL_FALSE, CircleVertexStride, (void*)offsetof(CircleVertex,  CircleVertex::Color));            
-		RenderData.CircleVertexArray->AttribPointer(2,  1,  GL_FLOAT, GL_FALSE, CircleVertexStride, (void*)offsetof(CircleVertex,  CircleVertex::Thickness));
-		RenderData.CircleVertexArray->AttribPointer(3,  1,  GL_FLOAT, GL_FALSE, CircleVertexStride, (void*)offsetof(CircleVertex,  CircleVertex::MaterialUnit));
-		RenderData.CircleVertexArray->AttribPointer(4,  4,  GL_FLOAT, GL_FALSE, CircleVertexStride, (void*)offsetof(CircleVertex,  CircleVertex::ModelMatrix));
-		RenderData.CircleVertexArray->AttribPointer(5,  4,  GL_FLOAT, GL_FALSE, CircleVertexStride, (void*)(offsetof(CircleVertex, CircleVertex::ModelMatrix) + (sizeof(GLfloat) * 4)));
-		RenderData.CircleVertexArray->AttribPointer(6,  4,  GL_FLOAT, GL_FALSE, CircleVertexStride, (void*)(offsetof(CircleVertex, CircleVertex::ModelMatrix) + (sizeof(GLfloat) * 8)));
-		RenderData.CircleVertexArray->AttribPointer(7,  4,  GL_FLOAT, GL_FALSE, CircleVertexStride, (void*)(offsetof(CircleVertex, CircleVertex::ModelMatrix) + (sizeof(GLfloat) * 12)));
+		RenderData.CircleVertexArray->AttribPointer(0, 3, GL_FLOAT, GL_FALSE, CircleVertexStride, (void*)offsetof(CircleVertex, CircleVertex::Position));
+		RenderData.CircleVertexArray->AttribPointer(1, 4, GL_FLOAT, GL_FALSE, CircleVertexStride, (void*)offsetof(CircleVertex, CircleVertex::Color));
+		RenderData.CircleVertexArray->AttribPointer(2, 1, GL_FLOAT, GL_FALSE, CircleVertexStride, (void*)offsetof(CircleVertex, CircleVertex::Thickness));
+		RenderData.CircleVertexArray->AttribPointer(3, 1, GL_FLOAT, GL_FALSE, CircleVertexStride, (void*)offsetof(CircleVertex, CircleVertex::MaterialUnit));
+		RenderData.CircleVertexArray->AttribPointer(4, 4, GL_FLOAT, GL_FALSE, CircleVertexStride, (void*)offsetof(CircleVertex, CircleVertex::ModelMatrix));
+		RenderData.CircleVertexArray->AttribPointer(5, 4, GL_FLOAT, GL_FALSE, CircleVertexStride, (void*)(offsetof(CircleVertex, CircleVertex::ModelMatrix) + (sizeof(GLfloat) * 4)));
+		RenderData.CircleVertexArray->AttribPointer(6, 4, GL_FLOAT, GL_FALSE, CircleVertexStride, (void*)(offsetof(CircleVertex, CircleVertex::ModelMatrix) + (sizeof(GLfloat) * 8)));
+		RenderData.CircleVertexArray->AttribPointer(7, 4, GL_FLOAT, GL_FALSE, CircleVertexStride, (void*)(offsetof(CircleVertex, CircleVertex::ModelMatrix) + (sizeof(GLfloat) * 12)));
 
 		uint32_t offset = 0;
 		for (int i = 0; i < RenderData.MaxIndicies; i += 6) //Init of indicies ready to be used for rendering
@@ -184,13 +184,13 @@ namespace Graphics
 		BufferData ShaderBufferData;
 		ShaderBufferData.data = nullptr;
 		ShaderBufferData.DrawType = GL_DYNAMIC_READ;
-		GLsizei AvailableSize = (maxSSBOSize / (sizeof(GLfloat) * 4)) /  5; //should use a 5th of available memory
+		GLsizei AvailableSize = (maxSSBOSize / (sizeof(GLfloat) * 4)) / 5; //should use a 5th of available memory
 
 		ShaderBufferData.VertexSize = sizeof(GLfloat) * 4 * AvailableSize;
 
 		RenderData.ShaderStorage = std::make_unique<BufferObject>(
 			BufferObject::BufferType::ShaderStorageBuffer, ShaderBufferData);
-		RenderData.ShaderStorage->BindBase(3);
+		RenderData.ShaderStorage->BindBase(2);
 
 	}
 	void Renderer2D::BeginScene(OrthoGraphicCamera& Camera)
@@ -207,7 +207,7 @@ namespace Graphics
 		RenderData.CircleShader->Use();
 		RenderData.CircleShader->setUniformMat4("view", Camera.GetView());
 		RenderData.CircleShader->setUniformMat4("projection", Camera.GetProjection());
-		
+
 
 	}
 	void Renderer2D::BeginScene()
@@ -248,7 +248,7 @@ namespace Graphics
 		}
 
 		glm::mat4 ModelMatrix = glm::mat4(1.0f);
-		ModelMatrix = glm::translate(ModelMatrix, Position) 
+		ModelMatrix = glm::translate(ModelMatrix, Position)
 			* glm::rotate(ModelMatrix, glm::radians(Rotation), glm::vec3(0.0f, 0.0f, 1.0f))
 			* glm::scale(ModelMatrix, glm::vec3(size, 1.0f));
 
@@ -256,7 +256,7 @@ namespace Graphics
 
 
 		RenderData.IndexCount += 6;
-		RenderData.ObjectAttributes.push_back({ Position, 0.0f });
+		//RenderData.ObjectAttributes.push_back({ Position, 1.0f });
 	}
 	void Renderer2D::PushQuad(const glm::vec3& Position, const glm::vec2& size, float Rotation, const glm::vec4& color)
 	{
@@ -272,7 +272,7 @@ namespace Graphics
 		RenderData.BufferIndex = CreateQuad(RenderData.BufferIndex, color, 0.0f, ModelMatrix);
 
 		RenderData.IndexCount += 6;
-		RenderData.ObjectAttributes.push_back({ Position, 0.0f });
+		//RenderData.ObjectAttributes.push_back({ Position, 0.0f });
 
 
 	}
@@ -284,7 +284,7 @@ namespace Graphics
 
 		if (RenderData.CurrentTextureSlot > (uint32_t)RenderData.MaxTextureSlots - 1)
 			RenderData.CurrentTextureSlot = 1;
-		
+
 
 
 
@@ -315,7 +315,7 @@ namespace Graphics
 
 		RenderData.BufferIndex = CreateSprite(RenderData.BufferIndex, sheet, TextureIndex, 0.0f, ModelMatrix);
 
-		RenderData.ObjectAttributes.push_back({ Position, 0.0f });
+		//RenderData.ObjectAttributes.push_back({ Position, 0.0f });
 		RenderData.IndexCount += 6;
 
 	}
@@ -328,10 +328,10 @@ namespace Graphics
 
 		if (RenderData.CurrentTextureSlot > (uint32_t)RenderData.MaxTextureSlots - 1)
 			RenderData.CurrentTextureSlot = 1;
-		
+
 		if (RenderData.CurrentMaterialSlot > RenderData.MaxMaterialSlots)
 			RenderData.CurrentMaterialSlot = 1;
-		
+
 
 
 
@@ -382,7 +382,7 @@ namespace Graphics
 
 		RenderData.BufferIndex = CreateQuad(RenderData.BufferIndex, TextureIndex, MaterialIndex, ModelMatrix);
 
-		RenderData.ObjectAttributes.push_back({ Position, 0.0f });
+		//RenderData.ObjectAttributes.push_back({ Position, 0.0f });
 		RenderData.IndexCount += 6;
 	}
 	void Renderer2D::PushQuad(const glm::vec3& Position, const glm::vec2& size, float Rotation, const glm::vec4& color, Material& material)
@@ -394,7 +394,7 @@ namespace Graphics
 
 		if (RenderData.CurrentMaterialSlot > RenderData.MaxMaterialSlots)
 			RenderData.CurrentMaterialSlot = 1;
-		
+
 
 
 
@@ -423,7 +423,7 @@ namespace Graphics
 			* glm::scale(ModelMatrix, glm::vec3(size, 1.0f));
 
 		RenderData.BufferIndex = CreateQuad(RenderData.BufferIndex, color, MaterialIndex, ModelMatrix);
-		RenderData.ObjectAttributes.push_back({ Position, 0.0f });
+		//RenderData.ObjectAttributes.push_back({ Position, 0.0f });
 
 		RenderData.IndexCount += 6;
 
@@ -437,10 +437,10 @@ namespace Graphics
 
 		if (RenderData.CurrentTextureSlot > (uint32_t)RenderData.MaxTextureSlots - 1)
 			RenderData.CurrentTextureSlot = 1;
-		
+
 		if (RenderData.CurrentMaterialSlot > RenderData.MaxMaterialSlots)
 			RenderData.CurrentMaterialSlot = 1;
-		
+
 
 		float TextureIndex = 0.0f;
 
@@ -487,7 +487,7 @@ namespace Graphics
 			* glm::scale(ModelMatrix, glm::vec3(size, 1.0f));
 
 		RenderData.BufferIndex = CreateSprite(RenderData.BufferIndex, sheet, TextureIndex, MaterialIndex, ModelMatrix);
-		RenderData.ObjectAttributes.push_back({ Position, 0.0f });
+		//RenderData.ObjectAttributes.push_back({ Position, 0.0f });
 		RenderData.IndexCount += 6;
 	}
 	void Renderer2D::PushCircle(const glm::vec3& Position, const glm::vec2& size, float Rotation, float Thickness, const glm::vec4& color)
@@ -497,12 +497,13 @@ namespace Graphics
 		}
 
 		glm::mat4 ModelMatrix = glm::mat4(1.0f);
-		ModelMatrix = glm::translate(ModelMatrix, Position) 
+		ModelMatrix = glm::translate(ModelMatrix, Position)
 			* glm::rotate(ModelMatrix, glm::radians(Rotation), glm::vec3(0.0f, 0.0f, 1.0f))
 			* glm::scale(ModelMatrix, glm::vec3(size, 1.0f));
-			
+
 
 		RenderData.CircleBufferIndex = CreateCircle(RenderData.CircleBufferIndex, Thickness, color, 0.0f, ModelMatrix);
+
 
 		RenderData.ObjectAttributes.push_back({ Position, 1.0f });
 		RenderData.CircleIndexCount += 6;
@@ -524,10 +525,10 @@ namespace Graphics
 				isFound = true;
 				if (RenderData.LightSources[i].Position != light.Position) //this ensures if the light source position/color changes it updates
 					RenderData.LightSources[i].Position = light.Position;
-				
+
 				if (RenderData.LightSources[i].Color != light.Color)
 					RenderData.LightSources[i].Color = light.Color;
-				
+
 				break;
 			}
 		}
@@ -550,14 +551,14 @@ namespace Graphics
 		RenderData.VertexBuffer->Bind();
 		RenderData.IndexBuffer->Bind();
 
-		for (int i = 0; i < (int)RenderData.CurrentTextureSlot; i++) 
+		for (int i = 0; i < (int)RenderData.CurrentTextureSlot; i++)
 			glBindTextureUnit(i, RenderData.TextureSlots[i]);
-		
+
 
 		glDrawElements(GL_TRIANGLES, RenderData.IndexCount, GL_UNSIGNED_INT, nullptr);
 
 		RenderData.IndexCount = 0;
-		
+
 	}
 	void Renderer2D::DrawCircle() //checked off
 	{
@@ -573,7 +574,7 @@ namespace Graphics
 	}
 	void Renderer2D::EndScene() //checked off
 	{
-		
+
 
 		RenderData.VertexArray->Bind();
 		GLsizeiptr QuadSize = (uint8_t*)RenderData.BufferIndex - (uint8_t*)RenderData.Buffer;
@@ -601,15 +602,15 @@ namespace Graphics
 		RenderData.DefaultShader->Use();
 		RenderData.DefaultShader->SetUniformFloat("NumberOfLightSources", (float)RenderData.CurrentLightSlot);
 
-		
+
 
 		RenderData.CircleVertexArray->Bind();
 		GLsizeiptr CircleSize = (uint8_t*)RenderData.CircleBufferIndex - (uint8_t*)RenderData.CircleBuffer;
 
-	
+
 		RenderData.CircleShader->Use();
 		RenderData.CircleShader->SetUniformFloat("NumberOfLightSources", (float)RenderData.CurrentLightSlot);
-		RenderData.CircleShader->SetUniformFloat("NumberOfObjects", (float)RenderData.ObjectAttributes.size());
+		RenderData.CircleShader->SetUniformFloat("NumberOfObjects", (float)RenderData.ObjectAttributes.size() + 1.0f);
 
 		DynamicData CircleBufferData;
 		CircleBufferData.data = RenderData.CircleBuffer;
@@ -620,7 +621,7 @@ namespace Graphics
 
 		DynamicData ShaderData;
 		ShaderData.data = RenderData.ObjectAttributes.data();
-		ShaderData.VertexSize = RenderData.ObjectAttributes.size();
+		ShaderData.VertexSize = RenderData.ObjectAttributes.size() * sizeof(GLfloat) * 4;
 		ShaderData.Offset = 0;
 
 		RenderData.ShaderStorage->PushData(ShaderData);
