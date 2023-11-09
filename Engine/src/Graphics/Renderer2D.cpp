@@ -183,7 +183,7 @@ namespace Graphics
 
 		BufferData ShaderBufferData;
 		ShaderBufferData.data = nullptr;
-		ShaderBufferData.DrawType = GL_DYNAMIC_READ;
+		ShaderBufferData.DrawType = GL_DYNAMIC_COPY;
 		GLsizei AvailableSize = (maxSSBOSize / (sizeof(GLfloat) * 4)) / 5; //should use a 5th of available memory
 
 		ShaderBufferData.VertexSize = sizeof(GLfloat) * 4 * AvailableSize;
@@ -207,6 +207,8 @@ namespace Graphics
 		RenderData.CircleShader->Use();
 		RenderData.CircleShader->setUniformMat4("view", Camera.GetView());
 		RenderData.CircleShader->setUniformMat4("projection", Camera.GetProjection());
+		RenderData.CircleShader->SetUniformFloat3("CameraPosition", RenderData.Camera.GetPosition().x, 
+			RenderData.Camera.GetPosition().y, RenderData.Camera.GetPosition().z);
 
 
 	}
@@ -492,7 +494,7 @@ namespace Graphics
 	}
 	void Renderer2D::PushCircle(const glm::vec3& Position, const glm::vec2& size, float Rotation, float Thickness, const glm::vec4& color)
 	{
-		if (RenderData.CircleIndexCount >= RenderData.MaxVertices) {
+		if (RenderData.CircleIndexCount >= RenderData.MaxVertices ) {
 			FlushScene();
 		}
 
@@ -504,8 +506,49 @@ namespace Graphics
 
 		RenderData.CircleBufferIndex = CreateCircle(RenderData.CircleBufferIndex, Thickness, color, 0.0f, ModelMatrix);
 
+																											 
+		RenderData.ObjectAttributes.push_back({ Position.x, Position.y, size.y, 0.0}); //First 2 are positions, 3rd is radius, and 4th is object type
+		RenderData.CircleIndexCount += 6;
+	}
+	void Renderer2D::PushCircle(const glm::vec3& Position, const glm::vec2& size, float Rotation, float Thickness, const glm::vec4& color, Material& material)
+	{
+		if (RenderData.CircleIndexCount >= RenderData.MaxVertices 
+			|| RenderData.CurrentMaterialSlot > RenderData.MaxMaterialSlots) {
+			FlushScene();
+		}
 
-		RenderData.ObjectAttributes.push_back({ Position, 1.0f });
+		if (RenderData.CurrentMaterialSlot > RenderData.MaxMaterialSlots)
+			RenderData.CurrentMaterialSlot = 1;
+
+		glm::mat4 ModelMatrix = glm::mat4(1.0f);
+		ModelMatrix = glm::translate(ModelMatrix, Position)
+			* glm::rotate(ModelMatrix, glm::radians(Rotation), glm::vec3(0.0f, 0.0f, 1.0f))
+			* glm::scale(ModelMatrix, glm::vec3(size, 1.0f));
+
+
+		float MaterialIndex = 0.0f;
+
+		for (int i = 1; i < (int)RenderData.CurrentMaterialSlot; i++)
+		{
+			if (RenderData.AllMaterials[i] == material)
+			{
+				MaterialIndex = (float)i;
+				break;
+			}
+
+		}
+
+		if (MaterialIndex == 0.0f)
+		{
+			MaterialIndex = (float)RenderData.CurrentMaterialSlot;
+			RenderData.AllMaterials[RenderData.CurrentMaterialSlot] = material;
+			RenderData.CurrentMaterialSlot++;
+		}
+
+		RenderData.CircleBufferIndex = CreateCircle(RenderData.CircleBufferIndex, Thickness, color, MaterialIndex, ModelMatrix);
+
+
+		RenderData.ObjectAttributes.push_back({ Position.x, Position.y, size.y, 0.0 }); //First 2 are positions, 3rd is radius, and 4th is object type
 		RenderData.CircleIndexCount += 6;
 	}
 	void Renderer2D::PushLight(const LightSource& light)
@@ -639,7 +682,7 @@ namespace Graphics
 
 		delete[] RenderData.Buffer;
 		delete[] RenderData.CircleBuffer;
-
+		
 	}
 	void Renderer2D::FlushScene()
 	{

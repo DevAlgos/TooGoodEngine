@@ -1,0 +1,508 @@
+{
+  "version": "2.1.0",
+  "$schema": "https://schemastore.azurewebsites.net/schemas/json/sarif-2.1.0-rtm.5.json",
+  "runs": [
+    {
+      "results": [
+        {
+          "ruleId": "C26451",
+          "message": {
+            "text": "Arithmetic overflow: Using operator '+' on a 4 byte value and then casting the result to a 8 byte value. Cast the value to the wider type before calling operator '+' to avoid overflow (io.2)."
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "file:///C:/Users/khali/OneDrive/Desktop/dev/TooGoodEngine/Libs/imgui/imgui_demo.cpp"
+                },
+                "region": {
+                  "startLine": 894,
+                  "startColumn": 46,
+                  "endLine": 894,
+                  "endColumn": 57
+                }
+              },
+              "logicalLocations": [
+                {
+                  "fullyQualifiedName": "ShowDemoWindowWidgets",
+                  "decoratedName": "?ShowDemoWindowWidgets@@YAXXZ",
+                  "kind": "function"
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "ruleId": "C26451",
+          "message": {
+            "text": "Arithmetic overflow: Using operator '+' on a 4 byte value and then casting the result to a 8 byte value. Cast the value to the wider type before calling operator '+' to avoid overflow (io.2)."
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "file:///C:/Users/khali/OneDrive/Desktop/dev/TooGoodEngine/Libs/imgui/imgui_demo.cpp"
+                },
+                "region": {
+                  "startLine": 894,
+                  "startColumn": 68,
+                  "endLine": 894,
+                  "endColumn": 79
+                }
+              },
+              "logicalLocations": [
+                {
+                  "fullyQualifiedName": "ShowDemoWindowWidgets",
+                  "decoratedName": "?ShowDemoWindowWidgets@@YAXXZ",
+                  "kind": "function"
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "ruleId": "C26451",
+          "message": {
+            "text": "Arithmetic overflow: Using operator '-' on a 4 byte value and then casting the result to a 8 byte value. Cast the value to the wider type before calling operator '-' to avoid overflow (io.2)."
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "file:///C:/Users/khali/OneDrive/Desktop/dev/TooGoodEngine/Libs/imgui/imgui_demo.cpp"
+                },
+                "region": {
+                  "startLine": 3525,
+                  "startColumn": 101,
+                  "endLine": 3525,
+                  "endColumn": 120
+                }
+              },
+              "logicalLocations": [
+                {
+                  "fullyQualifiedName": "ImGui::ShowStyleEditor",
+                  "decoratedName": "?ShowStyleEditor@ImGui@@YAXPEAUImGuiStyle@@@Z",
+                  "kind": "function"
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "ruleId": "C6011",
+          "message": {
+            "text": "Dereferencing NULL pointer 'p_open'. "
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "file:///C:/Users/khali/OneDrive/Desktop/dev/TooGoodEngine/Libs/imgui/imgui_demo.cpp"
+                },
+                "region": {
+                  "startLine": 4807,
+                  "startColumn": 18,
+                  "endLine": 4807,
+                  "endColumn": 27
+                }
+              },
+              "logicalLocations": [
+                {
+                  "fullyQualifiedName": "ShowExampleAppDockSpace",
+                  "decoratedName": "?ShowExampleAppDockSpace@@YAXPEA_N@Z",
+                  "kind": "function"
+                }
+              ]
+            }
+          ],
+          "codeFlows": [
+            {
+              "threadFlows": [
+                {
+                  "locations": [
+                    {
+                      "location": {
+                        "physicalLocation": {
+                          "artifactLocation": {
+                            "uri": "file:///C:/Users/khali/OneDrive/Desktop/dev/TooGoodEngine/Libs/imgui/imgui_demo.cpp"
+                          },
+                          "region": {
+                            "startLine": 4744,
+                            "startColumn": 17
+                          }
+                        }
+                      },
+                      "importance": "unimportant"
+                    },
+                    {
+                      "location": {
+                        "physicalLocation": {
+                          "artifactLocation": {
+                            "uri": "file:///C:/Users/khali/OneDrive/Desktop/dev/TooGoodEngine/Libs/imgui/imgui_demo.cpp"
+                          },
+                          "region": {
+                            "startLine": 4745,
+                            "startColumn": 10
+                          }
+                        }
+                      },
+                      "importance": "unimportant"
+                    },
+                    {
+                      "location": {
+                        "physicalLocation": {
+                          "artifactLocation": {
+                            "uri": "file:///C:/Users/khali/OneDrive/Desktop/dev/TooGoodEngine/Libs/imgui/imgui_demo.cpp"
+                          },
+                          "region": {
+                            "startLine": 4746,
+                            "startColumn": 31
+                          }
+                        }
+                      },
+                      "importance": "unimportant"
+                    },
+                    {
+                      "location": {
+                        "physicalLocation": {
+                          "artifactLocation": {
+                            "uri": "file:///C:/Users/khali/OneDrive/Desktop/dev/TooGoodEngine/Libs/imgui/imgui_demo.cpp"
+                          },
+                          "region": {
+                            "startLine": 4750,
+                            "startColumn": 22
+                          }
+                        }
+                      },
+                      "importance": "unimportant"
+                    },
+                    {
+                      "location": {
+                        "physicalLocation": {
+                          "artifactLocation": {
+                            "uri": "file:///C:/Users/khali/OneDrive/Desktop/dev/TooGoodEngine/Libs/imgui/imgui_demo.cpp"
+                          },
+                          "region": {
+                            "startLine": 4751,
+                            "startColumn": 9
+                          }
+                        }
+                      },
+                      "importance": "unimportant"
+                    },
+                    {
+                      "location": {
+                        "physicalLocation": {
+                          "artifactLocation": {
+                            "uri": "file:///C:/Users/khali/OneDrive/Desktop/dev/TooGoodEngine/Libs/imgui/imgui_demo.cpp"
+                          },
+                          "region": {
+                            "startLine": 4765,
+                            "startColumn": 25
+                          }
+                        }
+                      },
+                      "importance": "unimportant"
+                    },
+                    {
+                      "location": {
+                        "physicalLocation": {
+                          "artifactLocation": {
+                            "uri": "file:///C:/Users/khali/OneDrive/Desktop/dev/TooGoodEngine/Libs/imgui/imgui_demo.cpp"
+                          },
+                          "region": {
+                            "startLine": 4773,
+                            "startColumn": 24
+                          }
+                        }
+                      },
+                      "importance": "unimportant"
+                    },
+                    {
+                      "location": {
+                        "physicalLocation": {
+                          "artifactLocation": {
+                            "uri": "file:///C:/Users/khali/OneDrive/Desktop/dev/TooGoodEngine/Libs/imgui/imgui_demo.cpp"
+                          },
+                          "region": {
+                            "startLine": 4774,
+                            "startColumn": 17
+                          }
+                        }
+                      },
+                      "importance": "unimportant"
+                    },
+                    {
+                      "location": {
+                        "physicalLocation": {
+                          "artifactLocation": {
+                            "uri": "file:///C:/Users/khali/OneDrive/Desktop/dev/TooGoodEngine/Libs/imgui/imgui_demo.cpp"
+                          },
+                          "region": {
+                            "startLine": 4775,
+                            "startColumn": 23
+                          }
+                        }
+                      },
+                      "importance": "unimportant"
+                    },
+                    {
+                      "location": {
+                        "physicalLocation": {
+                          "artifactLocation": {
+                            "uri": "file:///C:/Users/khali/OneDrive/Desktop/dev/TooGoodEngine/Libs/imgui/imgui_demo.cpp"
+                          },
+                          "region": {
+                            "startLine": 4777,
+                            "startColumn": 9
+                          }
+                        }
+                      },
+                      "importance": "unimportant"
+                    },
+                    {
+                      "location": {
+                        "physicalLocation": {
+                          "artifactLocation": {
+                            "uri": "file:///C:/Users/khali/OneDrive/Desktop/dev/TooGoodEngine/Libs/imgui/imgui_demo.cpp"
+                          },
+                          "region": {
+                            "startLine": 4781,
+                            "startColumn": 14
+                          }
+                        }
+                      },
+                      "importance": "unimportant"
+                    },
+                    {
+                      "location": {
+                        "physicalLocation": {
+                          "artifactLocation": {
+                            "uri": "file:///C:/Users/khali/OneDrive/Desktop/dev/TooGoodEngine/Libs/imgui/imgui_demo.cpp"
+                          },
+                          "region": {
+                            "startLine": 4782,
+                            "startColumn": 24
+                          }
+                        }
+                      },
+                      "importance": "unimportant"
+                    },
+                    {
+                      "location": {
+                        "physicalLocation": {
+                          "artifactLocation": {
+                            "uri": "file:///C:/Users/khali/OneDrive/Desktop/dev/TooGoodEngine/Libs/imgui/imgui_demo.cpp"
+                          },
+                          "region": {
+                            "startLine": 4789,
+                            "startColumn": 35
+                          }
+                        }
+                      },
+                      "importance": "unimportant"
+                    },
+                    {
+                      "location": {
+                        "physicalLocation": {
+                          "artifactLocation": {
+                            "uri": "file:///C:/Users/khali/OneDrive/Desktop/dev/TooGoodEngine/Libs/imgui/imgui_demo.cpp"
+                          },
+                          "region": {
+                            "startLine": 4792,
+                            "startColumn": 28
+                          }
+                        }
+                      },
+                      "importance": "unimportant"
+                    },
+                    {
+                      "location": {
+                        "physicalLocation": {
+                          "artifactLocation": {
+                            "uri": "file:///C:/Users/khali/OneDrive/Desktop/dev/TooGoodEngine/Libs/imgui/imgui_demo.cpp"
+                          },
+                          "region": {
+                            "startLine": 4794,
+                            "startColumn": 29
+                          }
+                        }
+                      },
+                      "importance": "unimportant"
+                    },
+                    {
+                      "location": {
+                        "physicalLocation": {
+                          "artifactLocation": {
+                            "uri": "file:///C:/Users/khali/OneDrive/Desktop/dev/TooGoodEngine/Libs/imgui/imgui_demo.cpp"
+                          },
+                          "region": {
+                            "startLine": 4800,
+                            "startColumn": 32
+                          }
+                        }
+                      },
+                      "importance": "unimportant"
+                    },
+                    {
+                      "location": {
+                        "physicalLocation": {
+                          "artifactLocation": {
+                            "uri": "file:///C:/Users/khali/OneDrive/Desktop/dev/TooGoodEngine/Libs/imgui/imgui_demo.cpp"
+                          },
+                          "region": {
+                            "startLine": 4801,
+                            "startColumn": 32
+                          }
+                        }
+                      },
+                      "importance": "unimportant"
+                    },
+                    {
+                      "location": {
+                        "physicalLocation": {
+                          "artifactLocation": {
+                            "uri": "file:///C:/Users/khali/OneDrive/Desktop/dev/TooGoodEngine/Libs/imgui/imgui_demo.cpp"
+                          },
+                          "region": {
+                            "startLine": 4802,
+                            "startColumn": 32
+                          }
+                        }
+                      },
+                      "importance": "unimportant"
+                    },
+                    {
+                      "location": {
+                        "physicalLocation": {
+                          "artifactLocation": {
+                            "uri": "file:///C:/Users/khali/OneDrive/Desktop/dev/TooGoodEngine/Libs/imgui/imgui_demo.cpp"
+                          },
+                          "region": {
+                            "startLine": 4803,
+                            "startColumn": 32
+                          }
+                        }
+                      },
+                      "importance": "unimportant"
+                    },
+                    {
+                      "location": {
+                        "physicalLocation": {
+                          "artifactLocation": {
+                            "uri": "file:///C:/Users/khali/OneDrive/Desktop/dev/TooGoodEngine/Libs/imgui/imgui_demo.cpp"
+                          },
+                          "region": {
+                            "startLine": 4804,
+                            "startColumn": 32
+                          }
+                        }
+                      },
+                      "importance": "unimportant"
+                    },
+                    {
+                      "location": {
+                        "physicalLocation": {
+                          "artifactLocation": {
+                            "uri": "file:///C:/Users/khali/OneDrive/Desktop/dev/TooGoodEngine/Libs/imgui/imgui_demo.cpp"
+                          },
+                          "region": {
+                            "startLine": 4805,
+                            "startColumn": 29
+                          }
+                        }
+                      },
+                      "importance": "unimportant"
+                    },
+                    {
+                      "location": {
+                        "physicalLocation": {
+                          "artifactLocation": {
+                            "uri": "file:///C:/Users/khali/OneDrive/Desktop/dev/TooGoodEngine/Libs/imgui/imgui_demo.cpp"
+                          },
+                          "region": {
+                            "startLine": 4806,
+                            "startColumn": 32
+                          }
+                        },
+                        "message": {
+                          "text": "'p_open' may be NULL (Enter this branch)"
+                        }
+                      },
+                      "kinds": [
+                        "branch"
+                      ]
+                    },
+                    {
+                      "location": {
+                        "physicalLocation": {
+                          "artifactLocation": {
+                            "uri": "file:///C:/Users/khali/OneDrive/Desktop/dev/TooGoodEngine/Libs/imgui/imgui_demo.cpp"
+                          },
+                          "region": {
+                            "startLine": 4807,
+                            "startColumn": 25
+                          }
+                        },
+                        "message": {
+                          "text": "'p_open' is dereferenced, but may still be NULL"
+                        }
+                      },
+                      "kinds": [
+                        "usage"
+                      ],
+                      "importance": "essential"
+                    }
+                  ]
+                }
+              ]
+            }
+          ]
+        }
+      ],
+      "tool": {
+        "driver": {
+          "name": "PREfast",
+          "fullName": "PREfast Code Analysis",
+          "version": "14.37.32825.0",
+          "informationUri": "https://aka.ms/cpp/ca"
+        }
+      },
+      "invocations": [
+        {
+          "executionSuccessful": true
+        }
+      ],
+      "artifacts": [
+        {
+          "location": {
+            "uri": "file:///C:/Users/khali/OneDrive/Desktop/dev/TooGoodEngine/Libs/imgui/imgui_demo.cpp"
+          },
+          "roles": [
+            "analysisTarget",
+            "resultFile"
+          ],
+          "hashes": {
+            "sha-256": "0eb4b65aa9bf911d90b0053b40378caf48406490c20be61c154c432221e935b7"
+          }
+        },
+        {
+          "location": {
+            "uri": "file:///c:/users/khali/onedrive/desktop/dev/toogoodengine/libs/imgui/imgui.h"
+          },
+          "hashes": {
+            "sha-256": "ee77740003e6b25aaa3d2fcb04edf5f5e9fe567c90f0fdbc1dcb5b6c2e996ae2"
+          }
+        },
+        {
+          "location": {
+            "uri": "file:///c:/users/khali/onedrive/desktop/dev/toogoodengine/libs/imgui/imconfig.h"
+          },
+          "hashes": {
+            "sha-256": "91dabca6ab96eed3342b876ff654dc4eec0a936d70374b241e3891ef45510295"
+          }
+        }
+      ]
+    }
+  ]
+}

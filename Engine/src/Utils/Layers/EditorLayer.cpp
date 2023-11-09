@@ -9,6 +9,7 @@ namespace {
 	static bool p_open = true;
 
 	Graphics::LightSource* source;
+	Graphics::Material* TestMaterial;
 
 }
 namespace Utils
@@ -66,6 +67,11 @@ namespace Utils
 		source->Position = { 1.0f, 1.0f, 1.0f };
 		source->ID = 0;
 
+		TestMaterial = new Graphics::Material();
+		TestMaterial->ambient = { 0.2f, 0.2f, 0.2f };
+		TestMaterial->diffuse = { 0.8f, 0.9f, 0.9f };
+		TestMaterial->specular = { 1.0f, 1.0f, 1.0f };
+		TestMaterial->shininess = 12.0f;
 	}
 	void EditorLayer::OnUpdate()
 	{
@@ -86,9 +92,9 @@ namespace Utils
 		}
 
 		Graphics::Renderer2D::PushCircle({ 2.0f, 1.0f, 0.0f }, { 1.0f, 1.0f }, 0.0f, 1.0f, 
-			{0.8f, 0.4f, 0.5f, 1.0f});
+			{0.8f, 0.4f, 0.5f, 1.0f}, *TestMaterial);
 
-		Graphics::Renderer2D::PushCircle({ 4.0f, 1.0f, 0.0f }, { 1.0f, 1.0f }, 0.0f, 1.0f,
+		Graphics::Renderer2D::PushCircle({ 9.0f, 1.0f, 0.0f }, { 1.0f, 1.0f }, 0.0f, 1.0f,
 			{ 0.8f, 0.4f, 0.5f, 1.0f });
 		
 
@@ -117,9 +123,6 @@ namespace Utils
 		ImGui::ShowDemoWindow();
 
 		ImGui::ColorEdit3("Light Color", glm::value_ptr(source->Color));
-
-		
-
 
 		if (ImGui::BeginMenuBar())
 		{
