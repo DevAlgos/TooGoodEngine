@@ -28,8 +28,10 @@
 #include <random>
 #include <execution>
 
-#include <Utils/Clock.h>
 
+#include <ECS/Entity.h>
+
+#include <Utils/Clock.h>
 #include <Utils/Layers/BaseLayer.h>
 #include <Utils/Layers/LayerManager.h>
 #include <Utils/Layers/DebuggingLayer.h>
