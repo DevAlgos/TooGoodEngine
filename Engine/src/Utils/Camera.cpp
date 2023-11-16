@@ -90,3 +90,20 @@ void OrthoGraphicCamera::Update(float dt)
 	m_View = glm::lookAt(m_CameraData.Position, m_CameraData.Position + m_CameraData.Front, m_CameraData.Up);
 	m_Proj = glm::ortho(-m_CameraData.AspectRatio * m_CameraData.ZoomLevel, m_CameraData.AspectRatio * m_CameraData.ZoomLevel, -m_CameraData.ZoomLevel, m_CameraData.ZoomLevel, -1.0f, 1.0f);
 }
+
+glm::vec2 OrthoGraphicCamera::GetMousePressCoordinates()
+{
+	double mouseX, mouseY;
+	InputManager::GetMousePos(mouseX, mouseY);
+
+	glm::vec4 VecCoords = glm::vec4(
+		((float)mouseX * 2.0f / Application::GetMainWindow().GetWidth())  - 1.0f,
+		1.0f - ((float)mouseY * 2.0f / Application::GetMainWindow().GetHeight()), 0.0f, 1.0f);
+
+	glm::mat4 ViewInverse = glm::inverse(m_View);
+	glm::mat4 ProjInverse = glm::inverse(m_Proj);
+
+	glm::vec4 Coords = ViewInverse * ProjInverse * VecCoords;
+
+	return Coords;
+}

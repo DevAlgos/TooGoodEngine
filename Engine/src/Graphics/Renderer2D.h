@@ -106,4 +106,45 @@ namespace Graphics
 
 	};
 
+
+	class Raytracing2D
+	{
+	public:
+		Raytracing2D() = delete;
+		~Raytracing2D() = default;
+
+		static void ClearColor(const glm::vec3& Color);
+		static void ClearDepth(const glm::vec3& Color);
+		static void Clear();
+		static void Init();
+
+		static void BeginScene(OrthoGraphicCamera& Camera);
+		static void BeginScene();
+
+		static void PushQuad(const glm::vec3& Position, const glm::vec2& size, float Rotation, uint32_t ID);
+		static void PushQuad(const glm::vec3& Position, const glm::vec2& size, float Rotation, const glm::vec4& color);
+		static void PushSprite(const glm::vec3& Position, const glm::vec2& size, float Rotation, uint32_t ID, SpriteSheet sheet);
+
+		static void PushQuad(const glm::vec3& Position, const glm::vec2& size, float Rotation, uint32_t ID, Material& material);
+		static void PushQuad(const glm::vec3& Position, const glm::vec2& size, float Rotation, const glm::vec4& color, Material& material);
+		static void PushSprite(const glm::vec3& Position, const glm::vec2& size, float Rotation, uint32_t ID, SpriteSheet sheet, Material& material);
+
+		static void PushCircle(const glm::vec3& Position, const glm::vec2& size, float Rotation, float Thickness, const glm::vec4& color);
+		static void PushCircle(const glm::vec3& Position, const glm::vec2& size, float Rotation, float Thickness, const glm::vec4& color, Material& material);
+
+
+		static void PushLight(const LightSource& light);
+
+		static void SetUniformVec3(const glm::vec3& data, const char* name);
+
+		static void DrawQuad();
+		static void DrawCircle();
+
+		static void EndScene();
+		static void ShutDown();
+
+		static void FlushScene();
+
+	};
+
 }

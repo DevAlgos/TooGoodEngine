@@ -10,8 +10,23 @@ namespace {
 
 	Graphics::LightSource* source;
 	Graphics::Material* TestMaterial;
+	std::unique_ptr<Graphics::ParticleScene> PScene;
+	std::random_device dev;
 
 }
+
+namespace RandomNumberGenerator
+{
+	static std::mt19937 gen(dev());
+	static float RandomNumber(float min, float max)
+	{
+		std::uniform_real_distribution dist6(min, max);
+
+		return dist6(gen);
+	}
+}
+
+
 namespace Utils
 {
 	EditorLayer::EditorLayer()
@@ -21,8 +36,8 @@ namespace Utils
 	{
 	}
 	void EditorLayer::OnInit()
-	{;
-
+	{
+		
 		std::vector<Graphics::Attachment> Attachments = {
 		{Graphics::AttachmentType::Color, false, Application::GetMainWindow().GetWidth(), 
 		Application::GetMainWindow().GetHeight()},
@@ -34,7 +49,7 @@ namespace Utils
 		};
 
 		ViewFrame = std::make_unique<Graphics::Framebuffer>(Attachments, FramebufferShaderList);
-	
+		PScene = std::make_unique<Graphics::ParticleScene>();
 
 		OrthoCameraData CameraData;
 		CameraData.Position = glm::vec3(0.0f, 0.0f, 0.0f);
@@ -69,9 +84,9 @@ namespace Utils
 
 		TestMaterial = new Graphics::Material();
 		TestMaterial->ambient = { 0.2f, 0.2f, 0.2f };
-		TestMaterial->diffuse = { 0.8f, 0.9f, 0.9f };
-		TestMaterial->specular = { 1.0f, 1.0f, 1.0f };
-		TestMaterial->shininess = 12.0f;
+		TestMaterial->diffuse = { 0.3f, 0.3f, 0.3f };
+		TestMaterial->specular = { 0.3f, 0.3f, 0.3f };
+		TestMaterial->shininess = 32.0f;
 	}
 	void EditorLayer::OnUpdate()
 	{
@@ -81,6 +96,18 @@ namespace Utils
 		Graphics::Renderer2D::ClearColor({ 0.4f, 0.2f, 0.8f });
 		Graphics::Renderer2D::BeginScene(m_OrthoCam);
 
+		if (InputManager::IsMouseButtonDown(LEFT_MOUSE))
+		{
+			Graphics::Particle p;
+			p.Position = glm::vec3(m_OrthoCam.GetMousePressCoordinates(), 0.0);
+			p.xVelocity = Utils::GenFloat(-0.05f, 0.05f);
+			p.yVelocity = Utils::GenFloat(-0.05f, 0.05f);
+			p.DecaySpeed = 0.005f;
+			p.Color = { 0.5f, 0.4f, 0.2f };
+			p.EndColor = { 1.0f, 1.0f, 1.0f };
+			p.Rotation = Utils::GenFloat(0, 360.0f);
+			PScene->PushParticle(p);
+		}
 
 		for (float i = -10.0f; i < 10.0f; i++)
 		{
@@ -91,12 +118,14 @@ namespace Utils
 
 		}
 
-		Graphics::Renderer2D::PushCircle({ 2.0f, 1.0f, 0.0f }, { 1.0f, 1.0f }, 0.0f, 1.0f, 
+		Graphics::Renderer2D::PushCircle({ 2.0f, 1.0f, 0.0f }, { 1.0f, 1.0f }, 0.0f, 1.0f,
 			{0.8f, 0.4f, 0.5f, 1.0f}, *TestMaterial);
 
 		Graphics::Renderer2D::PushCircle({ 9.0f, 1.0f, 0.0f }, { 1.0f, 1.0f }, 0.0f, 1.0f,
 			{ 0.8f, 0.4f, 0.5f, 1.0f });
 		
+		PScene->Update(m_OrthoCam, Application::GetCurrentDeltaSecond());
+
 
 		Graphics::Renderer2D::PushLight(*source);
 

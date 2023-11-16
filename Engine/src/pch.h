@@ -31,6 +31,7 @@
 
 #include <ECS/Entity.h>
 
+#include <Utils/RandomNumbers.h>
 #include <Utils/Clock.h>
 #include <Utils/Layers/BaseLayer.h>
 #include <Utils/Layers/LayerManager.h>

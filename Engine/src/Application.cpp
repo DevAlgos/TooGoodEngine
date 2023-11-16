@@ -30,6 +30,7 @@ Application::Application()
 	s_MainWindow.Init();
 
 	Graphics::Renderer2D::Init();
+	//Graphics::Raytracing2D::Init();
 
 	glEnable(GL_BLEND);
 	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
@@ -59,6 +60,7 @@ Application::Application()
 
 Application::~Application()
 {
+	//Graphics::Raytracing2D::ShutDown();
 	Graphics::Renderer2D::ShutDown();
 	Utils::JobManager::ShutdownManager();
 	Utils::Logger::ShutDown();

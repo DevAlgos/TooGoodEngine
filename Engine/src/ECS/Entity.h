@@ -95,8 +95,8 @@ namespace Ecs
 		template<typename T, typename ...Args>
 		inline void PushBackComponent(Entity target, Args&&... args)
 		{
-			if (Components.size() < target || target < 0)
-				return;
+			if (Components.size() < target)
+				return; //out of bounds
 			else
 				Components[target].EmplaceBack<T>(std::forward<Args>(args)...);
 		}

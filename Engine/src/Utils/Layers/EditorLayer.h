@@ -26,6 +26,7 @@ namespace Utils
 		std::unique_ptr<Graphics::Texture> ComputeTexture;
 		std::unique_ptr<Graphics::Framebuffer> ViewFrame;
 		std::unique_ptr<Graphics::Texture> BackGround;
+
 		OrthoGraphicCamera m_OrthoCam;
 
 	};

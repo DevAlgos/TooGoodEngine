@@ -3,10 +3,10 @@
 
 namespace
 {
-	static std::unique_ptr<Utils::Job> s_Job; // Logger created with raw job as Threading manager needs logging
+	static std::unique_ptr<Utils::Job> s_Job; // Logger created with raw job as Threading manager needs logging seperatley
 	static Utils::Logger* s_Instance = nullptr;
 
-	static Utils::Logger::Platform s_Platform;
+	static Utils::Logger::Platform s_Platform; //incase we get different platforms the current method may not work on all
 }
 
 namespace Utils

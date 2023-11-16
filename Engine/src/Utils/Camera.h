@@ -32,6 +32,8 @@ public:
 
 	void Update(float dt);
 
+	glm::vec2 GetMousePressCoordinates();
+
 	inline glm::vec3 GetPosition() { return m_CameraData.Position; }
 	inline glm::vec3 GetFront() { return m_CameraData.Front; }
 	inline glm::vec3 GetUp() { return m_CameraData.Up; }

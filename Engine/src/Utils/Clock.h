@@ -18,8 +18,6 @@ namespace Utils
 		using seconds               =      std::chrono::seconds;
 
 	public:
-		
-
 		Clock();
 		~Clock();
 

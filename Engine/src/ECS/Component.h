@@ -56,8 +56,6 @@ namespace Ecs
 			return *this;
 		}
 
-		
-
 		inline constexpr ComponentStorage() noexcept : Data(nullptr) {}
 
 		template<typename T, typename ...Args>
@@ -71,6 +69,7 @@ namespace Ecs
 			delete Data; 
 			RemoveOwnership();
 		}
+
 		inline void* GetRaw() { return Data; }
 
 		template<typename T>
