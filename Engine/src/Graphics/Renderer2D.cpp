@@ -33,8 +33,8 @@ namespace Graphics
 
 		Material DefaultMaterial;
 		DefaultMaterial.ambient = glm::vec3(0.2, 0.2, 0.2);
-		DefaultMaterial.diffuse = glm::vec3(0.2, 0.2, 0.2);
-		DefaultMaterial.specular = glm::vec3(0.8, 0.8, 0.8);
+		DefaultMaterial.diffuse = glm::vec3(1.0, 1.0, 1.0);
+		DefaultMaterial.specular = glm::vec3(1.0, 1.0, 1.0);
 		DefaultMaterial.shininess = 32.0;
 
 
@@ -185,6 +185,8 @@ namespace Graphics
 		RenderData.DefaultShader->Use();
 		RenderData.DefaultShader->setUniformMat4("view", Camera.GetView());
 		RenderData.DefaultShader->setUniformMat4("projection", Camera.GetProjection());
+		RenderData.DefaultShader->SetUniformFloat3("CameraPosition", RenderData.Camera.GetPosition().x,
+			RenderData.Camera.GetPosition().y, RenderData.Camera.GetPosition().z);
 
 		RenderData.CircleShader->Use();
 		RenderData.CircleShader->setUniformMat4("view", Camera.GetView());

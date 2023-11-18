@@ -51,36 +51,37 @@ void main()
     int MatID = int(MaterialID);
     int NumbOfLightSrc = int(NumberOfLightSources);
 
-    vec3 Ambient =    MatSlots.Materials[MatID].Ambient;
-    vec3 Diffuse =    MatSlots.Materials[MatID].Diffuse;
-    vec3 Specular =   MatSlots.Materials[MatID].Specular;
+    vec3 Ambient = MatSlots.Materials[MatID].Ambient;
+    vec3 Diffuse = MatSlots.Materials[MatID].Diffuse;
+    vec3 Specular = MatSlots.Materials[MatID].Specular;
     float Shininess = MatSlots.Materials[MatID].SpecularStrength;
 
+    vec3 TotalDiffuse = vec3(0.0);
     vec3 FinalLightColor = vec3(0.0);
-    
-    vec3 Normal = vec3(0.0, 0.0, 1.0);
-  
-    vec3 eye = CameraPosition;
 
-    for(int i = 0; i < NumbOfLightSrc; i++)
-    {
+    vec3 eye = CameraPosition;
+    vec3 Normal = vec3(0.0, 0.0, 1.0);
+
+    for(int i = 0; i < NumbOfLightSrc; i++) {
         vec3 LightDirection = normalize(Lights.LightSrc[i].Position - WorldCoordinates);
-        float Attenuation = float(1/0.2 + LightDirection*LightDirection);
-    
-        vec3 FinalDiffuse = vec3(dot(Normal, LightDirection));
-        FinalDiffuse *= Diffuse * Attenuation;
+        float LightDistance = length(Lights.LightSrc[i].Position - WorldCoordinates);
+        float Attenuation = 1.0 / (1.0 + 0.7 * LightDistance + 1.8 * (LightDistance * LightDistance));
 
         vec3 ViewDir = normalize(CameraPosition - WorldCoordinates);
-        vec3 ReflectDir = reflect(-LightDirection, Normal);
-    
-        float Spec = pow(max(dot(ViewDir, ReflectDir), 0.0), Shininess);
-        vec3 FinalSpecular = Spec * Specular;
+        vec3 HalfwayDir = normalize(LightDirection + ViewDir);
 
-        vec3 LightContribution = Lights.LightSrc[i].Color * 
-        (Ambient + FinalDiffuse + FinalSpecular);
+        float DiffuseIntensity = max(dot(Normal, LightDirection), 0.0);
+        vec3 FinalDiffuse = Diffuse * DiffuseIntensity;
+        FinalDiffuse *= Attenuation;
 
+        float SpecularIntensity = pow(max(dot(Normal, HalfwayDir), 0.0), Shininess);
+        vec3 FinalSpecular = Specular * SpecularIntensity;
+        FinalSpecular *= Attenuation;
+
+        vec3 LightContribution = Lights.LightSrc[i].Color * (Ambient + FinalDiffuse + FinalSpecular);
         FinalLightColor += LightContribution;
     }
+    
   
     distancef = smoothstep(0.0, fade, distancef);
     distancef *= smoothstep(Thickness + fade, Thickness, distancef);

@@ -83,9 +83,9 @@ namespace Utils
 		source->ID = 0;
 
 		TestMaterial = new Graphics::Material();
-		TestMaterial->ambient = { 0.2f, 0.2f, 0.2f };
-		TestMaterial->diffuse = { 0.3f, 0.3f, 0.3f };
-		TestMaterial->specular = { 0.3f, 0.3f, 0.3f };
+		TestMaterial->ambient = { 0.7f, 0.8f, 0.7f };
+		TestMaterial->diffuse = { 1.0f, 1.0f, 1.0f };
+		TestMaterial->specular = { 1.0f, 1.0f, 1.0f };
 		TestMaterial->shininess = 32.0f;
 	}
 	void EditorLayer::OnUpdate()
