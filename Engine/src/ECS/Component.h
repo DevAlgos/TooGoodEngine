@@ -88,31 +88,58 @@ namespace Ecs
 
 	struct QuadCollider
 	{
-		QuadCollider() {}
+		inline QuadCollider() : Left(0), Right(0), Top(0), Down(0) {}
+		inline QuadCollider(const glm::vec2& Position, const glm::vec2& Size) 
+			: Left(Position.x), Right(Position.x + Size.x), 
+			  Top(Position.y), Down(Position.y + Size.y)
+		{}
+
 		virtual ~QuadCollider() {}
 
-		float left, right, top, down;
+		inline bool CheckCollision(const QuadCollider& other) 
+		{
+			bool xOverlap = (Right >= other.Left && Left <= other.Right);
+			bool yOverlap = (Down >= other.Top && Top <= other.Down);
+
+			return xOverlap && yOverlap;
+		}
+
+		inline void UpdateBounds(const glm::vec2& NewPosition, 
+						         const glm::vec2& NewSize)
+		{
+			Left = NewPosition.x;
+			Right = NewPosition.x + NewSize.x;
+			Top = NewPosition.y;
+			Down = NewPosition.y + NewSize.y;
+		}
+
+	private:
+		float Left, Right, Top, Down;
 	};
 
 	struct Renderable
 	{
 		inline Renderable() : m_Type(RenderType::Quad), m_Position(0.0f, 0.0f, 0.0f), 
-			m_Rotation(0.0f), m_Scale(1.0f)
+			m_Rotation(0.0f), m_Scale(1.0f), m_Color(1.0f)
 		{}
-		inline Renderable(RenderType type, glm::vec3 position, float rotation, float scale) 
-			: m_Type(type), m_Position(position), m_Rotation(rotation), m_Scale(scale)
+		inline Renderable(RenderType type, glm::vec4 Color, glm::vec3 position, float rotation, glm::vec2 scale) 
+			: m_Type(type), m_Position(position), m_Rotation(rotation), m_Scale(scale), m_Color(Color)
 		{}
 
 		inline Renderable(const Renderable& other) 
 			: m_Position(other.m_Position),
 		 	  m_Rotation(other.m_Rotation),
-			  m_Scale(other.m_Scale)
+			  m_Type(other.m_Type),
+			  m_Scale(other.m_Scale),
+			  m_Color(other.m_Color)
 			{}
 
 		inline Renderable(Renderable&& other) noexcept
 			: m_Position(std::move(other.m_Position)), 
 			  m_Rotation(std::move(other.m_Rotation)), 
-			  m_Scale(std::move(other.m_Scale))
+			  m_Scale(std::move(other.m_Scale)),
+			  m_Type(std::move(other.m_Type)),
+			  m_Color(std::move(other.m_Color))
 			{}
 
 		Renderable& operator=(const Renderable& other) 
@@ -123,6 +150,7 @@ namespace Ecs
 				m_Position = other.m_Position;
 				m_Rotation = other.m_Rotation;
 				m_Scale = other.m_Scale;
+				m_Color = other.m_Color;
 			}
 			return *this;
 		}
@@ -135,25 +163,30 @@ namespace Ecs
 				m_Position = std::move(other.m_Position);
 				m_Rotation = std::move(other.m_Rotation);
 				m_Scale =    std::move(other.m_Scale);
+				m_Color =    std::move(other.m_Color);
 			}
 			return *this;
 		}
 
 		virtual ~Renderable() {}
 
+		inline void TransformColor(const glm::vec4& NewColor) { m_Color = NewColor; }
 		inline void TransformPosition(const glm::vec3& Offset) { m_Position += Offset; };
+		inline void TransformScale(const glm::vec2& Offset) { m_Scale += Offset; };
 		inline void TransformRotation(float Offset) { m_Rotation += Offset; };
-		inline void TransformScale(float Offset) { m_Scale += Offset; };
 
+		inline RenderType GetType() { return m_Type; }
+		inline glm::vec4 GetColor() { return m_Color; }
 		inline glm::vec3 GetPosition() { return m_Position; }
+		inline glm::vec2 GetScale() { return m_Scale; }
 		inline float GetRotation() { return m_Rotation; }
-		inline float GetScale() { return m_Scale; }
 
 	private:
 		RenderType m_Type;
 		
+		glm::vec4 m_Color;
 		glm::vec3 m_Position;
+		glm::vec2 m_Scale;
 		float m_Rotation;
-		float m_Scale;
 	}; 
 }

@@ -2,6 +2,8 @@
 
 #include "GraphicsUtils.h"
 #include "Shader.h"
+#include "ECS/Component.h"
+#include "ECS/Entity.h"
 
 namespace Graphics
 {
@@ -22,4 +24,23 @@ namespace Graphics
 
 		
 	};
+
+
+	class PhysicsScene
+	{
+	public:
+		PhysicsScene();
+		~PhysicsScene();
+
+		template<typename T, typename ...Args>
+		void CreateGameObject(Args&&... args);
+		void UpdateScene();
+	private:
+		void ApplyGravity(Ecs::Renderable* Renderable, Ecs::QuadCollider* Collider);
+		void ApplyForce(int XForce, int YForce, Ecs::Renderable* Renderable, Ecs::QuadCollider* Collider);
+	private:
+		Ecs::Registry EntityRegistry;
+		uint32_t LastEntity;
+	};
+	
 }

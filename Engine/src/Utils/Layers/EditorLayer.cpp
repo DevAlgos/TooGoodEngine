@@ -124,6 +124,9 @@ namespace Utils
 		Graphics::Renderer2D::PushCircle({ 9.0f, 1.0f, 0.0f }, { 1.0f, 1.0f }, 0.0f, 1.0f,
 			{ 0.8f, 0.4f, 0.5f, 1.0f });
 		
+		Graphics::Renderer2D::PushCircle({ 9.0f, -5.0f, 0.0f }, { 1.0f, 1.0f }, 0.0f, 1.0f,
+			{ 0.0f, 0.4f, 0.4, 1.0f });
+		
 		PScene->Update(m_OrthoCam, Application::GetCurrentDeltaSecond());
 
 
