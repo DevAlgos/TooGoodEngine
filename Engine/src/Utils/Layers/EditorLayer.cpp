@@ -3,7 +3,8 @@
 #include <Graphics/Texture.h>
 #include <Graphics/Buffers.h>
 
-namespace {
+namespace 
+{
 	static bool opt_fullscreen = false;
 	static ImGuiDockNodeFlags dockspace_flags = ImGuiDockNodeFlags_None;
 	static bool p_open = true;
@@ -13,19 +14,22 @@ namespace {
 	std::unique_ptr<Graphics::ParticleScene> PScene;
 	std::random_device dev;
 
+	std::unique_ptr<Graphics::PhysicsScene> PhysicsScene;
+
+	
 }
 
-namespace RandomNumberGenerator
+namespace Test
 {
-	static std::mt19937 gen(dev());
-	static float RandomNumber(float min, float max)
+	struct TestObject : public Ecs::Renderable
 	{
-		std::uniform_real_distribution dist6(min, max);
+		TestObject() :
+			Ecs::Renderable(Ecs::RenderType::Quad, { 1.0f, 1.0f, 1.0f, 1.0f },
+				{ 4.0f, 0.5f, 0.4f }, 0.0f, { 1.0f, 1.0f }) {}
 
-		return dist6(gen);
-	}
+		~TestObject() {}
+	};
 }
-
 
 namespace Utils
 {
@@ -37,7 +41,15 @@ namespace Utils
 	}
 	void EditorLayer::OnInit()
 	{
+		PhysicsScene = std::make_unique<Graphics::PhysicsScene>();
 		
+		glm::vec4 ObjectColor = { 0.5f, 0.4f, 0.2f, 0.1f };
+		glm::vec3 ObjectPosition = { 0.4f, 0.5f, 0.4f };
+		float     ObjectRotation = 0.0f;
+		glm::vec2 ObjectScale = { 1.0f, 1.0f };
+
+		PhysicsScene->CreateGameObject<Test::TestObject>();
+
 		std::vector<Graphics::Attachment> Attachments = {
 		{Graphics::AttachmentType::Color, false, Application::GetMainWindow().GetWidth(), 
 		Application::GetMainWindow().GetHeight()},
@@ -128,6 +140,7 @@ namespace Utils
 			{ 0.0f, 0.4f, 0.4, 1.0f });
 		
 		PScene->Update(m_OrthoCam, Application::GetCurrentDeltaSecond());
+		PhysicsScene->UpdateScene();
 
 
 		Graphics::Renderer2D::PushLight(*source);

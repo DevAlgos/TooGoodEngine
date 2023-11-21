@@ -65,7 +65,8 @@ void main()
     for(int i = 0; i < NumbOfLightSrc; i++) {
         vec3 LightDirection = normalize(Lights.LightSrc[i].Position - WorldCoordinates);
         float LightDistance = length(Lights.LightSrc[i].Position - WorldCoordinates);
-        float Attenuation = 1.0 / (1.0 + 0.7 * LightDistance + 1.8 * (LightDistance * LightDistance));
+        float Attenuation = 1.0 / (0.2 + 0.2 * LightDistance + 0.5 * (LightDistance * LightDistance));
+
 
         vec3 ViewDir = normalize(CameraPosition - WorldCoordinates);
         vec3 HalfwayDir = normalize(LightDirection + ViewDir);

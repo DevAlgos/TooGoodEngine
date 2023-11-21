@@ -80,26 +80,57 @@ namespace Ecs
 
 	};
 
+#pragma region Base Components List
+
+/*
+	Note, for all of these base components they are not a MUST to use, they simply
+	provide an interface with existing systems such as the physics system. You 
+	are able to make your own base components from scratch and you use them however
+	you like with the ECS system, and have them be interactable with the engine.
+	And if you would like to make your own systems you could entirly ignore these
+	if you wish.
+
+*/
+
+
 	enum class RenderType
 	{
 		Quad = 0,
 		Circle
 	};
 
-	struct QuadCollider
+	struct PhysicsBehaviour //Behaviour Component
 	{
-		inline QuadCollider() : Left(0), Right(0), Top(0), Down(0) {}
+		constexpr PhysicsBehaviour() : m_GravityForce(0.0f), m_Acceleration(0.0f),
+									   m_Mass(1.0f), m_CurrentDirection({1.0f, 0.0f}) 
+		{}
+		inline PhysicsBehaviour(float GravityForce, float InitialAcceleration, float Mass, 
+								const glm::vec2& CurrentDirection) :
+			m_GravityForce(GravityForce), m_Acceleration(InitialAcceleration), m_Mass(Mass),
+			m_CurrentDirection(CurrentDirection)
+		{}
+
+	private:
+		float m_GravityForce;
+		float m_Acceleration;
+		float m_Mass;
+		glm::vec2 m_CurrentDirection;
+	};
+
+	struct QuadCollider //Quad Collider Component
+	{
+		inline QuadCollider() : m_Left(0), m_Right(0), m_Top(0), m_Down(0) {}
 		inline QuadCollider(const glm::vec2& Position, const glm::vec2& Size) 
-			: Left(Position.x), Right(Position.x + Size.x), 
-			  Top(Position.y), Down(Position.y + Size.y)
+			: m_Left(Position.x), m_Right(Position.x + Size.x), 
+			  m_Top(Position.y), m_Down(Position.y - Size.y)
 		{}
 
 		virtual ~QuadCollider() {}
 
 		inline bool CheckCollision(const QuadCollider& other) 
 		{
-			bool xOverlap = (Right >= other.Left && Left <= other.Right);
-			bool yOverlap = (Down >= other.Top && Top <= other.Down);
+			bool xOverlap = (m_Right >= other.m_Left && m_Left <= other.m_Right);
+			bool yOverlap = (m_Down >= other.m_Top && m_Top <= other.m_Down);
 
 			return xOverlap && yOverlap;
 		}
@@ -107,14 +138,14 @@ namespace Ecs
 		inline void UpdateBounds(const glm::vec2& NewPosition, 
 						         const glm::vec2& NewSize)
 		{
-			Left = NewPosition.x;
-			Right = NewPosition.x + NewSize.x;
-			Top = NewPosition.y;
-			Down = NewPosition.y + NewSize.y;
+			m_Left = NewPosition.x;
+			m_Right = NewPosition.x + NewSize.x;
+			m_Top = NewPosition.y;
+			m_Down = NewPosition.y - NewSize.y;
 		}
 
 	private:
-		float Left, Right, Top, Down;
+		float m_Left, m_Right, m_Top, m_Down;
 	};
 
 	struct Renderable
@@ -189,4 +220,6 @@ namespace Ecs
 		glm::vec2 m_Scale;
 		float m_Rotation;
 	}; 
+
+
 }

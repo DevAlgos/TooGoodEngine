@@ -1,11 +1,6 @@
 #include "pch.h"
 #include "Graphics.h"
 
-namespace
-{
-
-
-}
 
 namespace Graphics
 {
@@ -95,7 +90,7 @@ namespace Graphics
 			Ecs::Renderable* Renderable = EntityRegistry.GetComponent<Ecs::Renderable>(i, 0);
 			Ecs::QuadCollider* Collider = EntityRegistry.GetComponent<Ecs::QuadCollider>(i, 1);
 
-			for (int j = 0; j < LastEntity; j++)
+			for (Ecs::Entity j = 0; j < LastEntity; j++)
 			{
 				if (i != j)
 				{
@@ -123,34 +118,5 @@ namespace Graphics
 	{
 	}
 
-	template<typename T, typename ...Args>
-	inline void PhysicsScene::CreateGameObject(Args&&... args)
-	{
-		if (std::is_base_of_v<T, Ecs::Renderable>)
-		{
-			LastEntity++;
-			Ecs::Entity current = EntityRegistry.Create();
-			EntityRegistry.PushBackComponent<T>(current, std::forward<Args>(args)...);
-			Ecs::Renderable* renderable = EntityRegistry.GetComponent<T>(current, 0);
-			Ecs::RenderType type = renderable->GetType();
-
-			switch (type)
-			{
-			case Ecs::RenderType::Quad:
-				EntityRegistry.PushBackComponent<Ecs::QuadCollider>(current,
-					{ renderable->GetPosition().xy });
-				break;
-			case Ecs::RenderType::Circle: //haven't made circle collider yet
-				break;
-			default: //not a valid game object
-				break;
-			}
-
-			renderable = nullptr;
-			return current;
-		}
-
-		LOGWARNING("Object is not renderable! no entity has been created!");
-		return std::numeric_limits<uint64_t>::max;
-	}
+	
 }

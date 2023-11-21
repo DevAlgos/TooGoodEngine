@@ -69,12 +69,12 @@ namespace Ecs
 		}
 
 		template<typename T>
-		inline T* GetComponent(size_t index)
+		inline T* GetComponent(size_t Index)
 		{
-			if (index >= Components.size())
+			if (Index >= Components.size())
 				return nullptr; //Is index out of bounds?
 			else
-				return Components[index].Get<T>();
+				return Components[Index].Get<T>();
 		}
 
 
@@ -117,7 +117,7 @@ namespace Ecs
 
 		inline void DeleteEntity(Entity entity)
 		{
-			if (entity >= Components.size() || entity < 0)
+			if (entity >= Components.size())
 				return;
 
 			Components.erase(Components.begin() + entity);
