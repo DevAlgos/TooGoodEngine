@@ -69,7 +69,7 @@ namespace Ecs
 		}
 
 		template<typename T>
-		inline T* GetComponent(size_t Index)
+		inline T* GetComponent(size_t Index) 
 		{
 			if (Index >= Components.size())
 				return nullptr; //Is index out of bounds?
@@ -110,7 +110,7 @@ namespace Ecs
 		}
 
 		template<typename T>
-		inline T* GetComponent(Entity entity, size_t Index)
+		inline T* GetComponent(Entity entity, size_t Index) 
 		{
 			return Components[entity].GetComponent<T>(Index);
 		}

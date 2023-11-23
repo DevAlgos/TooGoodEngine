@@ -35,8 +35,18 @@ namespace Graphics
 		void CreateGameObject(Args&&... args);
 		void UpdateScene();
 	private:
-		void ApplyGravity(Ecs::Renderable* Renderable, Ecs::QuadCollider* Collider);
-		void ApplyForce(int XForce, int YForce, Ecs::Renderable* Renderable, Ecs::QuadCollider* Collider);
+		/*
+			These equations used here are the Verlet integration equation
+			Next Position = Current Position + Velocity * Time Step
+		*/
+
+
+		void ApplyGravity(Ecs::Renderable* Renderable, Ecs::QuadCollider* Collider,
+						  Ecs::PhysicsBehaviour* Behaviour);
+		void ApplyContraint(Ecs::Renderable* Renderable, Ecs::QuadCollider* Collider);
+		void ApplyForce(
+			Ecs::Renderable* Renderable, Ecs::QuadCollider* Collider, Ecs::PhysicsBehaviour* Behaviour, 
+			Ecs::Renderable* Other);
 	private:
 		Ecs::Registry EntityRegistry;
 		Ecs::Entity LastEntity;
@@ -67,6 +77,8 @@ namespace Graphics
 			default:
 				break;
 			}
+			EntityRegistry.PushBackComponent<Ecs::PhysicsBehaviour>(current);
+
 
 			renderable = nullptr;
 			return;

@@ -15,7 +15,7 @@ namespace
 	std::random_device dev;
 
 	std::unique_ptr<Graphics::PhysicsScene> PhysicsScene;
-
+	int NumbOfEntites = 0;
 	
 }
 
@@ -24,10 +24,22 @@ namespace Test
 	struct TestObject : public Ecs::Renderable
 	{
 		TestObject() :
-			Ecs::Renderable(Ecs::RenderType::Quad, { 1.0f, 1.0f, 1.0f, 1.0f },
-				{ 4.0f, 0.5f, 0.4f }, 0.0f, { 1.0f, 1.0f }) {}
+			Ecs::Renderable(Ecs::RenderType::Quad, { Utils::GenFloat(0.0,1.0f), 
+				Utils::GenFloat(0.0,1.0f), Utils::GenFloat(0.0f,1.0f), 1.0f},
+				{ Utils::GenFloat(-2.0f,20.0f), Utils::GenFloat(-2.0f,2.0f), 0.0f}, 0.0f, {1.0f, 1.0f}) {}
 
 		~TestObject() {}
+
+		
+	};
+
+	struct OtherObject : public Ecs::Renderable
+	{
+		OtherObject() :
+			Ecs::Renderable(Ecs::RenderType::Quad, { 1.0f, 1.0f, 1.0f, 1.0f },
+				{ 4.0f, -2.0f, 0.4f }, 0.0f, { 1.0f, 1.0f }) {}
+
+		~OtherObject() {}
 	};
 }
 
@@ -49,6 +61,8 @@ namespace Utils
 		glm::vec2 ObjectScale = { 1.0f, 1.0f };
 
 		PhysicsScene->CreateGameObject<Test::TestObject>();
+		PhysicsScene->CreateGameObject<Test::OtherObject>();
+		NumbOfEntites += 2;
 
 		std::vector<Graphics::Attachment> Attachments = {
 		{Graphics::AttachmentType::Color, false, Application::GetMainWindow().GetWidth(), 
@@ -107,6 +121,12 @@ namespace Utils
 		m_OrthoCam.Update(Application::GetCurrentDeltaSecond());
 		Graphics::Renderer2D::ClearColor({ 0.4f, 0.2f, 0.8f });
 		Graphics::Renderer2D::BeginScene(m_OrthoCam);
+
+		if (InputManager::IsMouseButtonDown(RIGHT_MOUSE))
+		{
+			PhysicsScene->CreateGameObject<Test::TestObject>();
+			NumbOfEntites++;
+		}
 
 		if (InputManager::IsMouseButtonDown(LEFT_MOUSE))
 		{
@@ -168,13 +188,14 @@ namespace Utils
 		ImGui::ShowDemoWindow();
 
 		ImGui::ColorEdit3("Light Color", glm::value_ptr(source->Color));
+		ImGui::Text("%i", NumbOfEntites);
 
 		if (ImGui::BeginMenuBar())
 		{
 			if (ImGui::BeginMenu("Options"))
 			{
 				ImGui::MenuItem("Show Rendering", nullptr, &opt_fullscreen);
-				
+
 				ImGui::EndMenu();
 			}
 
