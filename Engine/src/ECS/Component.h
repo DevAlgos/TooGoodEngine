@@ -136,16 +136,16 @@ namespace Ecs
 	{
 		inline QuadCollider() : m_Left(0), m_Right(0), m_Top(0), m_Down(0) {}
 		inline QuadCollider(const glm::vec2& Position, const glm::vec2& Size) 
-			: m_Left(Position.x), m_Right(Position.x + Size.x), 
-			  m_Top(Position.y), m_Down(Position.y - Size.y)
+			: m_Left(Position.x), m_Right(Position.x + 2.0f * Size.x), 
+			  m_Top(Position.y), m_Down(Position.y - 2.0f * Size.y)
 		{}
 
 		virtual ~QuadCollider() {}
 
-		inline bool CheckCollision(const QuadCollider& other) 
+		inline bool CheckCollision(QuadCollider&& other) 
 		{
 			bool xOverlap = (m_Right >= other.m_Left && m_Left <= other.m_Right);
-			bool yOverlap = (m_Down <= other.m_Top && m_Top >= other.m_Down);
+			bool yOverlap = (m_Top >= other.m_Down && m_Down <= other.m_Top);
 
 			return xOverlap && yOverlap;
 		}
@@ -154,10 +154,16 @@ namespace Ecs
 						         const glm::vec2& NewSize)
 		{
 			m_Left = NewPosition.x;
-			m_Right = NewPosition.x + NewSize.x;
+			m_Right = NewPosition.x + 2.0f * NewSize.x;
 			m_Top = NewPosition.y;
-			m_Down = NewPosition.y - NewSize.y;
+			m_Down = NewPosition.y - 2.0f * NewSize.y;
 		}
+
+		inline const float GetLeft() { return   m_Left; }
+		inline const float GetRight() { return  m_Right; }
+		inline const float GetTop() { return    m_Top; }
+		inline const float GetDown() { return   m_Down; }
+
 
 	private:
 		float m_Left, m_Right, m_Top, m_Down;

@@ -20,140 +20,63 @@ namespace Graphics
 {
 
 	BufferObject::BufferObject(const BufferType& Type, const BufferData& BufferData)
-		: m_Data(BufferData), m_Type(Type)
+		: m_Data(BufferData)
 	{
+		switch (Type)
+		{
+		case Graphics::BufferObject::BufferType::VertexBuffer:
+			m_Type = GL_ARRAY_BUFFER;
+			break;
+		case Graphics::BufferObject::BufferType::IndexBuffer:
+			m_Type = GL_ELEMENT_ARRAY_BUFFER;
+			break;
+		case Graphics::BufferObject::BufferType::UniformBuffer:
+			m_Type = GL_UNIFORM_BUFFER;
+			break;
+		case Graphics::BufferObject::BufferType::ShaderStorageBuffer:
+			m_Type = GL_SHADER_STORAGE_BUFFER;
+			break;
+		default:
+			m_Type = GL_ARRAY_BUFFER;
+			break;
+		}
+
 		Create();
 	}
 	BufferObject::~BufferObject()
 	{
-		glDeleteBuffers(1, &m_VBO);
+		glDeleteBuffers(1, &m_Buffer);
 	}
 	void BufferObject::Create()
 	{
-		
-		switch (m_Type)
-		{
-		case Graphics::BufferObject::BufferType::VertexBuffer:
-			glCreateBuffers(1, &m_VBO);
-			glBindBuffer(GL_ARRAY_BUFFER, m_VBO);
-			glBufferData(GL_ARRAY_BUFFER, m_Data.VertexSize, m_Data.data, m_Data.DrawType);
-			break;
-		case Graphics::BufferObject::BufferType::IndexBuffer:
-			glCreateBuffers(1, &m_VBO);
-			glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, m_VBO);
-			glBufferData(GL_ELEMENT_ARRAY_BUFFER, m_Data.VertexSize, m_Data.data, m_Data.DrawType);
-			break;
-		case Graphics::BufferObject::BufferType::UniformBuffer:
-			glCreateBuffers(1, &m_VBO);
-			glBindBuffer(GL_UNIFORM_BUFFER, m_VBO);
-			glBufferData(GL_UNIFORM_BUFFER, m_Data.VertexSize, m_Data.data, m_Data.DrawType);
-			break;
-		case Graphics::BufferObject::BufferType::ShaderStorageBuffer:
-			glCreateBuffers(1, &m_VBO);
-			glBindBuffer(GL_SHADER_STORAGE_BUFFER, m_VBO);
-			glBufferData(GL_SHADER_STORAGE_BUFFER, m_Data.VertexSize, m_Data.data, m_Data.DrawType);
-			break;
-		default:
-			break;
-		}
+		glCreateBuffers(1, &m_Buffer);
+		glBindBuffer(m_Type, m_Buffer);
+		glBufferData(m_Type, m_Data.VertexSize, m_Data.data, m_Data.DrawType);
 	}
 	void BufferObject::BindRange(const DynamicData& data)
 	{
 		if (data.data)
 			LOGWARNING("Data initalized with values when not needed!");
 
-		switch (m_Type)
-		{
-		case Graphics::BufferObject::BufferType::VertexBuffer:
-			glBindBuffer(GL_ARRAY_BUFFER, m_VBO);
-			glBindBufferRange(GL_ARRAY_BUFFER, data.index, m_VBO, data.Offset, data.VertexSize);
-			break;
-		case Graphics::BufferObject::BufferType::IndexBuffer:
-			glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, m_VBO);
-			glBindBufferRange(GL_ELEMENT_ARRAY_BUFFER, data.index, m_VBO, data.Offset, data.VertexSize);
-			break;
-		case Graphics::BufferObject::BufferType::UniformBuffer:
-			glBindBuffer(GL_UNIFORM_BUFFER, m_VBO);
-			glBindBufferRange(GL_UNIFORM_BUFFER, data.index, m_VBO, data.Offset, data.VertexSize);
-			break;
-		case Graphics::BufferObject::BufferType::ShaderStorageBuffer:
-			glBindBuffer(GL_SHADER_STORAGE_BUFFER, m_VBO);
-			glBindBufferRange(GL_SHADER_STORAGE_BUFFER, data.index, m_VBO, data.Offset, data.VertexSize);
-			break;
-		default:
-			break;
-		}
+		glBindBuffer(m_Type, m_Buffer);
+		glBindBufferRange(m_Type, data.index, m_Buffer, data.Offset, data.VertexSize);
 	}
 	void BufferObject::BindBase(GLuint index)
 	{
-		switch (m_Type)
-		{
-		case Graphics::BufferObject::BufferType::VertexBuffer:
-			glBindBuffer(GL_ARRAY_BUFFER, m_VBO);
-			glBindBufferBase(GL_ARRAY_BUFFER, index, m_VBO);
-			break;
-		case Graphics::BufferObject::BufferType::IndexBuffer:
-			glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, m_VBO);
-			glBindBufferBase(GL_ELEMENT_ARRAY_BUFFER, index, m_VBO);
-			break;
-		case Graphics::BufferObject::BufferType::UniformBuffer:
-			glBindBuffer(GL_UNIFORM_BUFFER, m_VBO);
-			glBindBufferBase(GL_UNIFORM_BUFFER, index, m_VBO);
-			break;
-		case Graphics::BufferObject::BufferType::ShaderStorageBuffer:
-			glBindBuffer(GL_SHADER_STORAGE_BUFFER, m_VBO);
-			glBindBufferBase(GL_SHADER_STORAGE_BUFFER, index, m_VBO);
-			break;
-		default:
-			break;
-		}
+		glBindBuffer(m_Type, m_Buffer);
+		glBindBufferBase(m_Type, index, m_Buffer);
 	}
 	void BufferObject::PushData(const DynamicData& data)
 	{
 		if (!data.data)
 			LOGERROR("Data is nullptr!");
 
-		switch (m_Type)
-		{
-		case Graphics::BufferObject::BufferType::VertexBuffer:
-			glBindBuffer(GL_ARRAY_BUFFER, m_VBO);
-			glBufferSubData(GL_ARRAY_BUFFER, data.Offset, data.VertexSize, data.data);
-			break;
-		case Graphics::BufferObject::BufferType::IndexBuffer:
-			glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, m_VBO);
-			glBufferSubData(GL_ELEMENT_ARRAY_BUFFER, data.Offset, data.VertexSize, data.data);
-			break;
-		case Graphics::BufferObject::BufferType::UniformBuffer:
-			glBindBuffer(GL_UNIFORM_BUFFER, m_VBO);
-			glBufferSubData(GL_UNIFORM_BUFFER, data.Offset, data.VertexSize, data.data);
-			break;
-		case Graphics::BufferObject::BufferType::ShaderStorageBuffer:
-			glBindBuffer(GL_SHADER_STORAGE_BUFFER, m_VBO);
-			glBufferSubData(GL_SHADER_STORAGE_BUFFER, data.Offset, data.VertexSize, data.data);
-			break;
-		default:
-			break;
-		}
+		glBindBuffer(m_Type, m_Buffer);
+		glBufferSubData(m_Type, data.Offset, data.VertexSize, data.data);
 	}
 	void BufferObject::Bind()
 	{
-		switch (m_Type)
-		{
-		case Graphics::BufferObject::BufferType::VertexBuffer:
-			glBindBuffer(GL_ARRAY_BUFFER, m_VBO);
-			break;
-		case Graphics::BufferObject::BufferType::IndexBuffer:
-			glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, m_VBO);
-			break;
-		case Graphics::BufferObject::BufferType::UniformBuffer:
-			glBindBuffer(GL_UNIFORM_BUFFER, m_VBO);
-			break;
-		case Graphics::BufferObject::BufferType::ShaderStorageBuffer:
-			glBindBuffer(GL_SHADER_STORAGE_BUFFER, m_VBO);
-			break;
-		default:
-			break;
-		}
+		glBindBuffer(m_Type, m_Buffer);
 	}
 
 
@@ -202,93 +125,22 @@ namespace Graphics
 				switch (m_Attachments[i].Type)
 				{
 				case AttachmentType::Color:
-					if (m_Attachments[i].isRenderable)
-					{
-						glCreateRenderbuffers(1, &m_Renderbuffers[RenderIndex]);
-						glBindRenderbuffer(GL_RENDERBUFFER, m_Renderbuffers[RenderIndex]);
-						glRenderbufferStorage(GL_RENDERBUFFER, GL_RGBA8, m_Attachments[i].Width, m_Attachments[i].Height);
-						glFramebufferRenderbuffer(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0 + (GLenum)nColorAttachments, GL_RENDERBUFFER, m_Renderbuffers[RenderIndex]);
-						RenderIndex++;
-					}
-					else
-					{
-						glCreateTextures(GL_TEXTURE_2D, 1, &m_Textures[TextureIndex]);
-						glBindTexture(GL_TEXTURE_2D, m_Textures[TextureIndex]);
-						glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, m_Attachments[i].Width, m_Attachments[i].Height, 0, GL_RGBA, GL_UNSIGNED_BYTE, nullptr);
-
-						glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
-						glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-
-						glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0 + (GLenum)nColorAttachments, GL_TEXTURE_2D, m_Textures[TextureIndex], 0);
-						TextureIndex++;
-					}
+					GenerateAttachment( GL_COLOR_ATTACHMENT0 + (GLenum)nColorAttachments, GL_RGBA, 
+						m_Attachments[i].isRenderable, i);
 
 					nColorAttachments++;
 					break;
 				case AttachmentType::Stencil:
-					if (m_Attachments[i].isRenderable)
-					{
-						glCreateRenderbuffers(1, &m_Renderbuffers[RenderIndex]);
-						glBindRenderbuffer(GL_RENDERBUFFER, m_Renderbuffers[RenderIndex]);
-						glRenderbufferStorage(GL_RENDERBUFFER, GL_RGBA, m_Attachments[i].Width, m_Attachments[i].Height);
-						glFramebufferRenderbuffer(GL_FRAMEBUFFER, GL_STENCIL_ATTACHMENT, GL_RENDERBUFFER, m_Renderbuffers[RenderIndex]);
-						RenderIndex++;
-					}
-					else
-					{
-						glCreateTextures(GL_TEXTURE_2D, 1, &m_Textures[TextureIndex]);
-						glBindTexture(GL_TEXTURE_2D, m_Textures[TextureIndex]);
-						glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, m_Attachments[i].Width, m_Attachments[i].Height, 0, GL_RGBA, GL_UNSIGNED_BYTE, nullptr);
+					GenerateAttachment(GL_STENCIL_ATTACHMENT, GL_RGBA, m_Attachments[i].isRenderable, i);
 
-						glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
-						glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-
-						glFramebufferTexture2D(GL_FRAMEBUFFER, GL_STENCIL_ATTACHMENT, GL_TEXTURE_2D, m_Textures[TextureIndex], 0);
-						TextureIndex++;
-					}
 					break;
 				case AttachmentType::Depth:
-					if (m_Attachments[i].isRenderable)
-					{
-						glCreateRenderbuffers(1, &m_Renderbuffers[RenderIndex]);
-						glBindRenderbuffer(GL_RENDERBUFFER, m_Renderbuffers[RenderIndex]);
-						glRenderbufferStorage(GL_RENDERBUFFER, GL_RGBA, m_Attachments[i].Width, m_Attachments[i].Height);
-						glFramebufferRenderbuffer(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, GL_RENDERBUFFER, m_Renderbuffers[RenderIndex]);
-						RenderIndex++;
-					}
-					else
-					{
-						glCreateTextures(GL_TEXTURE_2D, 1, &m_Textures[TextureIndex]);
-						glBindTexture(GL_TEXTURE_2D, m_Textures[TextureIndex]);
-						glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, m_Attachments[i].Width, m_Attachments[i].Height, 0, GL_RGBA, GL_UNSIGNED_BYTE, nullptr);
-						glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
-						glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+					GenerateAttachment(GL_DEPTH_ATTACHMENT, GL_RGBA, m_Attachments[i].isRenderable, i);
 
-						glFramebufferTexture2D(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, GL_TEXTURE_2D, m_Textures[TextureIndex], 0);
-						TextureIndex++;
-					}
 					break;
 				case AttachmentType::StencilAndDepth:
-					if (m_Attachments[i].isRenderable)
-					{
-						glCreateRenderbuffers(1, &m_Renderbuffers[RenderIndex]);
-						glBindRenderbuffer(GL_RENDERBUFFER, m_Renderbuffers[RenderIndex]);
-						glRenderbufferStorage(GL_RENDERBUFFER, GL_DEPTH32F_STENCIL8, m_Attachments[i].Width, m_Attachments[i].Height);
-						glFramebufferRenderbuffer(GL_FRAMEBUFFER, GL_DEPTH_STENCIL_ATTACHMENT, GL_RENDERBUFFER, m_Renderbuffers[RenderIndex]);
-						RenderIndex++;
-					}
-					else
-					{
-						glCreateTextures(GL_TEXTURE_2D, 1, &m_Textures[TextureIndex]);
-						glBindTexture(GL_TEXTURE_2D, m_Textures[TextureIndex]);
-						glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, m_Attachments[i].Width, m_Attachments[i].Height, 0, GL_RGBA, GL_UNSIGNED_BYTE, nullptr);
+					GenerateAttachment(GL_DEPTH_STENCIL_ATTACHMENT, GL_DEPTH32F_STENCIL8, m_Attachments[i].isRenderable, i);
 
-						glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
-						glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-
-						glFramebufferTexture2D(GL_FRAMEBUFFER, GL_DEPTH_STENCIL_ATTACHMENT, GL_TEXTURE_2D, m_Textures[TextureIndex], 0);
-						TextureIndex++;
-					}
 					break;
 				default:
 					LOGERROR("Not a valid type");
@@ -312,6 +164,31 @@ namespace Graphics
 		FramebufferShader->Use();
 		FramebufferVAO->Bind();
 		FramebufferVBO->Bind();
+	}
+
+	void Framebuffer::GenerateAttachment(GLenum AttachmentType, GLenum InternalFormat, bool isRenderable, 
+										  size_t Index)
+	{
+		if (isRenderable)
+		{
+			glCreateRenderbuffers(1, &m_Renderbuffers[RenderIndex]);
+			glBindRenderbuffer(GL_RENDERBUFFER, m_Renderbuffers[RenderIndex]);
+			glRenderbufferStorage(GL_RENDERBUFFER, InternalFormat, m_Attachments[Index].Width, m_Attachments[Index].Height);
+			glFramebufferRenderbuffer(GL_FRAMEBUFFER, AttachmentType, GL_RENDERBUFFER, m_Renderbuffers[RenderIndex]);
+			RenderIndex++;
+		}
+		else
+		{
+			glCreateTextures(GL_TEXTURE_2D, 1, &m_Textures[TextureIndex]);
+			glBindTexture(GL_TEXTURE_2D, m_Textures[TextureIndex]);
+			glTexImage2D(GL_TEXTURE_2D, 0, InternalFormat, m_Attachments[Index].Width, m_Attachments[Index].Height, 0, InternalFormat, GL_UNSIGNED_BYTE, nullptr);
+
+			glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+			glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+
+			glFramebufferTexture2D(GL_FRAMEBUFFER, AttachmentType, GL_TEXTURE_2D, m_Textures[TextureIndex], 0);
+			TextureIndex++;
+		}
 	}
 
 

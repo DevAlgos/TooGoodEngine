@@ -17,7 +17,7 @@ namespace Graphics
 		void PushParticle(const Particle& p);
 
 	private:
-		static const int ParticleCount = 1000;
+		static const uint16_t ParticleCount = 1000;
 		std::array<Particle, ParticleCount> m_Particles;
 		uint16_t m_ParticleIndex = ParticleCount - 1;
 		glm::mat4 m_ParticleModel;
@@ -46,7 +46,7 @@ namespace Graphics
 		void ApplyContraint(Ecs::Renderable* Renderable, Ecs::QuadCollider* Collider);
 		void ApplyForce(
 			Ecs::Renderable* Renderable, Ecs::QuadCollider* Collider, Ecs::PhysicsBehaviour* Behaviour, 
-			Ecs::Renderable* Other);
+			Ecs::Renderable* Other, Ecs::QuadCollider* OtherCollider);
 	private:
 		Ecs::Registry EntityRegistry;
 		Ecs::Entity LastEntity;

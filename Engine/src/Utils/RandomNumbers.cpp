@@ -4,7 +4,7 @@
 namespace
 {
     static    uint32_t CurrentSeed = 1;
-    constexpr uint32_t UIntMax = UINT32_MAX;
+    constinit uint32_t UIntMax = UINT32_MAX;
 }
 
 namespace Utils

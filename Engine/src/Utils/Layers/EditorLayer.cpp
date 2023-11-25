@@ -23,6 +23,10 @@ namespace Test
 {
 	struct TestObject : public Ecs::Renderable
 	{
+		//ObjectColor, ObjectPosition, ObjectRotation, ObjectScale
+		TestObject(const glm::vec4& Color, const glm::vec3 Position, float Rotation, glm::vec2 Scale) :
+			Ecs::Renderable(Ecs::RenderType::Quad, Color, Position, Rotation, Scale) {}
+
 		TestObject() :
 			Ecs::Renderable(Ecs::RenderType::Quad, { Utils::GenFloat(0.0,1.0f), 
 				Utils::GenFloat(0.0,1.0f), Utils::GenFloat(0.0f,1.0f), 1.0f},
@@ -60,9 +64,9 @@ namespace Utils
 		float     ObjectRotation = 0.0f;
 		glm::vec2 ObjectScale = { 1.0f, 1.0f };
 
-		PhysicsScene->CreateGameObject<Test::TestObject>();
+		/*PhysicsScene->CreateGameObject<Test::TestObject>();
 		PhysicsScene->CreateGameObject<Test::OtherObject>();
-		NumbOfEntites += 2;
+		NumbOfEntites += 2;*/
 
 		std::vector<Graphics::Attachment> Attachments = {
 		{Graphics::AttachmentType::Color, false, Application::GetMainWindow().GetWidth(), 
@@ -124,7 +128,12 @@ namespace Utils
 
 		if (InputManager::IsMouseButtonDown(RIGHT_MOUSE))
 		{
-			PhysicsScene->CreateGameObject<Test::TestObject>();
+			glm::vec4 ObjectColor = { Utils::GenFloat(0.0f, 1.0f), Utils::GenFloat(0.0f, 1.0f), Utils::GenFloat(0.0f, 1.0f), 1.0f};
+			glm::vec3 ObjectPosition = { 0.4f, 0.5f, 0.4f };
+			float     ObjectRotation = 0.0f;
+			glm::vec2 ObjectScale = { 0.1f, 0.1f };
+
+			PhysicsScene->CreateGameObject<Test::TestObject>(ObjectColor, ObjectPosition, ObjectRotation, ObjectScale);
 			NumbOfEntites++;
 		}
 

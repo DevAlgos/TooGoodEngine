@@ -23,8 +23,7 @@ namespace InputManager
     {
         assert(!(s_Window != nullptr) && "Input Manager Already Initialized!");
 
-        if (!s_Window)
-            s_Window = window;
+        s_Window = window;
 
         glfwSetScrollCallback(s_Window, ScrollCallBack);
 

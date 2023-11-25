@@ -41,9 +41,9 @@ namespace Graphics
 		~BufferObject();
 
 	private:
-		uint32_t m_VBO;
+		uint32_t m_Buffer;
 
-		BufferType m_Type;
+		GLenum m_Type;
 		BufferData m_Data;
 	};
 
@@ -78,6 +78,10 @@ namespace Graphics
 		inline uint32_t GetRenderBuffer(size_t index) const { return m_Renderbuffers[index]; }
 		inline uint32_t GetTexture(size_t index) const { return m_Textures[index]; }
 
+	private:
+		void GenerateAttachment(GLenum AttachmentType, GLenum InternalFormat, 
+								 bool isRenderable,
+								 size_t Index);
 	private:
 		uint32_t m_Framebuffer;
 		size_t NumberOfRenderTargets;
