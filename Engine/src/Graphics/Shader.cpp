@@ -1,7 +1,7 @@
 #include <pch.h>
 #include "Shader.h"
 
-namespace Graphics {
+namespace TGE {
 	Shader::Shader(std::map<GLenum, const char*> shaders)
 	{
 		Create(shaders);

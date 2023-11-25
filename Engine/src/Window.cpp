@@ -27,7 +27,7 @@ static void OpenGLDebugCallback(GLenum source, GLenum type, GLuint id, GLenum se
 
 
 
-namespace Graphics {
+namespace TGE {
 
 	Window::Window(const uint16_t& width, const uint16_t& height, const char* title)
 	{

@@ -1,7 +1,7 @@
 #pragma once
 #include <pch.h>
 
-namespace Graphics {
+namespace TGE {
 
 	class Window
 	{

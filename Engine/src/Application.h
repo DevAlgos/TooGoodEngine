@@ -9,9 +9,9 @@ public:
     Application();
     ~Application();
 
-    void MainLoop();
+    void Run();
 
-    static Graphics::Window& GetMainWindow();
+    static TGE::Window& GetMainWindow();
 
     long long GetCurrentTime();
 

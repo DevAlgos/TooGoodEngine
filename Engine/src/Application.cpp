@@ -6,7 +6,7 @@
 
 namespace
 {
-	static Graphics::Window s_MainWindow;
+	static TGE::Window s_MainWindow;
 	static std::unique_ptr<Utils::Clock> ApplicationClock;
 
 	static float deltaTime = 0.0f;
@@ -30,7 +30,7 @@ Application::Application()
 	s_MainWindow.Create(1600, 900, "Engine");
 	s_MainWindow.Init();
 
-	Graphics::Renderer2D::Init();
+	TGE::Renderer2D::Init();
 
 	glEnable(GL_BLEND);
 	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
@@ -60,13 +60,13 @@ Application::Application()
 
 Application::~Application()
 {
-	Graphics::Renderer2D::ShutDown();
+	TGE::Renderer2D::ShutDown();
 	Utils::JobManager::ShutdownManager();
 	Utils::Logger::ShutDown();
 	
 }
 
-void Application::MainLoop()
+void Application::Run()
 {
 	ImVec4 clear_color = ImVec4(0.45f, 0.55f, 0.60f, 1.00f);
 
@@ -106,7 +106,7 @@ void Application::MainLoop()
 
 }
 
-Graphics::Window& Application::GetMainWindow()
+TGE::Window& Application::GetMainWindow()
 {
 	return s_MainWindow;
 }

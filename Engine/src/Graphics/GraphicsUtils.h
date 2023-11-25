@@ -5,7 +5,7 @@
 #include <glm/glm.hpp>
 #include <glm/gtc/type_ptr.hpp>
 
-namespace Graphics
+namespace TGE
 {
 	static glm::vec3 QuadVertices[4] = 
 	{
@@ -62,32 +62,6 @@ namespace Graphics
 		}
 	};
 
-	struct Particle
-	{
-		glm::vec3 Position = glm::vec3(0.0f, 0.0f, 0.0f);
-
-		Material ParticleMaterial;
-		uint32_t Texture = -1;
-
-		glm::vec3 Color = glm::vec3(0.0f, 0.0f, 0.0f);
-		glm::vec3 EndColor = glm::vec3(1.0f, 1.0f, 1.0f);
-
-		float Alpha = 0.0f;
-		float Rotation = 0.005f * glm::pi<float>();
-		glm::vec2 Scale = { 1.0f, 1.0f };
-
-		float DecaySpeed = 0.05f;
-		float Size = 1.0f;
-
-		float xVelocity = 0.05f;
-		float yVelocity = 0.05f;
-		bool IsActive = false;
-
-		bool operator==(const Particle& p)
-		{
-			return Position == p.Position && Color == p.Color && Rotation == p.Rotation && DecaySpeed == p.DecaySpeed ? true : false;
-		}
-	};
 	struct SpriteSheet
 	{
 		float TotalWidth = 0.0f;
@@ -98,17 +72,6 @@ namespace Graphics
 
 		float XIndex = 0.0f;
 		float YIndex = 0.0f;
-	};
-	struct MeshVertex
-	{
-		glm::vec3 Positions;
-		glm::vec3 Normals;
-		glm::vec2 TextureCoords;
-	};
-	struct MeshTexture
-	{
-		uint32_t texture;
-		std::string type;
 	};
 
 	//All of these sets the vertices and vertex attributes for a quad.

@@ -7,7 +7,7 @@
 #include <memory>
 
 
-namespace Graphics
+namespace TGE
 {
 	struct RendererData2D
 	{

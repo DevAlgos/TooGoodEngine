@@ -5,7 +5,7 @@
 #include "VertexArray.h"
 #include <map>
 
-namespace Graphics
+namespace TGE
 {
 	struct BufferData
 	{

@@ -1,30 +1,11 @@
 #pragma once
 
-#include "GraphicsUtils.h"
-#include "Shader.h"
-#include "ECS/Component.h"
-#include "ECS/Entity.h"
+#include <Utils/Logger.h>
+#include <ECS/Component.h>
+#include <ECS/Entity.h>
 
-namespace Graphics
+namespace TGE
 {
-	class ParticleScene 
-	{
-	public:
-		ParticleScene(); 
-		~ParticleScene();
-
-		void Update(OrthoGraphicCamera& Camera, float deltaTime);
-		void PushParticle(const Particle& p);
-
-	private:
-		static const uint16_t ParticleCount = 1000;
-		std::array<Particle, ParticleCount> m_Particles;
-		uint16_t m_ParticleIndex = ParticleCount - 1;
-		glm::mat4 m_ParticleModel;
-
-		
-	};
-
 	class PhysicsScene
 	{
 	public:
@@ -42,10 +23,10 @@ namespace Graphics
 
 
 		void ApplyGravity(Ecs::Renderable* Renderable, Ecs::QuadCollider* Collider,
-						  Ecs::PhysicsBehaviour* Behaviour);
+			Ecs::PhysicsBehaviour* Behaviour);
 		void ApplyContraint(Ecs::Renderable* Renderable, Ecs::QuadCollider* Collider);
 		void ApplyForce(
-			Ecs::Renderable* Renderable, Ecs::QuadCollider* Collider, Ecs::PhysicsBehaviour* Behaviour, 
+			Ecs::Renderable* Renderable, Ecs::QuadCollider* Collider, Ecs::PhysicsBehaviour* Behaviour,
 			Ecs::Renderable* Other, Ecs::QuadCollider* OtherCollider);
 	private:
 		Ecs::Registry EntityRegistry;
@@ -86,5 +67,5 @@ namespace Graphics
 
 		LOGWARNING("Object is not renderable! no entity has been created!");
 	}
-	
+
 }

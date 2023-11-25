@@ -3,7 +3,7 @@
 
 namespace
 {
-	static std::unique_ptr<Utils::Job> s_Job; // Logger created with raw job as Threading manager needs logging seperatley
+	static std::unique_ptr<Utils::Job> s_Job; 
 	static Utils::Logger* s_Instance = nullptr;
 
 	static Utils::Logger::Platform s_Platform; //incase we get different platforms the current method may not work on all
@@ -21,7 +21,7 @@ namespace Utils
 		if (!s_Instance)
 		{
 			s_Platform = platform;
-			s_Instance = Create();
+			s_Instance = new Logger();
 		}
 		else
 			LOGWARNING("Logger already exists! No need to re init.");
@@ -38,23 +38,6 @@ namespace Utils
 	void Logger::ShutDown()
 	{
 		s_Job.release();
-	}
-
-	Logger* Logger::Create()
-	{
-		switch (s_Platform)
-		{
-		case Utils::Logger::Platform::None:
-			std::cout << "Platform not supported yet!" << std::endl;
-			return nullptr;
-			break;
-		case Utils::Logger::Platform::Windows: // "Once I would like to branch out from Windows this Logger class will become virtual and new seperate Classes that inherit this will take over"
-			return new Logger();
-			break;
-		default:
-			return nullptr;
-			break;
-		}
 	}
 	
 }

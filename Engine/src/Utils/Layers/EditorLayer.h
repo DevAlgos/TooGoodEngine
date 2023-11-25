@@ -22,10 +22,11 @@ namespace Utils
 		void OnGUIUpdate()  override;
 		void OnShutdown()	override;
 	private:
-		std::unique_ptr<Graphics::Texture> Ben1;
-		std::unique_ptr<Graphics::Texture> ComputeTexture;
-		std::unique_ptr<Graphics::Framebuffer> ViewFrame;
-		std::unique_ptr<Graphics::Texture> BackGround;
+		std::unique_ptr<TGE::Texture> Ben1;
+		std::unique_ptr<TGE::Texture> ComputeTexture;
+		std::unique_ptr<TGE::Framebuffer> ViewFrame;
+		std::unique_ptr<TGE::Texture> BackGround;
+		std::unique_ptr<TGE::Texture> TestTexture;
 
 		OrthoGraphicCamera m_OrthoCam;
 

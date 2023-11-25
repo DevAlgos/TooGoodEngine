@@ -5,11 +5,11 @@
 
 namespace
 {
-	static Graphics::RendererData2D RenderData;
-	static Graphics::RendererData2D RaytracingData;
+	static TGE::RendererData2D RenderData;
+	static TGE::RendererData2D RaytracingData;
 }
 
-namespace Graphics
+namespace TGE
 {
 	void Renderer2D::Init()
 	{
@@ -22,7 +22,7 @@ namespace Graphics
 		RenderData.DefaultShader = std::make_unique<Shader>(ShaderList);
 
 		RenderData.CurrentTextureSlot = 1;
-
+	
 		RenderData.Buffer = new Vertex[RenderData.MaxVertices];
 		RenderData.BufferIndex = RenderData.Buffer;
 

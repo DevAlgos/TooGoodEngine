@@ -9,13 +9,15 @@ namespace
 	static ImGuiDockNodeFlags dockspace_flags = ImGuiDockNodeFlags_None;
 	static bool p_open = true;
 
-	Graphics::LightSource* source;
-	Graphics::Material* TestMaterial;
-	std::unique_ptr<Graphics::ParticleScene> PScene;
+	TGE::LightSource* source;
+	TGE::Material* TestMaterial;
+	std::unique_ptr<TGE::ParticleScene> PScene;
 	std::random_device dev;
 
-	std::unique_ptr<Graphics::PhysicsScene> PhysicsScene;
+	std::unique_ptr<TGE::PhysicsScene> PhysicsScene;
 	int NumbOfEntites = 0;
+
+	float* TextureData;
 	
 }
 
@@ -23,7 +25,6 @@ namespace Test
 {
 	struct TestObject : public Ecs::Renderable
 	{
-		//ObjectColor, ObjectPosition, ObjectRotation, ObjectScale
 		TestObject(const glm::vec4& Color, const glm::vec3 Position, float Rotation, glm::vec2 Scale) :
 			Ecs::Renderable(Ecs::RenderType::Quad, Color, Position, Rotation, Scale) {}
 
@@ -57,7 +58,23 @@ namespace Utils
 	}
 	void EditorLayer::OnInit()
 	{
-		PhysicsScene = std::make_unique<Graphics::PhysicsScene>();
+		TGE::TextureData data;
+		data.Width = 500;
+		data.Height = 500;
+		data.InternalFormat = TGE::TextureFormat::RGBA16F;
+		TextureData = new float[500 * 500 * 4];
+		for (uint32_t i = 0; i < 500 * 500 * 4; i += 4) {
+			TextureData[i] =  1.0f;     // Red component
+			TextureData[i + 1] = 1.0f; // Green component
+			TextureData[i + 2] = 10.0f; // Blue component
+			TextureData[i + 3] = 1.0f; // Alpha component
+		}
+
+		TestTexture = std::make_unique<TGE::Texture>(TextureData, data);
+
+		TestTexture->SetData(TextureData);
+
+		PhysicsScene = std::make_unique<TGE::PhysicsScene>();
 		
 		glm::vec4 ObjectColor = { 0.5f, 0.4f, 0.2f, 0.1f };
 		glm::vec3 ObjectPosition = { 0.4f, 0.5f, 0.4f };
@@ -68,8 +85,8 @@ namespace Utils
 		PhysicsScene->CreateGameObject<Test::OtherObject>();
 		NumbOfEntites += 2;*/
 
-		std::vector<Graphics::Attachment> Attachments = {
-		{Graphics::AttachmentType::Color, false, Application::GetMainWindow().GetWidth(), 
+		std::vector<TGE::Attachment> Attachments = {
+		{TGE::AttachmentType::Color, false, Application::GetMainWindow().GetWidth(), 
 		Application::GetMainWindow().GetHeight()},
 		};
 
@@ -78,8 +95,8 @@ namespace Utils
 		{GL_FRAGMENT_SHADER, "Engine/src/resources/shaders/Defaults/post_process_frag.glsl"},
 		};
 
-		ViewFrame = std::make_unique<Graphics::Framebuffer>(Attachments, FramebufferShaderList);
-		PScene = std::make_unique<Graphics::ParticleScene>();
+		ViewFrame = std::make_unique<TGE::Framebuffer>(Attachments, FramebufferShaderList);
+		PScene = std::make_unique<TGE::ParticleScene>();
 
 		OrthoCameraData CameraData;
 		CameraData.Position = glm::vec3(0.0f, 0.0f, 0.0f);
@@ -94,25 +111,23 @@ namespace Utils
 
 		m_OrthoCam.SetCam(CameraData);
 
-		Graphics::TextureData BackGroundData;
-		BackGroundData.FileLocation = "Engine/src/resources/Background.png";
-		BackGroundData.InternalFormat = GL_RGB;
-		BackGroundData.Type = Graphics::TextureType::Texture2D;
+		TGE::TextureData BackGroundData;
 		BackGroundData.MipmapLevels = 0;
 		BackGroundData.TextureParamaters = {
 			{GL_TEXTURE_MIN_FILTER, GL_NEAREST},
 			{GL_TEXTURE_MAG_FILTER, GL_NEAREST},
 		};
 
-		BackGround = std::make_unique<Graphics::Texture>(BackGroundData);
+		BackGround = std::make_unique<TGE::Texture>("Engine/src/resources/Background.png", 
+			BackGroundData, TGE::Format::RGB);
 
-		source = new Graphics::LightSource();
+		source = new TGE::LightSource();
 
 		source->Color = { 1.0f, 0.0f, 0.5f };
 		source->Position = { 1.0f, 1.0f, 1.0f };
 		source->ID = 0;
 
-		TestMaterial = new Graphics::Material();
+		TestMaterial = new TGE::Material();
 		TestMaterial->ambient = { 0.7f, 0.8f, 0.7f };
 		TestMaterial->diffuse = { 1.0f, 1.0f, 1.0f };
 		TestMaterial->specular = { 1.0f, 1.0f, 1.0f };
@@ -123,8 +138,8 @@ namespace Utils
 		ViewFrame->Bind();
 
 		m_OrthoCam.Update(Application::GetCurrentDeltaSecond());
-		Graphics::Renderer2D::ClearColor({ 0.4f, 0.2f, 0.8f });
-		Graphics::Renderer2D::BeginScene(m_OrthoCam);
+		TGE::Renderer2D::ClearColor({ 0.4f, 0.2f, 0.8f });
+		TGE::Renderer2D::BeginScene(m_OrthoCam);
 
 		if (InputManager::IsMouseButtonDown(RIGHT_MOUSE))
 		{
@@ -139,42 +154,54 @@ namespace Utils
 
 		if (InputManager::IsMouseButtonDown(LEFT_MOUSE))
 		{
-			Graphics::Particle p;
-			p.Position = glm::vec3(m_OrthoCam.GetMousePressCoordinates(), 0.0);
-			p.xVelocity = Utils::GenFloat(-0.05f, 0.05f);
-			p.yVelocity = Utils::GenFloat(-0.05f, 0.05f);
-			p.DecaySpeed = 0.005f;
-			p.Color = { 0.5f, 0.4f, 0.2f };
-			p.EndColor = { 1.0f, 1.0f, 1.0f };
-			p.Rotation = Utils::GenFloat(0, 360.0f);
-			PScene->PushParticle(p);
+			//TGE::Particle p;
+			//p.Position = glm::vec3(m_OrthoCam.GetMousePressCoordinates(), 0.0);
+			//p.xVelocity = Utils::GenFloat(-0.05f, 0.05f);
+			//p.yVelocity = Utils::GenFloat(-0.05f, 0.05f);
+			//p.DecaySpeed = 0.005f;
+			//p.Color = { 0.5f, 0.4f, 0.2f };
+			//p.EndColor = { 1.0f, 1.0f, 1.0f };
+			//p.Rotation = Utils::GenFloat(0, 360.0f);
+			//PScene->PushParticle(p);
+
+			for (uint32_t i = 0; i < 500 * 500 * 4; i += 4) {
+				TextureData[i] = Utils::GenFloat(0.0f, 1.0f);     // Red component
+				TextureData[i + 1] = Utils::GenFloat(0.0f, 1.0f); // Green component
+				TextureData[i + 2] = Utils::GenFloat(0.0f, 1.0f); // Blue component
+				TextureData[i + 3] = 1.0f; // Alpha component
+			}
+
+			TestTexture->SetData(TextureData);
+
 		}
 
 		for (float i = -10.0f; i < 10.0f; i++)
 		{
 			for (float j = -10.0f; j < 10.0f; j++)
 			{
-				Graphics::Renderer2D::PushQuad({ i,j,0.0f }, { 1.0f,1.0f }, 0.0f, BackGround->Get());
+				TGE::Renderer2D::PushQuad({ i,j,0.0f }, { 1.0f,1.0f }, 0.0f, TestTexture->Get());
 			}
 
 		}
 
-		Graphics::Renderer2D::PushCircle({ 2.0f, 1.0f, 0.0f }, { 1.0f, 1.0f }, 0.0f, 1.0f,
+		
+
+		TGE::Renderer2D::PushCircle({ 2.0f, 1.0f, 0.0f }, { 1.0f, 1.0f }, 0.0f, 1.0f,
 			{0.8f, 0.4f, 0.5f, 1.0f}, *TestMaterial);
 
-		Graphics::Renderer2D::PushCircle({ 9.0f, 1.0f, 0.0f }, { 1.0f, 1.0f }, 0.0f, 1.0f,
+		TGE::Renderer2D::PushCircle({ 9.0f, 1.0f, 0.0f }, { 1.0f, 1.0f }, 0.0f, 1.0f,
 			{ 0.8f, 0.4f, 0.5f, 1.0f });
 		
-		Graphics::Renderer2D::PushCircle({ 9.0f, -5.0f, 0.0f }, { 1.0f, 1.0f }, 0.0f, 1.0f,
+		TGE::Renderer2D::PushCircle({ 9.0f, -5.0f, 0.0f }, { 1.0f, 1.0f }, 0.0f, 1.0f,
 			{ 0.0f, 0.4f, 0.4, 1.0f });
 		
 		PScene->Update(m_OrthoCam, Application::GetCurrentDeltaSecond());
 		PhysicsScene->UpdateScene();
 
 
-		Graphics::Renderer2D::PushLight(*source);
+		TGE::Renderer2D::PushLight(*source);
 
-		Graphics::Renderer2D::EndScene();
+		TGE::Renderer2D::EndScene();
 
 		ViewFrame->Unbind();
 
@@ -213,7 +240,7 @@ namespace Utils
 		}
 
 		if (opt_fullscreen)
-			ImGui::Image((void*)(intptr_t)ViewFrame->GetTexture(0), { (float)Application::GetMainWindow().GetWidth(),
+			ImGui::Image((void*)(intptr_t)ViewFrame->GetTexture(0), {(float)Application::GetMainWindow().GetWidth(),
 			(float)Application::GetMainWindow().GetHeight() },
 				{ 0,1 }, { 1,0 });
 
@@ -222,6 +249,7 @@ namespace Utils
 	}
 	void EditorLayer::OnShutdown()
 	{
+		delete TextureData;
 		delete source;
 	}
 }

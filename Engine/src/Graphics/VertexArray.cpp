@@ -1,9 +1,10 @@
 #include <pch.h>
 #include "VertexArray.h"
 
-namespace Graphics
+namespace TGE
 {
 	VertexArrayObject::VertexArrayObject()
+		: m_VAO(0)
 	{
 	}
 	VertexArrayObject::~VertexArrayObject()
@@ -16,8 +17,6 @@ namespace Graphics
 
 		glEnableVertexAttribArray(index);
 		glVertexAttribPointer(index, size, type, normalised, stride, start);
-
-		Unbind();
 
 	}
 }

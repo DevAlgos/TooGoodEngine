@@ -12,13 +12,13 @@ namespace Utils
 	public:
 		enum class Platform { None = 0, Windows };
 	public:
+		Logger();
+
 		static void Init(Platform platform);
 		static void Log(const std::string& prefix, const std::string& msg, const std::string& color);
 
 		static void ShutDown();
-	private:
-		Logger();
-		static Logger* Create();
+		
 	};
 }
 

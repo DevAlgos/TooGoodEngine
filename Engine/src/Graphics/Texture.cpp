@@ -2,223 +2,99 @@
 #include "Texture.h"
 
 
-namespace Graphics 
+namespace TGE 
 {
-	Texture::Texture(const TextureData& textureData)
-		: m_Texture(0), m_TextureData(textureData)
+	Texture::Texture(const std::string_view& FileLocation, const TextureData& textureData, const Format& format)
+		: m_Texture(0), m_TextureData(textureData), m_InternalFormat(GL_RGBA8), m_FileFormat(0)
+		
 	{
+		switch (format)
+		{
+		case Format::RGB:
+			m_FileFormat = GL_RGB;
+			break;
+		case Format::RGBA:
+			m_FileFormat = GL_RGBA;
+			break;
+		default:
+			break;
+		}
 
 		switch (m_TextureData.Type)
 		{
-		case TextureType::Texture1D:
-			CreateTexture(GL_TEXTURE_1D);
-			break;
-		case TextureType::Texture2D:
-			CreateTexture(GL_TEXTURE_2D);
-			break;
-		case TextureType::Texture3D:
-			LOGERROR("Engine hasn't branched to 3D yet!");
+		case TGE::TextureType::Texture2D:
+			CreateTexture(GL_TEXTURE_2D, FileLocation);
 			break;
 		default:
-			LOGERROR("That texture type is currently not supported!");
 			break;
 		}
-
 	}
 
-	void Texture::UploadTextureImmutable(GLenum TextureType)
+	Texture::Texture(float* Data, const TextureData& textureData)
+		: m_Texture(0), m_TextureData(textureData), m_InternalFormat(0), m_FileFormat(0)
 	{
-		switch (TextureType)
+
+		switch (m_TextureData.InternalFormat)
 		{
-		case GL_TEXTURE_1D:
-			if (m_TextureData.UseData8)
-			{
-				glTextureStorage1D(m_Texture, m_TextureData.MipmapLevels, m_TextureData.InternalFormat, m_TextureData.Width);
-				glTexSubImage1D(GL_TEXTURE_1D, m_TextureData.MipmapLevels, 0, m_TextureData.Width, m_TextureData.InternalFormat,
-					GL_UNSIGNED_BYTE, m_TextureData.Data8);
-				glGenerateTextureMipmap(m_Texture);
-			}
-			else if (m_TextureData.UseData16)
-			{
-
-				glTextureStorage1D(m_Texture, m_TextureData.MipmapLevels, m_TextureData.InternalFormat, m_TextureData.Width);
-				glTexSubImage1D(GL_TEXTURE_1D, m_TextureData.MipmapLevels, 0, m_TextureData.Width, m_TextureData.InternalFormat,
-					GL_UNSIGNED_SHORT, m_TextureData.Data16);
-				glGenerateTextureMipmap(m_Texture);
-			}
-			else if (m_TextureData.UseData32)
-			{
-
-				glTextureStorage1D(m_Texture, m_TextureData.MipmapLevels, m_TextureData.InternalFormat, m_TextureData.Width);
-				glTexSubImage1D(GL_TEXTURE_1D, m_TextureData.MipmapLevels, 0, m_TextureData.Width, m_TextureData.InternalFormat,
-					GL_UNSIGNED_INT, m_TextureData.Data32);
-				glGenerateTextureMipmap(m_Texture);
-			}
-			else
-			{
-				LOGERROR("Data is null");
-			}
+		case TextureFormat::RGBA16F:
+			m_InternalFormat = GL_RGBA16F;
 			break;
-		case GL_TEXTURE_2D:
-			if (m_TextureData.UseData8)
-			{
-				glTextureStorage2D(m_Texture, m_TextureData.MipmapLevels, m_TextureData.InternalFormat, m_TextureData.Width, m_TextureData.Height);
-				glTexSubImage2D(GL_TEXTURE_2D, m_TextureData.MipmapLevels, 0, 0, m_TextureData.Width, m_TextureData.Height, m_TextureData.InternalFormat,
-					GL_UNSIGNED_BYTE, m_TextureData.Data8);
-				glGenerateTextureMipmap(m_Texture);
-			}
-			else if (m_TextureData.UseData16)
-			{
+		case TextureFormat::RGBA32F:
+			m_InternalFormat = GL_RGBA32F;
+			break;
+		default:
+			break;
+		}
 
-				glTextureStorage2D(m_Texture, m_TextureData.MipmapLevels, m_TextureData.InternalFormat, m_TextureData.Width, m_TextureData.Height);
-				glTexSubImage2D(GL_TEXTURE_2D, m_TextureData.MipmapLevels, 0, 0, m_TextureData.Width, m_TextureData.Height, m_TextureData.InternalFormat,
-					GL_UNSIGNED_BYTE, m_TextureData.Data16);
-				glGenerateTextureMipmap(m_Texture);
-			}
-			else if (m_TextureData.UseData32)
-			{
-
-				glTextureStorage2D(m_Texture, m_TextureData.MipmapLevels, m_TextureData.InternalFormat, m_TextureData.Width, m_TextureData.Height);
-				glTexSubImage2D(GL_TEXTURE_2D, m_TextureData.MipmapLevels, 0, 0, m_TextureData.Width, m_TextureData.Height, m_TextureData.InternalFormat,
-					GL_UNSIGNED_BYTE, m_TextureData.Data32);
-				glGenerateTextureMipmap(m_Texture);
-			}
-			else
-			{
-				LOGWARNING("Data is null");
-				glTextureStorage2D(m_Texture, m_TextureData.MipmapLevels, m_TextureData.InternalFormat, m_TextureData.Width, m_TextureData.Height);
-				glTexSubImage2D(GL_TEXTURE_2D, m_TextureData.MipmapLevels, 0, 0, m_TextureData.Width, m_TextureData.Height, m_TextureData.InternalFormat,
-					GL_UNSIGNED_BYTE, nullptr);
-				glGenerateTextureMipmap(m_Texture);
-			}
+		switch (m_TextureData.Type)
+		{
+		case TGE::TextureType::Texture2D:
+			CreateTexture(GL_TEXTURE_2D, Data);
 			break;
 		default:
 			break;
 		}
 	}
-	void Texture::UploadTextureImmutable(GLenum TextureType, const char* Filename)
+
+	Texture::~Texture()
 	{
-		int width, height, Channels;
+		glDeleteTextures(1, &m_Texture);
+	}
+
+	void Texture::ResizeImage(float* Data, int Width, int Height)
+	{
+		m_TextureData.Width = Width;
+		m_TextureData.Height = Height;
+
+		glDeleteTextures(1, &m_Texture);
+
+		CreateTexture(GL_TEXTURE_2D, Data);
+	}
+
+	void Texture::SetData(float* Data)
+	{
+		glBindTexture(GL_TEXTURE_2D, m_Texture);
+		glTexSubImage2D(GL_TEXTURE_2D, m_TextureData.MipmapLevels, 0, 0, m_TextureData.Width, m_TextureData.Height,
+			GL_RGBA, GL_FLOAT, Data);
+	}
+
+	void Texture::SetData(const std::string_view& NewImageLocation)
+	{
+		int Channels;
 		stbi_set_flip_vertically_on_load(true);
 		unsigned char* image = nullptr;
 
-		image = stbi_load(m_TextureData.FileLocation, &width, &height, &Channels, 0);
+		image = stbi_load(NewImageLocation.data(), &m_TextureData.Width, &m_TextureData.Height, &Channels, 0);
 
-		switch (TextureType)
-		{
-		case GL_TEXTURE_1D:
-			glTextureStorage1D(m_Texture, m_TextureData.MipmapLevels, m_TextureData.InternalFormat, width);
-			glTexSubImage1D(GL_TEXTURE_1D, m_TextureData.MipmapLevels, 0, width, m_TextureData.InternalFormat,
-				GL_UNSIGNED_BYTE, image);
-			glGenerateTextureMipmap(m_Texture);
-			break;
-		case GL_TEXTURE_2D:
-			glTextureStorage2D(m_Texture, m_TextureData.MipmapLevels, m_TextureData.InternalFormat, width, height);
-			glTexSubImage2D(GL_TEXTURE_2D, m_TextureData.MipmapLevels, 0, 0, width, height, m_TextureData.InternalFormat,
-				GL_UNSIGNED_BYTE, image);
-			glGenerateTextureMipmap(m_Texture);
-			break;
-		default:
-			break;
-		}
-
+		glBindTexture(GL_TEXTURE_2D, m_Texture);
+		glTexSubImage2D(GL_TEXTURE_2D, m_TextureData.MipmapLevels, 0, 0, m_TextureData.Width, m_TextureData.Height,
+			m_FileFormat, GL_UNSIGNED_BYTE, image);
 
 		if (image)
 			stbi_image_free(image);
 	}
 
-	void Texture::UploadTexture(GLenum TextureType)
-	{
-		switch (TextureType)
-		{
-		case GL_TEXTURE_1D:
-			if (m_TextureData.UseData8)
-			{
-				glTexImage1D(GL_TEXTURE_1D, m_TextureData.MipmapLevels, m_TextureData.InternalFormat, m_TextureData.Width, 0, m_TextureData.InternalFormat,
-					GL_UNSIGNED_BYTE, m_TextureData.Data8);
-				glGenerateTextureMipmap(m_Texture);
-			}
-			else if (m_TextureData.UseData16)
-			{
-				glTexImage1D(GL_TEXTURE_1D, m_TextureData.MipmapLevels, m_TextureData.InternalFormat, m_TextureData.Width, 0, m_TextureData.InternalFormat,
-					GL_UNSIGNED_SHORT, m_TextureData.Data16);
-				glGenerateTextureMipmap(m_Texture);
-			} 
-			else if (m_TextureData.UseData32)
-			{
-				glTexImage1D(GL_TEXTURE_1D, m_TextureData.MipmapLevels, m_TextureData.InternalFormat, m_TextureData.Width, 0, m_TextureData.InternalFormat,
-					GL_UNSIGNED_INT, m_TextureData.Data32);
-				glGenerateTextureMipmap(m_Texture);
-			}
-		
-			else
-			{
-				LOGWARNING("Data is null!");
-				glTexImage1D(GL_TEXTURE_1D, m_TextureData.MipmapLevels, m_TextureData.InternalFormat, m_TextureData.Width, 0, m_TextureData.InternalFormat,
-					GL_UNSIGNED_BYTE, nullptr);
-				glGenerateTextureMipmap(m_Texture);
-			}
-			break;
-		case GL_TEXTURE_2D:
-			if (m_TextureData.UseData8)
-			{
-				glTexImage2D(GL_TEXTURE_2D, m_TextureData.MipmapLevels, m_TextureData.InternalFormat, m_TextureData.Width, m_TextureData.Height, 0,
-					m_TextureData.InternalFormat, GL_UNSIGNED_BYTE, m_TextureData.Data8);
-				glGenerateTextureMipmap(m_Texture);
-			} 
-			else if (m_TextureData.UseData16)
-			{
-				glTexImage2D(GL_TEXTURE_2D, m_TextureData.MipmapLevels, m_TextureData.InternalFormat, m_TextureData.Width, m_TextureData.Height, 0,
-					m_TextureData.InternalFormat, GL_UNSIGNED_SHORT, m_TextureData.Data16);
-				glGenerateTextureMipmap(m_Texture);
-			}
-			else if (m_TextureData.UseData32)
-			{
-				glTexImage2D(GL_TEXTURE_2D, m_TextureData.MipmapLevels, m_TextureData.InternalFormat, m_TextureData.Width, m_TextureData.Height, 0,
-					m_TextureData.InternalFormat, GL_UNSIGNED_INT, m_TextureData.Data32);
-				glGenerateTextureMipmap(m_Texture);
-			} 
-			else
-			{
-				LOGWARNING("Data is nullptr");
-				glTexImage2D(GL_TEXTURE_2D, m_TextureData.MipmapLevels, m_TextureData.InternalFormat, m_TextureData.Width, m_TextureData.Height, 0,
-					m_TextureData.InternalFormat, GL_UNSIGNED_BYTE, nullptr);
-				glGenerateTextureMipmap(m_Texture);
-			}
-			break;
-		default:
-			break;
-		}
-	}
-	void Texture::UploadTexture(GLenum TextureType, const char* Filename)
-	{
-		int width, height, Channels;
-		stbi_set_flip_vertically_on_load(true);
-		unsigned char* image = nullptr;
-
-		image = stbi_load(m_TextureData.FileLocation, &width, &height, &Channels, 0);
-
-		switch (TextureType)
-		{
-		case GL_TEXTURE_1D:
-			glTexImage1D(GL_TEXTURE_1D, m_TextureData.MipmapLevels, m_TextureData.InternalFormat, width, 0, m_TextureData.InternalFormat,
-				GL_UNSIGNED_BYTE, image);
-			glGenerateTextureMipmap(m_Texture);
-			break;
-		case GL_TEXTURE_2D:
-			glTexImage2D(GL_TEXTURE_2D, m_TextureData.MipmapLevels, m_TextureData.InternalFormat, width, height, 0,
-				m_TextureData.InternalFormat, GL_UNSIGNED_BYTE, image);
-			glGenerateTextureMipmap(m_Texture);
-			break;
-		default:
-			break;
-		}
-
-		if (image)
-			stbi_image_free(image);
-	}
-
-	void Texture::CreateTexture(GLenum TextureType)
+	void Texture::CreateTexture(GLenum TextureType, const std::string_view& FileLocation)
 	{
 		glCreateTextures(TextureType, 1, &m_Texture);
 		glBindTexture(TextureType, m_Texture);
@@ -226,26 +102,67 @@ namespace Graphics
 		for (auto& kv : m_TextureData.TextureParamaters)
 			glTextureParameteri(m_Texture, kv.first, kv.second);
 
-		if (m_TextureData.FileLocation)
-		{
-			if (m_TextureData.Immutable)
-				UploadTextureImmutable(TextureType, m_TextureData.FileLocation);
-			else
-				UploadTexture(TextureType, m_TextureData.FileLocation);
-		}
-		else
-		{
-			if (m_TextureData.Immutable)
-				UploadTextureImmutable(TextureType);
-			else
-				UploadTexture(TextureType);
-		}
 
+		int Channels;
+		stbi_set_flip_vertically_on_load(true);
+		unsigned char* image = nullptr;
+
+		image = stbi_load(FileLocation.data(), &m_TextureData.Width, &m_TextureData.Height, &Channels, 0);
+		const char* Failure = stbi_failure_reason();
+
+		if (Failure)
+		{
+			LOGERROR(std::string(Failure));
+			return;
+		}
+		
+		UploadTextureImage(TextureType, image);
+
+		if (image)
+			stbi_image_free(image);
 
 	}
 
-	Texture::~Texture()
+	void Texture::CreateTexture(GLenum TextureType, float* Data)
 	{
-		glDeleteTextures(1, &m_Texture);
+		glCreateTextures(TextureType, 1, &m_Texture);
+		glBindTexture(TextureType, m_Texture);
+
+		for (auto& kv : m_TextureData.TextureParamaters)
+			glTextureParameteri(m_Texture, kv.first, kv.second);
+		
+		UploadTexture(TextureType, Data);
+
 	}
+
+	void Texture::UploadTextureImage(GLenum TextureType, unsigned char* Data)
+	{
+		switch (TextureType)
+		{
+		case GL_TEXTURE_2D:
+			glTextureStorage2D(m_Texture, 1, m_InternalFormat, m_TextureData.Width, m_TextureData.Height);
+			glTexSubImage2D(GL_TEXTURE_2D, m_TextureData.MipmapLevels, 0, 0, m_TextureData.Width, m_TextureData.Height, m_FileFormat,
+				GL_UNSIGNED_BYTE, Data);
+			glGenerateTextureMipmap(m_Texture);
+			break;
+		default:
+			break;
+		}
+	}
+
+	void Texture::UploadTexture(GLenum TextureType, float* Data)
+	{
+		switch (TextureType)
+		{
+		case GL_TEXTURE_2D:
+			glTextureStorage2D(m_Texture, 1, m_InternalFormat, m_TextureData.Width, m_TextureData.Height);
+			glTexSubImage2D(GL_TEXTURE_2D, m_TextureData.MipmapLevels, 0, 0, m_TextureData.Width, m_TextureData.Height, GL_RGBA,
+				GL_FLOAT, Data);
+			glGenerateTextureMipmap(m_Texture);
+			break;
+		default:
+			break;
+		}
+	}
+	
 }

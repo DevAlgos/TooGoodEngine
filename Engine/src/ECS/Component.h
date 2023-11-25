@@ -142,7 +142,7 @@ namespace Ecs
 
 		virtual ~QuadCollider() {}
 
-		inline bool CheckCollision(QuadCollider&& other) 
+		inline bool CheckCollision(const QuadCollider& other) const
 		{
 			bool xOverlap = (m_Right >= other.m_Left && m_Left <= other.m_Right);
 			bool yOverlap = (m_Top >= other.m_Down && m_Down <= other.m_Top);
@@ -159,10 +159,10 @@ namespace Ecs
 			m_Down = NewPosition.y - 2.0f * NewSize.y;
 		}
 
-		inline const float GetLeft() { return   m_Left; }
-		inline const float GetRight() { return  m_Right; }
-		inline const float GetTop() { return    m_Top; }
-		inline const float GetDown() { return   m_Down; }
+		inline const float GetLeft() const { return   m_Left; }
+		inline const float GetRight() const { return  m_Right; }
+		inline const float GetTop() const { return    m_Top; }
+		inline const float GetDown() const { return   m_Down; }
 
 
 	private:

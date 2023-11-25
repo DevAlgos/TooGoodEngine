@@ -16,7 +16,7 @@ namespace
 	};
 }
 
-namespace Graphics 
+namespace TGE 
 {
 
 	BufferObject::BufferObject(const BufferType& Type, const BufferData& BufferData)
@@ -24,16 +24,16 @@ namespace Graphics
 	{
 		switch (Type)
 		{
-		case Graphics::BufferObject::BufferType::VertexBuffer:
+		case TGE::BufferObject::BufferType::VertexBuffer:
 			m_Type = GL_ARRAY_BUFFER;
 			break;
-		case Graphics::BufferObject::BufferType::IndexBuffer:
+		case TGE::BufferObject::BufferType::IndexBuffer:
 			m_Type = GL_ELEMENT_ARRAY_BUFFER;
 			break;
-		case Graphics::BufferObject::BufferType::UniformBuffer:
+		case TGE::BufferObject::BufferType::UniformBuffer:
 			m_Type = GL_UNIFORM_BUFFER;
 			break;
-		case Graphics::BufferObject::BufferType::ShaderStorageBuffer:
+		case TGE::BufferObject::BufferType::ShaderStorageBuffer:
 			m_Type = GL_SHADER_STORAGE_BUFFER;
 			break;
 		default:
@@ -56,7 +56,7 @@ namespace Graphics
 	void BufferObject::BindRange(const DynamicData& data)
 	{
 		if (data.data)
-			LOGWARNING("Data initalized with values when not needed!");
+			LOGWARNING("Data initalized with values in bind range!");
 
 		glBindBuffer(m_Type, m_Buffer);
 		glBindBufferRange(m_Type, data.index, m_Buffer, data.Offset, data.VertexSize);
@@ -69,7 +69,7 @@ namespace Graphics
 	void BufferObject::PushData(const DynamicData& data)
 	{
 		if (!data.data)
-			LOGERROR("Data is nullptr!");
+			LOGERROR("Data is nullptr in push data!");
 
 		glBindBuffer(m_Type, m_Buffer);
 		glBufferSubData(m_Type, data.Offset, data.VertexSize, data.data);

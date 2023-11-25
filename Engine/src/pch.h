@@ -31,6 +31,9 @@
 #include <ECS/Component.h>
 #include <ECS/Entity.h>
 
+#include <Physics/PhysicsScene.h>
+#include <Particles/ParticleScene.h>
+
 #include <Utils/RandomNumbers.h>
 #include <Utils/Clock.h>
 #include <Utils/Layers/BaseLayer.h>
@@ -52,9 +55,7 @@
 #include <Graphics/VertexArray.h>
 #include <Graphics/Texture.h>
 #include <Graphics/Buffers.h>
-#include <Graphics/Graphics.h>
 #include <Graphics/Renderer2D.h>
-
 
 #include <Application.h>
 
