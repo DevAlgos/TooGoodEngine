@@ -7,7 +7,7 @@ namespace TGE
 {
 	int Main(const UserApplication& UserApp)
 	{
-		std::shared_ptr<Application> App = std::make_shared<Application>(UserApp);
+		std::unique_ptr<Application> App = std::make_unique<Application>(UserApp);
 		App->Run();
 		return 0;
 	}
