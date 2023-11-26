@@ -14,6 +14,11 @@ namespace TGE
 
 		template<typename T, typename ...Args>
 		void CreateGameObject(Args&&... args);
+
+		template<typename T, typename ...Args>
+		void CreateGameObject(const Ecs::PhysicsBehaviour& Behaviour, Args&&... args);
+
+		void DestroyObject(Ecs::Entity GameObject);
 		void UpdateScene();
 	private:
 		/*
@@ -24,7 +29,7 @@ namespace TGE
 
 		void ApplyGravity(Ecs::Renderable* Renderable, Ecs::QuadCollider* Collider,
 			Ecs::PhysicsBehaviour* Behaviour);
-		void ApplyContraint(Ecs::Renderable* Renderable, Ecs::QuadCollider* Collider);
+		void ApplyConstraint(Ecs::Renderable* Renderable, Ecs::QuadCollider* Collider);
 		void ApplyForce(
 			Ecs::Renderable* Renderable, Ecs::QuadCollider* Collider, Ecs::PhysicsBehaviour* Behaviour,
 			Ecs::Renderable* Other, Ecs::QuadCollider* OtherCollider);
@@ -54,12 +59,53 @@ namespace TGE
 				break;
 			}
 			case Ecs::RenderType::Circle: //haven't made circle collider yet
+				glm::vec3 position = renderable->GetPosition();
+				glm::vec2 scale = renderable->GetScale();
+				EntityRegistry.PushBackComponent<Ecs::QuadCollider>(current, position, scale);
 				break;
 			default:
 				break;
 			}
 			EntityRegistry.PushBackComponent<Ecs::PhysicsBehaviour>(current);
 
+
+			renderable = nullptr;
+			return;
+		}
+
+		LOGWARNING("Object is not renderable! no entity has been created!");
+	}
+
+	template<typename T, typename ...Args>
+	inline void PhysicsScene::CreateGameObject(const Ecs::PhysicsBehaviour& Behaviour, Args&& ...args)
+	{
+		if (std::is_base_of_v<Ecs::Renderable, T>)
+		{
+			LastEntity++;
+			Ecs::Entity current = EntityRegistry.Create();
+			EntityRegistry.PushBackComponent<T>(current, std::forward<Args>(args)...);
+			Ecs::Renderable* renderable = EntityRegistry.GetComponent<T>(current, 0);
+			Ecs::RenderType type = renderable->GetType();
+
+			switch (type)
+			{
+			case Ecs::RenderType::Quad:
+			{
+				glm::vec3 position = renderable->GetPosition();
+				glm::vec2 scale = renderable->GetScale();
+				EntityRegistry.PushBackComponent<Ecs::QuadCollider>(current, position, scale);
+				break;
+			}
+			case Ecs::RenderType::Circle: //haven't made circle collider yet
+				glm::vec3 position = renderable->GetPosition();
+				glm::vec2 scale = renderable->GetScale();
+				EntityRegistry.PushBackComponent<Ecs::QuadCollider>(current, position, scale);
+				break;
+			default:
+				break;
+			}
+
+			EntityRegistry.PushBackComponent<Ecs::PhysicsBehaviour>(current, Behaviour->GetAcceleration());
 
 			renderable = nullptr;
 			return;

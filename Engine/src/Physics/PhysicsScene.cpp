@@ -13,6 +13,11 @@ namespace TGE
 	{
 	}
 
+	void PhysicsScene::DestroyObject(Ecs::Entity GameObject)
+	{
+		EntityRegistry.DeleteEntity(GameObject);
+	}
+
 	void PhysicsScene::UpdateScene()
 	{
 		for (uint32_t i = 0; i < LastEntity; i++)
@@ -32,16 +37,20 @@ namespace TGE
 					Ecs::QuadCollider* OtherCollider = EntityRegistry.GetComponent<Ecs::QuadCollider>(j, 1);
 					Ecs::PhysicsBehaviour* OtherPhysics = EntityRegistry.GetComponent<Ecs::PhysicsBehaviour>(j, 2);
 
-
-					if (Collider->CheckCollision(std::move(*OtherCollider)))
-						ApplyForce(Renderable, Collider, Physics, Other, OtherCollider);
-
+					for (int check = 0; check < 5; check++)
+					{
+						if (Collider->CheckCollision(*OtherCollider))
+							ApplyForce(Renderable, Collider, Physics, Other, OtherCollider);
+						else
+							break;
+					}
+					
 				}
 
 			}
 
 			ApplyGravity(Renderable, Collider, Physics);
-			ApplyContraint(Renderable, Collider);
+			ApplyConstraint(Renderable, Collider);
 
 			TGE::Renderer2D::PushCircle(Renderable->GetPosition(),
 				Renderable->GetScale(), Renderable->GetRotation(), 1.0f, Renderable->GetColor());
@@ -67,7 +76,7 @@ namespace TGE
 
 
 	}
-	void PhysicsScene::ApplyContraint(Ecs::Renderable* Renderable, Ecs::QuadCollider* Collider)
+	void PhysicsScene::ApplyConstraint(Ecs::Renderable* Renderable, Ecs::QuadCollider* Collider)
 	{
 		const glm::vec3 Constraint = { 2.0f, 0.0f,0.0f }; //arbitrary for now, so can test easier
 		const float Radius = { 6.0f }; //same here

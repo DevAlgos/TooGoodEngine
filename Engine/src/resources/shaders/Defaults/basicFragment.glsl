@@ -60,8 +60,6 @@ void main()
     vec3 TotalDiffuse = vec3(0.0);
     vec3 FinalLightColor = vec3(0.0);
 
-    vec3 eye = CameraPosition;
-
     for(int i = 0; i < NumbOfLightSrc; i++) {
         vec3 LightDirection = normalize(Lights.LightSrc[i].Position - WorldCoordinates);
         float LightDistance = length(Lights.LightSrc[i].Position - WorldCoordinates);
@@ -77,6 +75,7 @@ void main()
         float SpecularIntensity = pow(max(dot(Normal, HalfwayDir), 0.0), Shininess);
         vec3 FinalSpecular = Specular * SpecularIntensity;
         FinalSpecular *= Attenuation;
+        
 
         vec3 LightContribution = Lights.LightSrc[i].Color * (Ambient + FinalDiffuse + FinalSpecular);
         FinalLightColor += LightContribution;

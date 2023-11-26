@@ -25,8 +25,6 @@ Application::Application()
 
 	ApplicationClock = std::make_unique<Utils::Clock>();
 
-	
-
 	s_MainWindow.Create(1600, 900, "Engine");
 	s_MainWindow.Init();
 
@@ -51,10 +49,8 @@ Application::Application()
 	ImGui_ImplGlfw_InitForOpenGL(s_MainWindow.GetWindow(), true);
 	ImGui_ImplOpenGL3_Init("#version 460");
 
-	//glfwSwapInterval(1);
 	Manager.PushLayer(std::make_unique<Utils::DebuggingLayer>());
 	Manager.PushLayer(std::make_unique<Utils::EditorLayer>());
-	//Manager.PushLayer(std::make_unique<Game>());
 	
 }
 

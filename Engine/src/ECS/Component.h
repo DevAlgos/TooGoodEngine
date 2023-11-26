@@ -101,35 +101,18 @@ namespace Ecs
 
 	struct PhysicsBehaviour //Behaviour Component
 	{
-		constexpr PhysicsBehaviour() : m_GravityForce(0.01f), m_Acceleration(0.0f), m_Velocity(0.0f),
-									   m_Mass(1.0f), m_CurrentDirection({1.0f, 0.0f}) 
+		constexpr PhysicsBehaviour() : m_Acceleration(0.0f)
 		{}
-		inline PhysicsBehaviour(float GravityForce, float InitialAcceleration, float InitialVelocity, float Mass, 
-								const glm::vec2& CurrentDirection) :
-			m_GravityForce(GravityForce), m_Acceleration(InitialAcceleration),m_Velocity(InitialVelocity), m_Mass(Mass),
-			m_CurrentDirection(CurrentDirection)
+		inline PhysicsBehaviour(float InitialAcceleration) :
+			m_Acceleration(InitialAcceleration)
 		{}
 
-
-		inline const float GetGravityForce() const { return m_GravityForce; }
-		inline const float GetVelocity()	const  { return m_Velocity; }
-		inline const float GetMass()         const {		 return m_Mass; }
 		inline const glm::vec2 GetAcceleration() const { return m_Acceleration; }
-		inline const glm::vec2 GetCurrentDirection() const { return m_CurrentDirection; }
 
-		inline void SetGravityForce(float other) { m_GravityForce = other; }
 		inline void SetAcceleration(const glm::vec2& other) { m_Acceleration = other; }
-		inline void SetVelocity(float other) { m_Velocity = other; }
-		inline void SetMass(float other) { m_Mass = other; }
-		inline void SetDirection(const glm::vec2& other) { m_CurrentDirection = other; }
 
 	private:
-		float m_GravityForce;
-		float m_Velocity;
-		float m_Mass;
-
 		glm::vec2 m_Acceleration;
-		glm::vec2 m_CurrentDirection;
 	};
 
 	struct QuadCollider //Quad Collider Component
