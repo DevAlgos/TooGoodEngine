@@ -12,9 +12,11 @@ namespace TGE
 		{
 		case Format::RGB:
 			m_FileFormat = GL_RGB;
+			m_DesiredChannels = 3;
 			break;
 		case Format::RGBA:
 			m_FileFormat = GL_RGBA;
+			m_DesiredChannels = 4;
 			break;
 		default:
 			break;
@@ -31,7 +33,7 @@ namespace TGE
 	}
 
 	Texture::Texture(float* Data, const TextureData& textureData)
-		: m_Texture(0), m_TextureData(textureData), m_InternalFormat(0), m_FileFormat(0)
+		: m_Texture(0), m_TextureData(textureData), m_InternalFormat(0), m_FileFormat(GL_RGBA)
 	{
 
 		switch (m_TextureData.InternalFormat)
@@ -75,7 +77,7 @@ namespace TGE
 	{
 		glBindTexture(GL_TEXTURE_2D, m_Texture);
 		glTexSubImage2D(GL_TEXTURE_2D, m_TextureData.MipmapLevels, 0, 0, m_TextureData.Width, m_TextureData.Height,
-			GL_RGBA, GL_FLOAT, Data);
+			m_FileFormat, GL_FLOAT, Data);
 	}
 
 	void Texture::SetData(const std::string_view& NewImageLocation)
@@ -84,7 +86,13 @@ namespace TGE
 		stbi_set_flip_vertically_on_load(true);
 		unsigned char* image = nullptr;
 
-		image = stbi_load(NewImageLocation.data(), &m_TextureData.Width, &m_TextureData.Height, &Channels, 0);
+		image = stbi_load(NewImageLocation.data(), &m_TextureData.Width, &m_TextureData.Height, &Channels, m_DesiredChannels);
+		const char* Failure = stbi_failure_reason();
+		if (Failure)
+		{
+			LOGERROR(std::string(Failure));
+			return;
+		}
 
 		glBindTexture(GL_TEXTURE_2D, m_Texture);
 		glTexSubImage2D(GL_TEXTURE_2D, m_TextureData.MipmapLevels, 0, 0, m_TextureData.Width, m_TextureData.Height,
@@ -107,7 +115,7 @@ namespace TGE
 		stbi_set_flip_vertically_on_load(true);
 		unsigned char* image = nullptr;
 
-		image = stbi_load(FileLocation.data(), &m_TextureData.Width, &m_TextureData.Height, &Channels, 0);
+		image = stbi_load(FileLocation.data(), &m_TextureData.Width, &m_TextureData.Height, &Channels, m_DesiredChannels);
 		const char* Failure = stbi_failure_reason();
 
 		if (Failure)
@@ -156,7 +164,7 @@ namespace TGE
 		{
 		case GL_TEXTURE_2D:
 			glTextureStorage2D(m_Texture, 1, m_InternalFormat, m_TextureData.Width, m_TextureData.Height);
-			glTexSubImage2D(GL_TEXTURE_2D, m_TextureData.MipmapLevels, 0, 0, m_TextureData.Width, m_TextureData.Height, GL_RGBA,
+			glTexSubImage2D(GL_TEXTURE_2D, m_TextureData.MipmapLevels, 0, 0, m_TextureData.Width, m_TextureData.Height, m_FileFormat,
 				GL_FLOAT, Data);
 			glGenerateTextureMipmap(m_Texture);
 			break;

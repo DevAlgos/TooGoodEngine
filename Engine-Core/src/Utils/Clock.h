@@ -24,7 +24,7 @@ namespace Utils
 		void StartTime();
 		void EndTime();
 		
-		long long TimeElapsed(TimeUnit unit);
+		int64_t TimeElapsed(TimeUnit unit);
 	private:
 		
 		std::chrono::time_point<std::chrono::steady_clock> StartTimePoint;

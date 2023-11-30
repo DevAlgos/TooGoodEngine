@@ -113,7 +113,7 @@ namespace TGE
 		return s_MainWindow;
 	}
 
-	long long Application::GetCurrentTime()
+	int64_t Application::GetCurrentTime()
 	{
 		return ApplicationClock->TimeElapsed(Utils::TimeUnit::mili);
 	}

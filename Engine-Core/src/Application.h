@@ -20,7 +20,7 @@ namespace TGE
 
         static TGE::Window& GetMainWindow();
 
-        long long GetCurrentTime();
+        int64_t GetCurrentTime();
 
         static float GetCurrentDelta(); //In miliseconds
         static float GetCurrentDeltaSecond(); //In seconds

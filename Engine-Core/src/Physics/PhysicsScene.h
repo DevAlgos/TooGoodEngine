@@ -1,15 +1,41 @@
 #pragma once
 
+#include <Utils/RandomNumbers.h>
 #include <Utils/Logger.h>
 #include <ECS/Component.h>
 #include <ECS/Entity.h>
+#include <map>
+
+#include "CollisionMap.h"
 
 namespace TGE
 {
+	struct PhysicsObject
+	{
+		Ecs::Renderable* Renderable = nullptr;
+		Ecs::QuadCollider* Collider = nullptr;
+		Ecs::PhysicsBehaviour* PhysicsBehaviour = nullptr;
+
+		Ecs::Entity Entity;
+	};
+
+	struct PhysicsData
+	{
+		int Width = 0;
+		int Height = 0;
+
+		float BoundaryRadius = 0.0f;
+		glm::vec3 BoundaryCoordinates = { 0.0f, 0.0f, 0.0f };
+
+		int SubStepCount = 1;
+		float CellSize = 1.0f;
+	};
+
+
 	class PhysicsScene
 	{
 	public:
-		PhysicsScene();
+		PhysicsScene(const PhysicsData& data);
 		~PhysicsScene();
 
 		template<typename T, typename ...Args>
@@ -26,16 +52,23 @@ namespace TGE
 			Next Position = Current Position + Velocity * Time Step
 		*/
 
+		void UpdateObjects();
+		void SolveCollision();
 
-		void ApplyGravity(Ecs::Renderable* Renderable, Ecs::QuadCollider* Collider,
-			Ecs::PhysicsBehaviour* Behaviour);
-		void ApplyConstraint(Ecs::Renderable* Renderable, Ecs::QuadCollider* Collider);
-		void ApplyForce(
-			Ecs::Renderable* Renderable, Ecs::QuadCollider* Collider, Ecs::PhysicsBehaviour* Behaviour,
-			Ecs::Renderable* Other, Ecs::QuadCollider* OtherCollider);
+		void SolveCollisionInCell(Cell& cell, Cell& other);
+		void AddObjectsToGrid();
+
+		void ApplyGravity();
+		void ApplyConstraint();
+		
+		void ApplyForce(const PhysicsObject& GameObject0, const PhysicsObject& GameObject1);
 	private:
 		Ecs::Registry EntityRegistry;
 		Ecs::Entity LastEntity;
+
+		CollisionMap PhysicsMap;
+		PhysicsData m_PhysicsData;
+		//Each coordinate will contain a list of entites that may be in that cell.
 	};
 
 	template<typename T, typename ...Args>
@@ -49,18 +82,18 @@ namespace TGE
 			Ecs::Renderable* renderable = EntityRegistry.GetComponent<T>(current, 0);
 			Ecs::RenderType type = renderable->GetType();
 
+			glm::vec3 position = renderable->GetPosition();
+			glm::vec2 scale = renderable->GetScale();
+			
+
 			switch (type)
 			{
 			case Ecs::RenderType::Quad:
 			{
-				glm::vec3 position = renderable->GetPosition();
-				glm::vec2 scale = renderable->GetScale();
 				EntityRegistry.PushBackComponent<Ecs::QuadCollider>(current, position, scale);
 				break;
 			}
 			case Ecs::RenderType::Circle: //haven't made circle collider yet
-				glm::vec3 position = renderable->GetPosition();
-				glm::vec2 scale = renderable->GetScale();
 				EntityRegistry.PushBackComponent<Ecs::QuadCollider>(current, position, scale);
 				break;
 			default:
@@ -68,8 +101,7 @@ namespace TGE
 			}
 			EntityRegistry.PushBackComponent<Ecs::PhysicsBehaviour>(current);
 
-
-			renderable = nullptr;
+			Ecs::PhysicsBehaviour* Behaviour = EntityRegistry.GetComponent<Ecs::PhysicsBehaviour>(current, 2);
 			return;
 		}
 
@@ -87,18 +119,17 @@ namespace TGE
 			Ecs::Renderable* renderable = EntityRegistry.GetComponent<T>(current, 0);
 			Ecs::RenderType type = renderable->GetType();
 
+			glm::vec3 position = renderable->GetPosition();
+			glm::vec2 scale = renderable->GetScale();
+
 			switch (type)
 			{
 			case Ecs::RenderType::Quad:
 			{
-				glm::vec3 position = renderable->GetPosition();
-				glm::vec2 scale = renderable->GetScale();
 				EntityRegistry.PushBackComponent<Ecs::QuadCollider>(current, position, scale);
 				break;
 			}
 			case Ecs::RenderType::Circle: //haven't made circle collider yet
-				glm::vec3 position = renderable->GetPosition();
-				glm::vec2 scale = renderable->GetScale();
 				EntityRegistry.PushBackComponent<Ecs::QuadCollider>(current, position, scale);
 				break;
 			default:

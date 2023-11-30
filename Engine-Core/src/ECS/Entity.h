@@ -10,7 +10,6 @@
 namespace Ecs
 {
 	using  Entity = std::uint64_t;
-	static Entity EntityCount = 0;
 
 	struct EntityComponentStorage
 	{
@@ -135,7 +134,7 @@ namespace Ecs
 
 	private:
 		std::vector<EntityComponentStorage> Components;
-
+		Entity EntityCount = 0;
 	};
 
 }

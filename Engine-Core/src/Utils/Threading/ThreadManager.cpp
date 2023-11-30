@@ -20,7 +20,7 @@ namespace Utils
 	void JobManager::AttachWork(size_t ThreadID, const Work& work)
 	{
 		if (!(ThreadID > s_ManagerData.ThreadPool.size()))
-			s_ManagerData.ThreadPool[ThreadID].Thread->Attach(work, Priority::Bottom);
+			s_ManagerData.ThreadPool[ThreadID].Thread->Attach(work);
 		else
 			LOGWARNING("Thread ID out of index, work was not attached!");
 
@@ -32,7 +32,7 @@ namespace Utils
 		{
 			if (s_ManagerData.ThreadPool[i].ThreadName == ThreadName)
 			{
-				s_ManagerData.ThreadPool[i].Thread->Attach(work, Priority::Bottom);
+				s_ManagerData.ThreadPool[i].Thread->Attach(work);
 				break;
 			}
 		}

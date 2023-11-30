@@ -10,11 +10,7 @@ namespace TGE {
 	{   // Will add more when needed, however Texture2D is all thats required for now
 		Texture2D = 0, 
 		Texture3D, 
-		Texture2DCompute,
-	    TextureCubeMap, TextureRectangle, 
-		Texture2DMultiSampling, Texture2DArrayTexture,
-		TextureBuffer, Texture2DMultiSampleArray,
-		TextureSparse
+		Texture2DCompute
 	};
 
 	enum class TextureFormat
@@ -71,5 +67,6 @@ namespace TGE {
 		
 		GLenum m_InternalFormat;
 		GLenum m_FileFormat;
+		int m_DesiredChannels = 0;
 	};
 }

@@ -4,8 +4,8 @@
 
 namespace TGE
 {
-	PhysicsScene::PhysicsScene()
-		: LastEntity(0)
+	PhysicsScene::PhysicsScene(const PhysicsData& data)
+		: LastEntity(0), PhysicsMap(data.Width, data.Height), m_PhysicsData(data)
 	{
 	}
 
@@ -15,108 +15,215 @@ namespace TGE
 
 	void PhysicsScene::DestroyObject(Ecs::Entity GameObject)
 	{
+		if (GameObject >= LastEntity)
+			return;
+
+		Ecs::Renderable* Renderable = EntityRegistry.GetComponent<Ecs::Renderable>(GameObject, 0);
+
 		EntityRegistry.DeleteEntity(GameObject);
+
+		LastEntity--;
 	}
 
 	void PhysicsScene::UpdateScene()
 	{
-		for (uint32_t i = 0; i < LastEntity; i++)
+		AddObjectsToGrid();
+		ApplyGravity();
+		SolveCollision();
+		ApplyConstraint();
+		UpdateObjects();
+	}
+
+	void PhysicsScene::UpdateObjects()
+	{
+		PhysicsObject GameObject;
+
+		for (Ecs::Entity Entity = 0; Entity < LastEntity; Entity++)
+		{	
+			GameObject.Renderable = EntityRegistry.GetComponent<Ecs::Renderable>(Entity, 0);
+			GameObject.Collider = EntityRegistry.GetComponent<Ecs::QuadCollider>(Entity, 1);
+			GameObject.PhysicsBehaviour = EntityRegistry.GetComponent<Ecs::PhysicsBehaviour>(Entity, 2);
+
+			glm::vec2 Velocity = GameObject.Renderable->GetPosition() - GameObject.Renderable->GetOldPosition();
+			GameObject.Renderable->SetOldPosition(GameObject.Renderable->GetPosition());
+			GameObject.Renderable->SetPosition(GameObject.Renderable->GetPosition() +
+				glm::vec3(Velocity.x, Velocity.y, 0.0f) +
+				glm::vec3(GameObject.PhysicsBehaviour->GetAcceleration().x, GameObject.PhysicsBehaviour->GetAcceleration().y, 0.0f)
+				* Application::GetCurrentDeltaSecond() * Application::GetCurrentDeltaSecond()
+			);
+
+			GameObject.Collider->UpdateBounds(glm::vec2(GameObject.Renderable->GetPosition()), GameObject.Renderable->GetScale());
+
+			GameObject.PhysicsBehaviour->SetAcceleration(glm::vec2(0.0f));
+
+			TGE::Renderer2D::PushQuad(GameObject.Renderable->GetPosition(),
+				GameObject.Renderable->GetScale(), GameObject.Renderable->GetRotation(), GameObject.Renderable->GetColor());
+
+		}
+	}
+
+	void PhysicsScene::SolveCollision()
+	{
+		for (int x = 1; x <= m_PhysicsData.Width - 1; x++)
 		{
-			Ecs::Renderable* Renderable = EntityRegistry.GetComponent<Ecs::Renderable>(i, 0);
-			Ecs::QuadCollider* Collider = EntityRegistry.GetComponent<Ecs::QuadCollider>(i, 1);
-			Ecs::PhysicsBehaviour* Physics = EntityRegistry.GetComponent<Ecs::PhysicsBehaviour>(i, 2);
-
-			Physics->SetAcceleration({ 0.0f, -10.0f });
-
-
-			for (Ecs::Entity j = 0; j < LastEntity; j++)
+			for (int y = 1; y <= m_PhysicsData.Height - 1; y++)
 			{
-				if (i != j)
-				{
-					Ecs::Renderable* Other = EntityRegistry.GetComponent<Ecs::Renderable>(j, 0);
-					Ecs::QuadCollider* OtherCollider = EntityRegistry.GetComponent<Ecs::QuadCollider>(j, 1);
-					Ecs::PhysicsBehaviour* OtherPhysics = EntityRegistry.GetComponent<Ecs::PhysicsBehaviour>(j, 2);
+				auto& CurrentCell = PhysicsMap.GetCell(x, y);
+				if (CurrentCell.EntitiesInCell.size() == 0)
+					continue;
 
-					for (int check = 0; check < 5; check++)
+				for (int ChangeX = -1; ChangeX <= 1; ChangeX++)
+				{
+					for (int ChangeY = -1; ChangeY <= 1; ChangeY++)
 					{
-						if (Collider->CheckCollision(*OtherCollider))
-							ApplyForce(Renderable, Collider, Physics, Other, OtherCollider);
+						auto& OtherCell = PhysicsMap.GetCell(x + ChangeX, y + ChangeY);
+
+						if (OtherCell.EntitiesInCell.size() == 0)
+							continue;
+
+						SolveCollisionInCell(CurrentCell, OtherCell);
+					}
+				}
+			}
+		}
+	}
+
+	void PhysicsScene::SolveCollisionInCell(Cell& cell, Cell& other)
+	{
+		PhysicsObject GameObject;
+		PhysicsObject OtherGameObject;
+
+		for (int i = 0; i < cell.EntitiesInCell.size(); i++)
+		{
+			Ecs::Entity Current = cell.EntitiesInCell[i];
+			
+			GameObject.Renderable = EntityRegistry.GetComponent<Ecs::Renderable>(Current, 0);
+			GameObject.Collider = EntityRegistry.GetComponent<Ecs::QuadCollider>(Current, 1);
+			GameObject.PhysicsBehaviour = EntityRegistry.GetComponent<Ecs::PhysicsBehaviour>(Current, 2);
+
+			for (int j = 0; j < other.EntitiesInCell.size(); j++)
+			{
+				Ecs::Entity Other = other.EntitiesInCell[j];
+
+				if (Current != Other)
+				{
+					OtherGameObject.Renderable = EntityRegistry.GetComponent<Ecs::Renderable>(Other, 0);
+					OtherGameObject.Collider = EntityRegistry.GetComponent<Ecs::QuadCollider>(Other, 1);
+					OtherGameObject.PhysicsBehaviour = EntityRegistry.GetComponent<Ecs::PhysicsBehaviour>(Other, 2);
+
+					for (int step = m_PhysicsData.SubStepCount; step >= 0; step--)
+					{						
+						if (GameObject.Collider->CheckCollision(*OtherGameObject.Collider))
+							ApplyForce(GameObject, OtherGameObject);
 						else
 							break;
 					}
-					
+				
 				}
-
 			}
 
-			ApplyGravity(Renderable, Collider, Physics);
-			ApplyConstraint(Renderable, Collider);
 
-			TGE::Renderer2D::PushCircle(Renderable->GetPosition(),
-				Renderable->GetScale(), Renderable->GetRotation(), 1.0f, Renderable->GetColor());
-
+			
 		}
 	}
 
-	void PhysicsScene::ApplyGravity(Ecs::Renderable* Renderable, Ecs::QuadCollider* Collider,
-		Ecs::PhysicsBehaviour* Behaviour)
+	void PhysicsScene::AddObjectsToGrid()
 	{
-		const glm::vec2 Velocity = Renderable->GetPosition() - Renderable->GetOldPosition();
-		Renderable->SetOldPosition(Renderable->GetPosition());
+		PhysicsMap.Clear();
 
-		glm::vec3 NewPosition =
-			Renderable->GetPosition() +
-			glm::vec3(Velocity, 0.0f) +
-			glm::vec3(Behaviour->GetAcceleration(), 0.0f) *
-			Application::GetCurrentDeltaSecond() *
-			Application::GetCurrentDeltaSecond();
+		Ecs::Renderable* Renderable;
 
-		Renderable->SetPosition(NewPosition);
-		Collider->UpdateBounds(glm::vec2(NewPosition), Renderable->GetScale());
-
-
-	}
-	void PhysicsScene::ApplyConstraint(Ecs::Renderable* Renderable, Ecs::QuadCollider* Collider)
-	{
-		const glm::vec3 Constraint = { 2.0f, 0.0f,0.0f }; //arbitrary for now, so can test easier
-		const float Radius = { 6.0f }; //same here
-
-		const glm::vec3 Pos = Renderable->GetPosition() - Constraint;
-		float Distance = glm::length(Pos);
-
-		if (Distance > Radius - 1.0f)
+		for (Ecs::Entity Current = 0; Current < LastEntity; Current++)
 		{
-			const glm::vec3 Back = Pos / Distance;
-			glm::vec3 ConstraintedPosition = Constraint + Back * (Radius - 1.0f);
-			Renderable->SetPosition(ConstraintedPosition);
-			Collider->UpdateBounds(glm::vec2(Renderable->GetPosition()), Renderable->GetScale());
+			Renderable = EntityRegistry.GetComponent<Ecs::Renderable>(Current, 0);
+			float length = glm::length(Renderable->GetScale());
+
+			if (length > m_PhysicsData.CellSize)
+			{
+				glm::vec2 ObjectPosition = Renderable->GetPosition();
+				glm::vec2 ObjectScale = Renderable->GetScale();
+
+				float XStart = ObjectPosition.x - ObjectScale.x / 2.0f;
+				float YStart = ObjectPosition.y - ObjectScale.y / 2.0f;
+				float XEnd = ObjectPosition.x + ObjectScale.x / 2.0f;
+				float YEnd = ObjectPosition.y + ObjectScale.y / 2.0f;
+
+				float Jump = m_PhysicsData.CellSize / length;
+
+				for (float x = XStart; x <= XEnd; x+=Jump)
+				{
+					for (float y = YStart; y <= YEnd; y+=Jump)
+					{
+						PhysicsMap.AddEntity(static_cast<int>(std::floor(x)), 
+											 static_cast<int>(std::floor(y)), Current);
+					}
+				}
+			}
+			else
+			{
+				int X = static_cast<int>(std::floor(Renderable->GetPosition().x));
+				int Y = static_cast<int>(std::floor(Renderable->GetPosition().y));
+
+				PhysicsMap.AddEntity(X, Y, Current);
+			}
 		}
 	}
-	void PhysicsScene::ApplyForce(Ecs::Renderable* Renderable, Ecs::QuadCollider* Collider, Ecs::PhysicsBehaviour* Behaviour, Ecs::Renderable* Other, Ecs::QuadCollider* OtherCollider)
+
+	void PhysicsScene::ApplyGravity()
 	{
-		glm::vec2 CollisionAxis = Renderable->GetPosition() - Other->GetPosition();
+		Ecs::PhysicsBehaviour* PhysicsBehaviour;
+
+		for (Ecs::Entity Current = 0; Current < LastEntity; Current++)
+		{
+			PhysicsBehaviour = EntityRegistry.GetComponent<Ecs::PhysicsBehaviour>(Current, 2);
+			PhysicsBehaviour->SetAcceleration(PhysicsBehaviour->GetAcceleration() + glm::vec2(0.0f, -1.0f));
+		}
+		
+
+	}
+	void PhysicsScene::ApplyConstraint()
+	{
+		Ecs::Renderable* Renderable;
+		Ecs::QuadCollider* Collider;
+
+		for (Ecs::Entity Current = 0; Current < LastEntity; Current++)
+		{
+			Renderable = EntityRegistry.GetComponent<Ecs::Renderable>(Current, 0);
+			Collider = EntityRegistry.GetComponent<Ecs::QuadCollider>(Current, 1);
+
+			const glm::vec3 Pos = Renderable->GetPosition() - m_PhysicsData.BoundaryCoordinates;
+			float Distance = glm::length(Pos);
+
+			if (Distance > m_PhysicsData.BoundaryRadius - Renderable->GetScale().x)
+			{
+				const glm::vec3 Back = Pos / Distance;
+				glm::vec3 ConstraintedPosition = m_PhysicsData.BoundaryCoordinates + Back * (m_PhysicsData.BoundaryRadius - Renderable->GetScale().x);
+				Renderable->SetPosition(ConstraintedPosition);
+				Collider->UpdateBounds(glm::vec2(Renderable->GetPosition()), Renderable->GetScale());
+			}
+		}
+		
+	}
+	void PhysicsScene::ApplyForce(const PhysicsObject& GameObject0, const PhysicsObject& GameObject1)
+	{
+		glm::vec2 CollisionAxis = GameObject0.Renderable->GetPosition() - GameObject1.Renderable->GetPosition();
 		float Distance = glm::length(CollisionAxis);
 
-		const glm::vec2 Back = CollisionAxis / Distance;
+		glm::vec2 Back = CollisionAxis / Distance;
 
-
-		Renderable->SetOldPosition(Renderable->GetPosition());
-
-
-		glm::vec3 NewPosition = Renderable->GetPosition() + (0.2f *
+		glm::vec3 NewPosition = GameObject0.Renderable->GetPosition() + (0.2f *
 			Application::GetCurrentDeltaSecond() *
 			glm::vec3(Back, 0.0f));
 
-		glm::vec3 OtherNewPosition = Other->GetPosition() - (0.2f *
+		glm::vec3 OtherNewPosition = GameObject1.Renderable->GetPosition() - (0.2f *
 			Application::GetCurrentDeltaSecond() *
 			glm::vec3(Back, 0.0f));
 
-		Renderable->SetPosition(NewPosition);
-		Collider->UpdateBounds(glm::vec2(NewPosition), Renderable->GetScale());
+		GameObject0.Renderable->SetPosition(NewPosition);
+		GameObject0.Collider->UpdateBounds(glm::vec2(NewPosition), GameObject0.Renderable->GetScale());
 
-		Other->SetPosition(OtherNewPosition);
-		OtherCollider->UpdateBounds(glm::vec2(OtherNewPosition), Other->GetScale());
-
+		GameObject1.Renderable->SetPosition(OtherNewPosition);
+		GameObject1.Collider->UpdateBounds(glm::vec2(OtherNewPosition), GameObject1.Renderable->GetScale());
 	}
 
 

@@ -5,7 +5,7 @@
 
 namespace 
 {
-	static bool opt_fullscreen = false;
+	static bool opt_fullscreen = true;
 	static ImGuiDockNodeFlags dockspace_flags = ImGuiDockNodeFlags_None;
 	static bool p_open = true;
 
@@ -18,7 +18,6 @@ namespace
 	int NumbOfEntites = 0;
 
 	float* TextureData;
-	
 }
 
 namespace Test
@@ -61,29 +60,26 @@ namespace Utils
 		TGE::TextureData data;
 		data.Width = 500;
 		data.Height = 500;
-		data.InternalFormat = TGE::TextureFormat::RGBA16F;
+		data.InternalFormat = TGE::TextureFormat::RGBA32F;
 		TextureData = new float[500 * 500 * 4];
 		for (uint32_t i = 0; i < 500 * 500 * 4; i += 4) {
 			TextureData[i] =  1.0f;     // Red component
-			TextureData[i + 1] = 1.0f; // Green component
+			TextureData[i + 1] = 1.0f;  // Green component
 			TextureData[i + 2] = 10.0f; // Blue component
-			TextureData[i + 3] = 1.0f; // Alpha component
+			TextureData[i + 3] = 1.0f;  // Alpha component
 		}
 
 		TestTexture = std::make_unique<TGE::Texture>(TextureData, data);
 
 		TestTexture->SetData(TextureData);
 
-		PhysicsScene = std::make_unique<TGE::PhysicsScene>();
-		
-		glm::vec4 ObjectColor = { 0.5f, 0.4f, 0.2f, 0.1f };
-		glm::vec3 ObjectPosition = { 0.4f, 0.5f, 0.4f };
-		float     ObjectRotation = 0.0f;
-		glm::vec2 ObjectScale = { 1.0f, 1.0f };
+		TGE::PhysicsData PhysicsData;
+		PhysicsData.Width = 50;
+		PhysicsData.Height = 50;
+		PhysicsData.BoundaryRadius = 20.0f;
+		PhysicsData.BoundaryCoordinates = { 2.0f, 0.0f, 0.0f };
 
-		/*PhysicsScene->CreateGameObject<Test::TestObject>();
-		PhysicsScene->CreateGameObject<Test::OtherObject>();
-		NumbOfEntites += 2;*/
+		PhysicsScene = std::make_unique<TGE::PhysicsScene>(PhysicsData);
 
 		std::vector<TGE::Attachment> Attachments = {
 		{TGE::AttachmentType::Color, false, (int)TGE::Application::GetMainWindow().GetWidth(), 
@@ -112,12 +108,6 @@ namespace Utils
 		m_OrthoCam.SetCam(CameraData);
 
 		TGE::TextureData BackGroundData;
-		BackGroundData.MipmapLevels = 0;
-		BackGroundData.TextureParamaters = {
-			{GL_TEXTURE_MIN_FILTER, GL_NEAREST},
-			{GL_TEXTURE_MAG_FILTER, GL_NEAREST},
-		};
-
 		BackGround = std::make_unique<TGE::Texture>("../Resources/Background.png", 
 			BackGroundData, TGE::Format::RGB);
 
@@ -144,9 +134,9 @@ namespace Utils
 		if (InputManager::IsMouseButtonDown(RIGHT_MOUSE))
 		{
 			glm::vec4 ObjectColor = { Utils::GenFloat(0.0f, 1.0f), Utils::GenFloat(0.0f, 1.0f), Utils::GenFloat(0.0f, 1.0f), 1.0f};
-			glm::vec3 ObjectPosition = { 0.4f, 0.5f, 0.4f };
+			glm::vec3 ObjectPosition = { 0.0f, 10.0f, 0.0f };
 			float     ObjectRotation = 0.0f;
-			glm::vec2 ObjectScale = { 0.1f, 0.1f };
+			glm::vec2 ObjectScale = { 1.0f, 1.0f };
 
 			PhysicsScene->CreateGameObject<Test::TestObject>(ObjectColor, ObjectPosition, ObjectRotation, ObjectScale);
 			NumbOfEntites++;

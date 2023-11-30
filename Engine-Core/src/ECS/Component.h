@@ -11,7 +11,10 @@ namespace Ecs
 	template<typename T, typename ...Args>
 	void* ConstructRawObject(Args&&... args)
 	{
-		return new T(std::forward<Args>(args)...);
+		if (std::is_constructible_v<T>)
+			return new T(std::forward<Args>(args)...);
+		else
+			return nullptr; //Object destructor deleted
 	}
 
 	struct ComponentStorage
@@ -56,10 +59,7 @@ namespace Ecs
 		template<typename T, typename ...Args>
 		inline void Construct(Args&&... args)
 		{
-			if (std::is_constructible_v<T>)
-				Data = ConstructRawObject<T>(std::forward<Args>(args)...);
-			else
-				LOGERROR("Object constructor has been deleted!");
+			Data = ConstructRawObject<T>(std::forward<Args>(args)...);
 		}
 
 		inline void Clear() 
@@ -81,16 +81,6 @@ namespace Ecs
 	};
 
 #pragma region Base Components List
-
-/*
-	Note, for all of these base components they are not a MUST to use, they simply
-	provide an interface with existing systems such as the physics system. You 
-	are able to make your own base components from scratch and you use them however
-	you like with the ECS system, and have them be interactable with the engine.
-	And if you would like to make your own systems you could entirly ignore these
-	if you wish. These can simply be used as an example to base your own system off.
-
-*/
 
 
 	enum class RenderType

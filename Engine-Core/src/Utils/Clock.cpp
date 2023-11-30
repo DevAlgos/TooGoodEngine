@@ -19,11 +19,11 @@ namespace Utils
 		EndTimePoint = high_resolution_clock::now();
 	}
 
-	long long Clock::TimeElapsed(TimeUnit unit)
+	int64_t Clock::TimeElapsed(TimeUnit unit)
 	{
 		EndTimePoint = high_resolution_clock::now();
-		long long start = 0;
-		long long end = 0;
+		int64_t start = 0;
+		int64_t end = 0;
 
 		
 		switch (unit)

@@ -36,12 +36,12 @@ namespace Utils
 	}
 
 
-	void Job::Attach(const Work& work, const Priority& priority)
+	void Job::Attach(const Work& work)
 	{
 		if (m_ThreadActive)
 		{
 			std::unique_lock<std::mutex> lock(m_JobMutex);
-			m_WorkQueue.PushBack({ work,priority });
+			m_WorkQueue.push(work);
 			m_JobCondition.notify_one();
 			m_ExecuteCount += 1;
 		}
@@ -64,12 +64,12 @@ namespace Utils
 	void Job::Wait()
 	{
 		std::unique_lock<std::mutex> Lock(m_JobMutex);
-		m_JobCondition.wait(Lock, [this]() {return this->m_WorkQueue.IsEmpty(); });
+		m_JobCondition.wait(Lock, [this]() {return this->m_WorkQueue.empty(); });
 	}
 	bool Job::IsWorkDone()
 	{
 		std::unique_lock<std::mutex> Lock(m_JobMutex);
-		return m_WorkQueue.IsEmpty();
+		return m_WorkQueue.empty();
 	}
 	void Job::Worker()
 	{
@@ -79,35 +79,35 @@ namespace Utils
 			std::function<void()> ThisFunc;
 
 
-			while (!m_WorkQueue.IsEmpty() && m_ThreadActive)
+			while (!m_WorkQueue.empty() && m_ThreadActive)
 			{
-				ThisFunc = m_WorkQueue.Front().Func;
+				ThisFunc = m_WorkQueue.front().Func;
 
 				ThisFunc();
-				m_WorkQueue.Pop();
+				m_WorkQueue.pop();
 				m_JobCondition.notify_one();
 				m_ExecuteCount--;
 			}
 
-			while (m_WorkQueue.IsEmpty() && m_ThreadActive)
+			while (m_WorkQueue.empty() && m_ThreadActive)
 				m_JobCondition.wait(lock);
 
 		}
 
 
-		if (!m_WorkQueue.IsEmpty()) //any remaining functions that have not finished and must will be ran here
+		if (!m_WorkQueue.empty()) //any remaining functions that have not finished and must will be ran here
 		{
 			std::function<void()> ThisFunc;
-			while (!m_WorkQueue.IsEmpty())
+			while (!m_WorkQueue.empty())
 			{
-				if (m_WorkQueue.Front().MustFinishOnClose)
+				if (m_WorkQueue.front().MustFinishOnClose)
 				{
-					ThisFunc = m_WorkQueue.Front().Func;
+					ThisFunc = m_WorkQueue.front().Func;
 					ThisFunc();
 				}
 				else continue;
 
-				m_WorkQueue.Pop();
+				m_WorkQueue.pop();
 			}
 		}
 	}
