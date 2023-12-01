@@ -4,6 +4,7 @@ IncludeDir["glad"] = "../Libs/glad/include"
 IncludeDir["ImGui"] = "../Libs/imgui"
 IncludeDir["glm"] = "../Libs/glm"
 IncludeDir["stb_image"] = "../Libs/STB"
+IncludeDir["freetype"] = "../Libs/freetype/include"
 
 project "App"
    kind "ConsoleApp"
@@ -28,7 +29,8 @@ project "App"
       IncludeDir["glad"],
       IncludeDir["ImGui"],
       IncludeDir["glm"],
-      IncludeDir["stb_image"]
+      IncludeDir["stb_image"],
+      IncludeDir["freetype"]
    }
 
    links

@@ -5,3 +5,7 @@
 [submodule "Libs/glm"]
     path = Libs/glm
     url = https://github.com/DevAlgos/glm.git
+
+[submodule "Libs/freetype"]
+    path = Libs/freetype
+    url = https://github.com/DevAlgos/freetype.git
