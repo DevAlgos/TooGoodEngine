@@ -677,13 +677,5 @@ namespace TGE
 
 	void Raytracing2D::Init()
 	{
-		TextureData TextureData;
-		TextureData.Width = s_RaytracingData.ImageWidth;
-		TextureData.Height = s_RaytracingData.ImageHeight;
-		TextureData.InternalFormat = TextureFormat::RGBA32F;
-		TextureData.Type = TextureType::Texture2D;
-		TextureData.MipmapLevels = 0;
-
-		
 	}
 }

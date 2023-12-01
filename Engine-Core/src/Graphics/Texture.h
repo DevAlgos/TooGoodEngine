@@ -15,7 +15,7 @@ namespace TGE {
 
 	enum class TextureFormat
 	{
-		RGBA16F = 0, RGBA32F
+		RGBA16F = 0, RGBA32F, RGBA8
 	};
 
 	enum class Format
@@ -43,11 +43,16 @@ namespace TGE {
 	public:
 		Texture(const std::string_view& FileLocation, const TextureData& textureData, const Format& format);
 		Texture(float* Data, const TextureData& textureData);
+		Texture(uint32_t* Data, const TextureData& textureData);
 		~Texture();
 
+		
 		void ResizeImage(float* Data, int Width, int Height);
+		void ResizeImage(uint32_t* Data, int Width, int Height);
+
 
 		void SetData(float* Data);
+		void SetData(uint32_t* Data);
 		void SetData(const std::string_view& NewImageLocation);
 
 		inline void Bind(int Unit) { glBindTextureUnit(Unit, m_Texture); }
@@ -57,9 +62,13 @@ namespace TGE {
 	private:
 		void CreateTexture(GLenum TextureType, const std::string_view& FileLocation);
 		void CreateTexture(GLenum TextureType, float* Data);
+		void CreateTexture(GLenum TextureType, uint32_t* Data);
+
 
 		void UploadTextureImage(GLenum TextureType, unsigned char* Data);
 		void UploadTexture(GLenum TextureType, float* Data);
+		void UploadTexture(GLenum TextureType, uint32_t* Data);
+
 
 	private:
 		uint32_t m_Texture;

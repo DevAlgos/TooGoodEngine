@@ -45,6 +45,30 @@ namespace TGE
 			m_InternalFormat = GL_RGBA32F;
 			break;
 		default:
+			LOGWARNING("Try using uint32_t instead of floats!");
+			break;
+		}
+
+		switch (m_TextureData.Type)
+		{
+		case TGE::TextureType::Texture2D:
+			CreateTexture(GL_TEXTURE_2D, Data);
+			break;
+		default:
+			break;
+		}
+	}
+
+	Texture::Texture(uint32_t* Data, const TextureData& textureData)
+		: m_Texture(0), m_TextureData(textureData), m_InternalFormat(0), m_FileFormat(GL_RGBA)
+	{
+		switch (m_TextureData.InternalFormat)
+		{
+		case TextureFormat::RGBA8:
+			m_InternalFormat = GL_RGBA8;
+			break;
+		default:
+			LOGWARNING("texture format not supported, try using float instead of uint32_t");
 			break;
 		}
 
@@ -73,11 +97,28 @@ namespace TGE
 		CreateTexture(GL_TEXTURE_2D, Data);
 	}
 
+	void Texture::ResizeImage(uint32_t* Data, int Width, int Height)
+	{
+		m_TextureData.Width = Width;
+		m_TextureData.Height = Height;
+
+		glDeleteTextures(1, &m_Texture);
+
+		CreateTexture(GL_TEXTURE_2D, Data);
+	}
+
 	void Texture::SetData(float* Data)
 	{
 		glBindTexture(GL_TEXTURE_2D, m_Texture);
 		glTexSubImage2D(GL_TEXTURE_2D, m_TextureData.MipmapLevels, 0, 0, m_TextureData.Width, m_TextureData.Height,
 			m_FileFormat, GL_FLOAT, Data);
+	}
+
+	void Texture::SetData(uint32_t* Data)
+	{
+		glBindTexture(GL_TEXTURE_2D, m_Texture);
+		glTexSubImage2D(GL_TEXTURE_2D, m_TextureData.MipmapLevels, 0, 0, m_TextureData.Width, m_TextureData.Height,
+			m_FileFormat, GL_UNSIGNED_BYTE, Data);
 	}
 
 	void Texture::SetData(const std::string_view& NewImageLocation)
@@ -143,6 +184,17 @@ namespace TGE
 
 	}
 
+	void Texture::CreateTexture(GLenum TextureType, uint32_t* Data)
+	{
+		glCreateTextures(TextureType, 1, &m_Texture);
+		glBindTexture(TextureType, m_Texture);
+
+		for (auto& kv : m_TextureData.TextureParamaters)
+			glTextureParameteri(m_Texture, kv.first, kv.second);
+
+		UploadTexture(TextureType, Data);
+	}
+
 	void Texture::UploadTextureImage(GLenum TextureType, unsigned char* Data)
 	{
 		switch (TextureType)
@@ -166,6 +218,21 @@ namespace TGE
 			glTextureStorage2D(m_Texture, 1, m_InternalFormat, m_TextureData.Width, m_TextureData.Height);
 			glTexSubImage2D(GL_TEXTURE_2D, m_TextureData.MipmapLevels, 0, 0, m_TextureData.Width, m_TextureData.Height, m_FileFormat,
 				GL_FLOAT, Data);
+			glGenerateTextureMipmap(m_Texture);
+			break;
+		default:
+			break;
+		}
+	}
+
+	void Texture::UploadTexture(GLenum TextureType, uint32_t* Data)
+	{
+		switch (TextureType)
+		{
+		case GL_TEXTURE_2D:
+			glTextureStorage2D(m_Texture, 1, m_InternalFormat, m_TextureData.Width, m_TextureData.Height);
+			glTexSubImage2D(GL_TEXTURE_2D, m_TextureData.MipmapLevels, 0, 0, m_TextureData.Width, m_TextureData.Height, m_FileFormat,
+				GL_UNSIGNED_BYTE, Data);
 			glGenerateTextureMipmap(m_Texture);
 			break;
 		default:

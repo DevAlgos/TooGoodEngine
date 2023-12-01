@@ -17,7 +17,7 @@ namespace
 	std::unique_ptr<TGE::PhysicsScene> PhysicsScene;
 	int NumbOfEntites = 0;
 
-	float* TextureData;
+	uint32_t* TextureData;
 }
 
 namespace Test
@@ -60,13 +60,10 @@ namespace Utils
 		TGE::TextureData data;
 		data.Width = 500;
 		data.Height = 500;
-		data.InternalFormat = TGE::TextureFormat::RGBA32F;
-		TextureData = new float[500 * 500 * 4];
-		for (uint32_t i = 0; i < 500 * 500 * 4; i += 4) {
-			TextureData[i] =  1.0f;     // Red component
-			TextureData[i + 1] = 1.0f;  // Green component
-			TextureData[i + 2] = 10.0f; // Blue component
-			TextureData[i + 3] = 1.0f;  // Alpha component
+		data.InternalFormat = TGE::TextureFormat::RGBA8;
+		TextureData = new uint32_t[500 * 500];
+		for (uint32_t i = 0; i < 500 * 500; i++) {
+			TextureData[i] = 0xFFFF00FF;
 		}
 
 		TestTexture = std::make_unique<TGE::Texture>(TextureData, data);

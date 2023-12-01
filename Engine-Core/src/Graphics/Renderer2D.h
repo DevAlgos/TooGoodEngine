@@ -5,6 +5,7 @@
 #include "Buffers.h"
 #include <Utils/Camera.h>
 #include <memory>
+#include "Texture.h"
 
 
 namespace TGE
@@ -68,6 +69,9 @@ namespace TGE
 	{
 		int ImageWidth;
 		int ImageHeight;
+
+
+		std::shared_ptr<Texture> RenderImage;
 	};
 
 	class Renderer2D
