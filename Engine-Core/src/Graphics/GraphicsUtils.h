@@ -36,6 +36,13 @@ namespace TGE
 		glm::mat4 ModelMatrix;
 	};
 
+	struct UIVertex
+	{
+		glm::vec3 Position;
+		glm::vec4 Color;
+		glm::mat4 ModelMatrix;
+	};
+
 	struct Material {
 		glm::vec3 ambient = { 0.2f, 0.2f, 0.2f };
 		float padding1; //these are so the formatting in glsl doesn't missalign the data.
@@ -263,4 +270,8 @@ namespace TGE
 		return vertex;
 	}
 
+	static UIVertex* CreateUI(UIVertex* vertex, const glm::vec3& Position, const glm::vec4& Color, const glm::mat4& ModelMatrix)
+	{
+
+	}
 }

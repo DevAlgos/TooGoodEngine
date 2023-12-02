@@ -2,6 +2,7 @@
 #include "EditorLayer.h"
 #include <Graphics/Texture.h>
 #include <Graphics/Buffers.h>
+#include <UI/UIManager.h>
 
 namespace 
 {
@@ -18,6 +19,8 @@ namespace
 	int NumbOfEntites = 0;
 
 	uint32_t* TextureData;
+
+	TGE::UIManager manager;
 }
 
 namespace Test
@@ -57,6 +60,8 @@ namespace Utils
 	}
 	void EditorLayer::OnInit()
 	{
+		uint32_t font = manager.LoadFont("../Resources/fonts/The Smile.otf");
+
 		TGE::TextureData data;
 		data.Width = 500;
 		data.Height = 500;

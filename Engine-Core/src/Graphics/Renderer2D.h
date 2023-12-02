@@ -6,19 +6,35 @@
 #include <Utils/Camera.h>
 #include <memory>
 #include "Texture.h"
+#include <UI/UIManager.h>
 
 
 namespace TGE
 {
 	struct RendererData2D
 	{
+#pragma region Constants
 		static const uint32_t MaxQuads = 1000;
 
 		static const uint32_t MaxIndicies = MaxQuads * 6;
 		static const uint32_t MaxVertices = MaxQuads * 4;
 
 		static const uint32_t MaxLightSources = 6;
+#pragma endregion Constants
 
+#pragma region UI
+		UIManager UIManager;
+
+		std::vector<uint32_t> UITextureSlots;
+		uint32_t UITextureCount = 0;
+
+		std::unique_ptr<Shader> UIShaders;
+		std::unique_ptr<BufferObject> UIVbo; //we can use same index buffer
+
+
+#pragma endregion UI
+
+#pragma region RenderData
 		OrthoGraphicCamera Camera;
 
 		Vertex* Buffer = nullptr;
@@ -27,6 +43,9 @@ namespace TGE
 		CircleVertex* CircleBuffer = nullptr;
 		CircleVertex* CircleBufferIndex = nullptr;
 
+#pragma endregion RenderData
+
+#pragma region RenderBuffers
 		std::unique_ptr<BufferObject>       VertexBuffer;
 		std::unique_ptr<BufferObject>       IndexBuffer;
 		std::unique_ptr<BufferObject>       UniformBuffer; //Material Buffer
@@ -44,7 +63,9 @@ namespace TGE
 		std::vector<glm::vec4>					ObjectAttributes;
 
 		uint32_t Indicies[MaxQuads * 6];
+#pragma endregion RenderBuffers
 
+#pragma region Slots
 		std::vector<uint32_t> TextureSlots;
 		uint32_t CurrentTextureSlot;
 		GLint MaxTextureSlots;
@@ -62,6 +83,7 @@ namespace TGE
 
 		std::array<LightSource, MaxLightSources> LightSources;
 		size_t CurrentLightSlot = 0;
+#pragma endregion Slots
 	};
 
 

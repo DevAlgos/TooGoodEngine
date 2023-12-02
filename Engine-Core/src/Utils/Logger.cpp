@@ -3,7 +3,7 @@
 
 namespace
 {
-	static std::unique_ptr<Utils::Job> s_Job; 
+	static std::unique_ptr<Utils::CommandQueue> s_CommandQueue; 
 	static Utils::Logger* s_Instance = nullptr;
 
 	static Utils::Logger::Platform s_Platform; //incase we get different platforms the current method may not work on all
@@ -13,7 +13,7 @@ namespace Utils
 {
 	Logger::Logger()
 	{
-		s_Job = std::make_unique<Utils::Job>();
+		s_CommandQueue = std::make_unique<Utils::CommandQueue>();
 	}
 
 	void Logger::Init(Platform platform)
@@ -31,13 +31,13 @@ namespace Utils
 	{
 		std::string message = color + prefix + ": " + msg + "\x1b[0m\n";
 
-		s_Job->Attach({ [message]() { printf(message.c_str()); }, false });
+		s_CommandQueue->Attach({ [message]() { printf(message.c_str()); }, false });
 		
 	}
 
 	void Logger::ShutDown()
 	{
-		s_Job.release();
+		s_CommandQueue.release();
 	}
 	
 }

@@ -23,7 +23,6 @@ namespace TGE
 		: Manager()
 	{
 		Utils::Logger::Init(Utils::Logger::Platform::Windows);
-		Utils::JobManager::InitalizeManager();
 
 		ApplicationClock = std::make_unique<Utils::Clock>();
 
@@ -63,7 +62,6 @@ namespace TGE
 	Application::~Application()
 	{
 		TGE::Renderer2D::ShutDown();
-		Utils::JobManager::ShutdownManager();
 		Utils::Logger::ShutDown();
 
 	}

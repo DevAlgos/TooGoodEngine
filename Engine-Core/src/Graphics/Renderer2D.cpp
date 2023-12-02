@@ -14,14 +14,7 @@ namespace TGE
 {
 	void Renderer2D::Init()
 	{
-		std::map<GLenum, const char*> ShaderList = {
-			{GL_VERTEX_SHADER, "../Resources/shaders/Defaults/basicVertex.glsl"},
-			{GL_FRAGMENT_SHADER, "../Resources/shaders/Defaults/basicFragment.glsl"},
-
-		};
-
-		RenderData.DefaultShader = std::make_unique<Shader>(ShaderList);
-
+#pragma region InitTextures
 		RenderData.CurrentTextureSlot = 1;
 	
 		RenderData.Buffer = new Vertex[RenderData.MaxVertices];
@@ -46,7 +39,22 @@ namespace TGE
 		for (int i = 0; i < (int)RenderData.MaxTextureSlots; i++)
 			samplers[i] = i;
 
+#pragma endregion InitTextures
 
+#pragma region InitUI
+		RenderData.UITextureCount = 1;
+		RenderData.UITextureSlots.resize(RenderData.MaxTextureSlots);
+
+#pragma endregion InitUI
+
+#pragma region QuadInit
+		std::map<GLenum, const char*> ShaderList = {
+			{GL_VERTEX_SHADER, "../Resources/shaders/Defaults/basicVertex.glsl"},
+			{GL_FRAGMENT_SHADER, "../Resources/shaders/Defaults/basicFragment.glsl"},
+
+		};
+
+		RenderData.DefaultShader = std::make_unique<Shader>(ShaderList);
 
 
 		RenderData.DefaultShader->Use();
@@ -78,7 +86,9 @@ namespace TGE
 		RenderData.VertexArray->AttribPointer(7, 4, GL_FLOAT, GL_FALSE, VertexStride, (void*)(offsetof(Vertex, Vertex::ModelMatrix) + (sizeof(GLfloat) * 4))); // col 1
 		RenderData.VertexArray->AttribPointer(8, 4, GL_FLOAT, GL_FALSE, VertexStride, (void*)(offsetof(Vertex, Vertex::ModelMatrix) + (sizeof(GLfloat) * 8))); // col 2
 		RenderData.VertexArray->AttribPointer(9, 4, GL_FLOAT, GL_FALSE, VertexStride, (void*)(offsetof(Vertex, Vertex::ModelMatrix) + (sizeof(GLfloat) * 12))); // col 3
+#pragma endregion QuadInit
 
+#pragma region CircleInit
 		RenderData.CircleBuffer = new CircleVertex[RenderData.MaxVertices];
 		RenderData.CircleBufferIndex = RenderData.CircleBuffer;
 
@@ -111,7 +121,9 @@ namespace TGE
 		RenderData.CircleVertexArray->AttribPointer(5, 4, GL_FLOAT, GL_FALSE, CircleVertexStride, (void*)(offsetof(CircleVertex, CircleVertex::ModelMatrix) + (sizeof(GLfloat) * 4)));
 		RenderData.CircleVertexArray->AttribPointer(6, 4, GL_FLOAT, GL_FALSE, CircleVertexStride, (void*)(offsetof(CircleVertex, CircleVertex::ModelMatrix) + (sizeof(GLfloat) * 8)));
 		RenderData.CircleVertexArray->AttribPointer(7, 4, GL_FLOAT, GL_FALSE, CircleVertexStride, (void*)(offsetof(CircleVertex, CircleVertex::ModelMatrix) + (sizeof(GLfloat) * 12)));
+#pragma endregion CircleInit
 
+#pragma region GeneralInit
 		uint32_t offset = 0;
 		for (int i = 0; i < RenderData.MaxIndicies; i += 6) //Init of indicies ready to be used for rendering
 		{
@@ -174,6 +186,7 @@ namespace TGE
 		uint32_t colour = 0xffffffff;
 		glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, 1, 1, 0, GL_RGBA, GL_UNSIGNED_BYTE, &colour);
 		RenderData.TextureSlots[0] = RenderData.DefaultTexture;
+#pragma endregion GeneralInit
 
 	}
 	void Renderer2D::BeginScene(OrthoGraphicCamera& Camera)

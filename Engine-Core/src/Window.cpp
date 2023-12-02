@@ -19,6 +19,7 @@ static void OpenGLDebugCallback(GLenum source, GLenum type, GLuint id, GLenum se
 		break;
 	case GL_DEBUG_SEVERITY_HIGH:
 		LOGERROR(message);
+		__debugbreak();
 		break;
 	default:
 		break;
@@ -82,6 +83,7 @@ namespace TGE {
 		gladLoadGL();
 
 		glEnable(GL_DEBUG_OUTPUT);
+		glEnable(GL_DEBUG_OUTPUT_SYNCHRONOUS);
 		glDebugMessageCallback(OpenGLDebugCallback, nullptr);
 		
 		const char* version = (const char*)glGetString(GL_VERSION);

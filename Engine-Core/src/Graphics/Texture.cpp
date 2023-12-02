@@ -127,7 +127,11 @@ namespace TGE
 		stbi_set_flip_vertically_on_load(true);
 		unsigned char* image = nullptr;
 
+		uint32_t TempWidth = m_TextureData.Width;
+		uint32_t TempHeight = m_TextureData.Height;
+
 		image = stbi_load(NewImageLocation.data(), &m_TextureData.Width, &m_TextureData.Height, &Channels, m_DesiredChannels);
+		
 		const char* Failure = stbi_failure_reason();
 		if (Failure)
 		{
@@ -135,9 +139,24 @@ namespace TGE
 			return;
 		}
 
-		glBindTexture(GL_TEXTURE_2D, m_Texture);
-		glTexSubImage2D(GL_TEXTURE_2D, m_TextureData.MipmapLevels, 0, 0, m_TextureData.Width, m_TextureData.Height,
-			m_FileFormat, GL_UNSIGNED_BYTE, image);
+		if (m_TextureData.Width != TempWidth || m_TextureData.Height != TempHeight)
+		{
+			glDeleteTextures(1, &m_Texture);
+
+			glBindTexture(GL_TEXTURE_2D, m_Texture);
+			glCreateTextures(GL_TEXTURE_2D,1, &m_Texture);
+
+			for (auto& kv : m_TextureData.TextureParamaters)
+				glTextureParameteri(m_Texture, kv.first, kv.second);
+
+			UploadTextureImage(GL_TEXTURE_2D, image);
+		}
+		else
+		{
+			glBindTexture(GL_TEXTURE_2D, m_Texture);
+			glTexSubImage2D(GL_TEXTURE_2D, m_TextureData.MipmapLevels, 0, 0, m_TextureData.Width, m_TextureData.Height,
+				m_FileFormat, GL_UNSIGNED_BYTE, image);
+		}
 
 		if (image)
 			stbi_image_free(image);

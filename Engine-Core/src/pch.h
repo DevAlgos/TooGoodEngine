@@ -42,8 +42,7 @@
 #include <Utils/Layers/EditorLayer.h>
 
 #include <Utils/Threading/PriorityQueue.h>
-#include <Utils/Threading/Job.h>
-#include <Utils/Threading/ThreadManager.h>
+#include <Utils/Threading/CommandQueue.h>
 
 #include <Utils/Utils.h>
 #include <Utils/InputManager.h>
