@@ -5,12 +5,12 @@ namespace TGE {
 	class Shader
 	{
 	public:
-		Shader(std::map<GLenum, const char*> shaders);
+		Shader(std::map<GLenum, std::string_view> shaders);
 		Shader(const Shader& shader);
 		Shader();
 		~Shader();
 
-		void Create(std::map<GLenum, const char*> shaders);
+		void Create(std::map<GLenum, std::string_view> shaders);
 
 		inline void Use() { glUseProgram(m_Program); }
 		const inline uint32_t Get() const { return m_Program; }

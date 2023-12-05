@@ -12,6 +12,8 @@ namespace
 
 namespace TGE
 {
+	UIManager& Renderer2D::GetUIManager() { return RenderData.UIManager; }
+
 	void Renderer2D::Init()
 	{
 #pragma region InitTextures
@@ -42,13 +44,50 @@ namespace TGE
 #pragma endregion InitTextures
 
 #pragma region InitUI
-		RenderData.UITextureCount = 1;
+		RenderData.UITextureCount = 0;
 		RenderData.UITextureSlots.resize(RenderData.MaxTextureSlots);
+
+		memset(RenderData.UITextureSlots.data(), 0, RenderData.UITextureSlots.size());
+
+		std::map<GLenum, std::string_view> UIShaderList;
+		UIShaderList[GL_VERTEX_SHADER] = "../Resources/Shaders/UI/UIVertex.glsl";
+		UIShaderList[GL_FRAGMENT_SHADER] = "../Resources/Shaders/UI/UIFragment.glsl";
+
+		RenderData.UIShaders = std::make_unique<Shader>(UIShaderList);
+		RenderData.UIShaders->Use();
+		RenderData.UIShaders->SetUniformIntV("samplerTextures", samplers, RenderData.MaxTextureSlots);
+
+		RenderData.UIVao = std::make_unique<VertexArrayObject>();
+		RenderData.UIVao->Create();
+		RenderData.UIVao->Bind();
+
+		BufferData UIBufferData;
+		UIBufferData.data = nullptr;
+		UIBufferData.DrawType = GL_DYNAMIC_DRAW;
+		UIBufferData.VertexSize = RenderData.MaxUIComponents * sizeof(UIVertex);
+
+		RenderData.UIVbo = std::make_unique<BufferObject>(BufferType::VertexBuffer, UIBufferData);
+
+		RenderData.UIBuffer = new UIVertex[RenderData.MaxUIComponents];
+		RenderData.UIBufferIndex = RenderData.UIBuffer;
+
+		constexpr GLsizei UIStride = sizeof(UIVertex);
+
+		RenderData.UIVao->AttribPointer(0, 3, GL_FLOAT, GL_FALSE, UIStride, (void*)offsetof(UIVertex, UIVertex::Position));
+		RenderData.UIVao->AttribPointer(1, 4, GL_FLOAT, GL_FALSE, UIStride, (void*)offsetof(UIVertex, UIVertex::Color));
+		RenderData.UIVao->AttribPointer(2, 2, GL_FLOAT, GL_FALSE, UIStride, (void*)offsetof(UIVertex, UIVertex::TextureCoordinates));
+		RenderData.UIVao->AttribPointer(3, 1, GL_FLOAT, GL_FALSE, UIStride, (void*)offsetof(UIVertex, UIVertex::TextureUnit));
+		RenderData.UIVao->AttribPointer(4, 4, GL_FLOAT, GL_FALSE, UIStride, (void*)offsetof(UIVertex, UIVertex::ModelMatrix));
+		RenderData.UIVao->AttribPointer(5, 4, GL_FLOAT, GL_FALSE, UIStride, (void*)(offsetof(UIVertex, UIVertex::ModelMatrix) + (sizeof(GLfloat) * 4))); // col 1
+		RenderData.UIVao->AttribPointer(6, 4, GL_FLOAT, GL_FALSE, UIStride, (void*)(offsetof(UIVertex, UIVertex::ModelMatrix) + (sizeof(GLfloat) * 8))); // col 2
+		RenderData.UIVao->AttribPointer(7, 4, GL_FLOAT, GL_FALSE, UIStride, (void*)(offsetof(UIVertex, UIVertex::ModelMatrix) + (sizeof(GLfloat) * 12))); // col 3
+
+		RenderData.TestFont = RenderData.UIManager.LoadFont("../Resources/fonts/Anonymous.ttf");
 
 #pragma endregion InitUI
 
 #pragma region QuadInit
-		std::map<GLenum, const char*> ShaderList = {
+		std::map<GLenum, std::string_view> ShaderList = {
 			{GL_VERTEX_SHADER, "../Resources/shaders/Defaults/basicVertex.glsl"},
 			{GL_FRAGMENT_SHADER, "../Resources/shaders/Defaults/basicFragment.glsl"},
 
@@ -72,9 +111,11 @@ namespace TGE
 		VertexData.data = nullptr;
 		VertexData.VertexSize = sizeof(Vertex) * RenderData.MaxVertices;
 
-		RenderData.VertexBuffer = std::make_unique<BufferObject>(BufferObject::BufferType::VertexBuffer, VertexData);
+		RenderData.VertexBuffer = std::make_unique<BufferObject>(BufferType::VertexBuffer, VertexData);
 
 		constexpr GLsizei VertexStride = sizeof(Vertex);
+
+
 
 		RenderData.VertexArray->AttribPointer(0, 3, GL_FLOAT, GL_FALSE, VertexStride, (void*)offsetof(Vertex, Vertex::Position)); //All vertex attributes that will be passed to shader are set up here
 		RenderData.VertexArray->AttribPointer(1, 4, GL_FLOAT, GL_FALSE, VertexStride, (void*)offsetof(Vertex, Vertex::Color));
@@ -92,7 +133,7 @@ namespace TGE
 		RenderData.CircleBuffer = new CircleVertex[RenderData.MaxVertices];
 		RenderData.CircleBufferIndex = RenderData.CircleBuffer;
 
-		std::map<GLenum, const char*> CircleShaderList =
+		std::map<GLenum, std::string_view> CircleShaderList =
 		{
 			{GL_VERTEX_SHADER,  "../Resources/shaders/Defaults/circleVertex.glsl"},
 			{GL_FRAGMENT_SHADER, "../Resources/shaders/Defaults/circleFragment.glsl"}
@@ -109,7 +150,7 @@ namespace TGE
 		RenderData.CircleVertexArray->Create();
 		RenderData.CircleVertexArray->Bind();
 
-		RenderData.CircleVertexBuffer = std::make_unique<BufferObject>(BufferObject::BufferType::VertexBuffer, CircleVertexData);
+		RenderData.CircleVertexBuffer = std::make_unique<BufferObject>(BufferType::VertexBuffer, CircleVertexData);
 
 		constexpr GLsizei CircleVertexStride = sizeof(CircleVertex);
 
@@ -141,14 +182,14 @@ namespace TGE
 		IndexData.DrawType = GL_STATIC_DRAW;
 		IndexData.VertexSize = sizeof(uint32_t) * RenderData.MaxIndicies;
 
-		RenderData.IndexBuffer = std::make_unique<BufferObject>(BufferObject::BufferType::IndexBuffer, IndexData);
+		RenderData.IndexBuffer = std::make_unique<BufferObject>(BufferType::IndexBuffer, IndexData);
 
 		BufferData UniformData;
 		UniformData.data = nullptr;
 		UniformData.DrawType = GL_DYNAMIC_DRAW;
 		UniformData.VertexSize = RenderData.MaterialStride * RenderData.MaxMaterialSlots;
 
-		RenderData.UniformBuffer = std::make_unique<BufferObject>(BufferObject::BufferType::UniformBuffer, UniformData);
+		RenderData.UniformBuffer = std::make_unique<BufferObject>(BufferType::UniformBuffer, UniformData);
 
 		DynamicData DynamicUniformRange;
 		DynamicUniformRange.Offset = 0;
@@ -169,7 +210,7 @@ namespace TGE
 		LightUniformData.DrawType = GL_DYNAMIC_DRAW;
 		LightUniformData.VertexSize = RenderData.LightStride * RenderData.MaxLightSources;
 
-		RenderData.LightUniformBuffer = std::make_unique<BufferObject>(BufferObject::BufferType::UniformBuffer, LightUniformData);
+		RenderData.LightUniformBuffer = std::make_unique<BufferObject>(BufferType::UniformBuffer, LightUniformData);
 
 		DynamicData LightUniformRange;
 		LightUniformRange.index = 1;
@@ -193,6 +234,7 @@ namespace TGE
 	{
 		RenderData.BufferIndex = RenderData.Buffer;
 		RenderData.CircleBufferIndex = RenderData.CircleBuffer;
+		RenderData.UIBufferIndex = RenderData.UIBuffer;
 
 		RenderData.Camera = Camera;
 
@@ -208,13 +250,16 @@ namespace TGE
 		RenderData.CircleShader->SetUniformFloat3("CameraPosition", RenderData.Camera.GetPosition().x, 
 			RenderData.Camera.GetPosition().y, RenderData.Camera.GetPosition().z);
 
+		RenderData.UIShaders->Use();
+		RenderData.UIShaders->setUniformMat4("view", Camera.GetView());
+		RenderData.UIShaders->setUniformMat4("projection", Camera.GetProjection());
 
 	}
 	void Renderer2D::BeginScene()
 	{
 		RenderData.BufferIndex = RenderData.Buffer;
 		RenderData.CircleBufferIndex = RenderData.CircleBuffer;
-
+		RenderData.UIBufferIndex = RenderData.UIBuffer;
 	}
 
 	void Renderer2D::PushQuad(const glm::vec3& Position, const glm::vec2& size, float Rotation, uint32_t ID)
@@ -255,6 +300,63 @@ namespace TGE
 		RenderData.BufferIndex = CreateQuad(RenderData.BufferIndex, TextureIndex, 0.0f, ModelMatrix);
 
 		RenderData.IndexCount += 6;
+	}
+	void Renderer2D::PushUIText(const std::string_view& Text, uint32_t Font, const glm::vec3& Position, const glm::vec2& size, float Rotation, const glm::vec4& color)
+	{
+		const uint32_t TextureUnit = RenderData.UIManager.GetFont(Font).CharacterSheet.Get();
+
+		if (RenderData.UIIndexCount >= RenderData.MaxIndicies || RenderData.UITextureCount > (uint32_t)RenderData.MaxTextureSlots - 1) 
+		{
+			FlushScene();
+		}
+
+		if (RenderData.UITextureCount > (uint32_t)RenderData.MaxTextureSlots - 1)
+			RenderData.CurrentTextureSlot = 0;
+
+		float TextureIndex = -1.0f;
+
+		for (int i = 1; i < (int)RenderData.UITextureCount; i++)
+		{
+			if (RenderData.UITextureSlots[i] == TextureUnit)
+			{
+				TextureIndex = (float)i;
+				break;
+			}
+		}
+
+		if (TextureIndex == -1.0f)
+		{
+			RenderData.UITextureSlots[RenderData.UITextureCount] = TextureUnit;
+			TextureIndex = TextureUnit;
+			RenderData.UITextureCount++;
+		}
+
+		glm::vec3 CurrentPosition = Position;
+		 
+		for (int i = 0; i < Text.size(); i++)
+		{
+			if (std::isspace(Text[i]))
+			{
+				CurrentPosition.x += 0.5f;
+				continue;
+			}
+
+			const Character& character = RenderData.UIManager.GetCharacter(Font, Text[i]);
+			glm::vec3 TempPosition = glm::vec3(CurrentPosition.x, CurrentPosition.y + (character.Bearing.y/PixelPerChar) * 2.0f, CurrentPosition.z);
+			
+			glm::mat4 ModelMatrix = glm::mat4(1.0f);
+			ModelMatrix = glm::translate(ModelMatrix, TempPosition)
+				* glm::rotate(ModelMatrix, glm::radians(Rotation), glm::vec3(0.0f, 0.0f, 1.0f))
+				* glm::scale(ModelMatrix, glm::vec3(size, 1.0f));
+
+			RenderData.UIBufferIndex = CreateUI(RenderData.UIBufferIndex, color, TextureUnit, character.Coordinate, ModelMatrix);
+			CurrentPosition.x += (character.Advance/FontMapWidth) / 2.0f;
+			RenderData.UIIndexCount += 6;
+
+			if (RenderData.UIIndexCount >= RenderData.MaxUIComponents * 6)
+				FlushScene();
+			
+		}
 	}
 	void Renderer2D::PushQuad(const glm::vec3& Position, const glm::vec2& size, float Rotation, const glm::vec4& color)
 	{
@@ -309,6 +411,10 @@ namespace TGE
 
 		RenderData.IndexCount += 6;
 
+	}
+	void Renderer2D::LoadInFont(const std::string_view& FontLocation, uint32_t Index)
+	{
+		RenderData.UIManager.LoadFont(FontLocation, Index);
 	}
 	void Renderer2D::PushQuad(const glm::vec3& Position, const glm::vec2& size, float Rotation, uint32_t ID, Material& material)
 	{
@@ -598,10 +704,23 @@ namespace TGE
 		RenderData.CircleIndexCount = 0;
 
 	}
+	void Renderer2D::DrawUI()
+	{
+		RenderData.UIVao->Bind();
+		RenderData.UIShaders->Use();
+
+		RenderData.UIVbo->Bind();
+		RenderData.IndexBuffer->Bind();
+
+		for (int i = 0; i < (int)RenderData.UITextureCount; i++)
+			glBindTextureUnit(i, RenderData.UITextureSlots[i]);
+
+		glDrawElements(GL_TRIANGLES, RenderData.UIIndexCount, GL_UNSIGNED_INT, nullptr);
+
+		RenderData.UIIndexCount = 0;
+	}
 	void Renderer2D::EndScene() //checked off
 	{
-
-
 		RenderData.VertexArray->Bind();
 		GLsizeiptr QuadSize = (uint8_t*)RenderData.BufferIndex - (uint8_t*)RenderData.Buffer;
 
@@ -642,10 +761,18 @@ namespace TGE
 
 		RenderData.CircleVertexBuffer->PushData(CircleBufferData);
 
+		GLsizeiptr UIBufferSize = (uint8_t*)RenderData.UIBufferIndex - (uint8_t*)RenderData.UIBuffer;
+
+		DynamicData UIBufferData;
+		UIBufferData.data = RenderData.UIBuffer;
+		UIBufferData.Offset = 0;
+		UIBufferData.VertexSize = UIBufferSize;
+
+		RenderData.UIVbo->PushData(UIBufferData);
+
 		DrawQuad();
 		DrawCircle();
-
-
+		DrawUI();
 	}
 
 	void Renderer2D::ShutDown()
@@ -654,6 +781,7 @@ namespace TGE
 
 		delete[] RenderData.Buffer;
 		delete[] RenderData.CircleBuffer;
+		delete[] RenderData.UIBuffer;
 		
 	}
 	void Renderer2D::FlushScene()

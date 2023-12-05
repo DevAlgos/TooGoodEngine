@@ -7,7 +7,7 @@
 #include <memory>
 #include "Texture.h"
 #include <UI/UIManager.h>
-
+#include <string_view>
 
 namespace TGE
 {
@@ -15,6 +15,7 @@ namespace TGE
 	{
 #pragma region Constants
 		static const uint32_t MaxQuads = 1000;
+		static const uint32_t MaxUIComponents = 1000;
 
 		static const uint32_t MaxIndicies = MaxQuads * 6;
 		static const uint32_t MaxVertices = MaxQuads * 4;
@@ -26,11 +27,18 @@ namespace TGE
 		UIManager UIManager;
 
 		std::vector<uint32_t> UITextureSlots;
-		uint32_t UITextureCount = 0;
+		uint32_t UITextureCount;
 
 		std::unique_ptr<Shader> UIShaders;
+
+		std::unique_ptr<VertexArrayObject> UIVao;
 		std::unique_ptr<BufferObject> UIVbo; //we can use same index buffer
 
+		UIVertex* UIBuffer = nullptr;
+		UIVertex* UIBufferIndex = nullptr;
+
+		uint32_t UIIndexCount = 0;
+		uint32_t TestFont;
 
 #pragma endregion UI
 
@@ -107,8 +115,14 @@ namespace TGE
 		static void Clear();
 		static void Init();
 
+		static UIManager& GetUIManager();
+
+		static void LoadInFont(const std::string_view& FontLocation, uint32_t Index = 0);
+
 		static void BeginScene(OrthoGraphicCamera& Camera);
 		static void BeginScene();
+
+		static void PushUIText(const std::string_view& Text, uint32_t Font, const glm::vec3& Position, const glm::vec2& size, float Rotation,  const glm::vec4& color);
 
 		static void PushQuad(const glm::vec3& Position, const glm::vec2& size, float Rotation, uint32_t ID);
 		static void PushQuad(const glm::vec3& Position, const glm::vec2& size, float Rotation, const glm::vec4& color);
@@ -121,11 +135,11 @@ namespace TGE
 		static void PushCircle(const glm::vec3& Position, const glm::vec2& size, float Rotation, float Thickness, const glm::vec4& color);
 		static void PushCircle(const glm::vec3& Position, const glm::vec2& size, float Rotation, float Thickness, const glm::vec4& color, Material& material);
 
-
 		static void PushLight(const LightSource& light);
 
 		static void SetUniformVec3(const glm::vec3& data, const char* name);
 
+		static void DrawUI();
 		static void DrawQuad();
 		static void DrawCircle();
 
@@ -133,10 +147,6 @@ namespace TGE
 		static void ShutDown();
 
 		static void FlushScene();
-
-	private:
-
-
 	};
 
 

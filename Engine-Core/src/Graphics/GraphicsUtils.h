@@ -1,9 +1,15 @@
 #pragma once
 
 #include <iostream>
+#include <UI/UIManager.h>
 
 #include <glm/glm.hpp>
 #include <glm/gtc/type_ptr.hpp>
+
+
+static float FontMapWidth = static_cast<float>(TGE::GetMapWidth());
+static float FontMapHeight = static_cast<float>(TGE::GetMapHeight());
+static float PixelPerChar = static_cast<float>(TGE::GetPixelPerChar());
 
 namespace TGE
 {
@@ -13,7 +19,6 @@ namespace TGE
 		{ 1.0f, -1.0f, 0.0f}, // top left
 		{ 1.0f, 1.0f,  0.0f},  // top right
 		{-1.0f, 1.0f,  0.0f}   // bottom right
-
 	};
 
 	struct Vertex //What every single Vertex will contain
@@ -40,6 +45,8 @@ namespace TGE
 	{
 		glm::vec3 Position;
 		glm::vec4 Color;
+		glm::vec2 TextureCoordinates;
+		float	  TextureUnit;
 		glm::mat4 ModelMatrix;
 	};
 
@@ -270,8 +277,42 @@ namespace TGE
 		return vertex;
 	}
 
-	static UIVertex* CreateUI(UIVertex* vertex, const glm::vec3& Position, const glm::vec4& Color, const glm::mat4& ModelMatrix)
+	static UIVertex* CreateUI(UIVertex* vertex, const glm::vec4& Color, float TextureUnit, const glm::ivec2& MapCoords, const glm::mat4& ModelMatrix)
 	{
+		float Width = 1.0f / (FontMapWidth / PixelPerChar); //400 = texture width, 32 = character width
+		float Height = 1.0f / (FontMapHeight / PixelPerChar);
 
+		float x = (MapCoords.x * Width);
+		float y = (MapCoords.y * Height); 
+
+		vertex->Position = QuadVertices[0];
+		vertex->Color = Color;
+		vertex->TextureCoordinates = glm::vec2(x, y);
+		vertex->TextureUnit = TextureUnit;
+		vertex->ModelMatrix = ModelMatrix;
+		vertex++;
+
+		vertex->Position = QuadVertices[1];
+		vertex->Color = Color;
+		vertex->TextureCoordinates = glm::vec2(x + Width, y);
+		vertex->TextureUnit = TextureUnit;
+		vertex->ModelMatrix = ModelMatrix;
+		vertex++;
+
+		vertex->Position = QuadVertices[2];
+		vertex->Color = Color;
+		vertex->TextureCoordinates = glm::vec2(x + Width, y + Height);
+		vertex->TextureUnit = TextureUnit;
+		vertex->ModelMatrix = ModelMatrix;
+		vertex++;
+
+		vertex->Position = QuadVertices[3];
+		vertex->Color = Color;
+		vertex->TextureCoordinates = glm::vec2(x, y + Height);
+		vertex->TextureUnit = TextureUnit; 
+		vertex->ModelMatrix = ModelMatrix;
+		vertex++;
+
+		return vertex;
 	}
 }

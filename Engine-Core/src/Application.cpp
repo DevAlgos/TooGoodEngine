@@ -26,7 +26,7 @@ namespace TGE
 
 		ApplicationClock = std::make_unique<Utils::Clock>();
 
-		s_MainWindow.Create((uint16_t)App.GetDetails().Width, (uint16_t)App.GetDetails().Height,
+		s_MainWindow.Create((uint32_t)App.GetDetails().Width, (uint32_t)App.GetDetails().Height,
 			App.GetDetails().ApplicationName.data());
 
 		s_MainWindow.Init();

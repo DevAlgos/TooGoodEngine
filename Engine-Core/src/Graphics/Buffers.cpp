@@ -24,16 +24,16 @@ namespace TGE
 	{
 		switch (Type)
 		{
-		case TGE::BufferObject::BufferType::VertexBuffer:
+		case TGE::BufferType::VertexBuffer:
 			m_Type = GL_ARRAY_BUFFER;
 			break;
-		case TGE::BufferObject::BufferType::IndexBuffer:
+		case TGE::BufferType::IndexBuffer:
 			m_Type = GL_ELEMENT_ARRAY_BUFFER;
 			break;
-		case TGE::BufferObject::BufferType::UniformBuffer:
+		case TGE::BufferType::UniformBuffer:
 			m_Type = GL_UNIFORM_BUFFER;
 			break;
-		case TGE::BufferObject::BufferType::ShaderStorageBuffer:
+		case TGE::BufferType::ShaderStorageBuffer:
 			m_Type = GL_SHADER_STORAGE_BUFFER;
 			break;
 		default:
@@ -81,7 +81,7 @@ namespace TGE
 
 
 
-	Framebuffer::Framebuffer(std::vector<Attachment> Attachments, std::map<GLenum, const char*> ShaderList)
+	Framebuffer::Framebuffer(std::vector<Attachment> Attachments, std::map<GLenum, std::string_view> ShaderList)
 		: m_Framebuffer(0)
 	{
 		FramebufferShader = std::make_unique<Shader>(ShaderList);
@@ -90,7 +90,7 @@ namespace TGE
 		FramebufferVAO->Create();
 
 		BufferData data { QuadVertices, sizeof(QuadVertices), GL_STATIC_DRAW};
-		FramebufferVBO = std::make_unique<BufferObject>(BufferObject::BufferType::VertexBuffer, data);
+		FramebufferVBO = std::make_unique<BufferObject>(BufferType::VertexBuffer, data);
 
 		FramebufferVAO->AttribPointer(0, 2, GL_FLOAT, GL_FALSE, sizeof(float) * 4, (void*)0);
 		FramebufferVAO->AttribPointer(1, 2, GL_FLOAT, GL_FALSE, sizeof(float) * 4, (void*)(sizeof(float) * 2));

@@ -2,7 +2,7 @@
 #include "Shader.h"
 
 namespace TGE {
-	Shader::Shader(std::map<GLenum, const char*> shaders)
+	Shader::Shader(std::map<GLenum, std::string_view> shaders)
 	{
 		Create(shaders);
 	}
@@ -18,14 +18,14 @@ namespace TGE {
 	{
 		glDeleteProgram(m_Program);
 	}
-	void Shader::Create(std::map<GLenum, const char*> shaders)
+	void Shader::Create(std::map<GLenum, std::string_view> shaders)
 	{
 		m_Program = glCreateProgram();
 
 		for (auto& source : shaders)
 		{
 
-			std::string contents = LoadShaderFromFile(source.second);
+			std::string contents = LoadShaderFromFile(source.second.data());
 			const char* data = contents.c_str();
 
 			uint32_t Shader = glCreateShader(source.first);

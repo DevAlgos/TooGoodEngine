@@ -21,6 +21,7 @@ namespace
 	uint32_t* TextureData;
 
 	TGE::UIManager manager;
+	uint32_t font;
 }
 
 namespace Test
@@ -60,7 +61,8 @@ namespace Utils
 	}
 	void EditorLayer::OnInit()
 	{
-		uint32_t font = manager.LoadFont("../Resources/fonts/The Smile.otf");
+		TGE::Renderer2D::LoadInFont("../Resources/fonts/Anonymous.ttf");
+		
 
 		TGE::TextureData data;
 		data.Width = 500;
@@ -88,7 +90,7 @@ namespace Utils
 		(int)TGE::Application::GetMainWindow().GetHeight()},
 		};
 
-		std::map<GLenum, const char*> FramebufferShaderList = {
+		std::map<GLenum, std::string_view> FramebufferShaderList = {
 		{GL_VERTEX_SHADER, "../Resources/shaders/Defaults/post_process_vert.glsl"},
 		{GL_FRAGMENT_SHADER, "../Resources/shaders/Defaults/post_process_frag.glsl"},
 		};
@@ -167,8 +169,6 @@ namespace Utils
 
 		}
 
-		
-
 		TGE::Renderer2D::PushCircle({ 2.0f, 1.0f, 0.0f }, { 1.0f, 1.0f }, 0.0f, 1.0f,
 			{0.8f, 0.4f, 0.5f, 1.0f}, *TestMaterial);
 
@@ -177,7 +177,12 @@ namespace Utils
 		
 		TGE::Renderer2D::PushCircle({ 9.0f, -5.0f, 0.0f }, { 1.0f, 1.0f }, 0.0f, 1.0f,
 			{ 0.0f, 0.4f, 0.4, 1.0f });
-		
+
+		TGE::Renderer2D::PushUIText("have you ever wondered", 0, { 1.0f, 1.0f, 0.0f }, { 1.0f, 1.0f }, 0.0f, { 1.0f, 1.0f, 1.0f, 1.0f });
+		TGE::Renderer2D::PushUIText("why octopuses have 8 legs ????", 0, { 1.0f, -0.5f, 0.0f }, { 1.0f, 1.0f }, 0.0f, { 1.0f, 1.0f, 1.0f, 1.0f });
+		TGE::Renderer2D::PushUIText("well now you know the elot p", 0, { 1.0f, -2.0f, 0.0f }, { 1.0f, 1.0f }, 0.0f, { 1.0f, 1.0f, 1.0f, 1.0f });
+
+
 		PScene->Update(m_OrthoCam, TGE::Application::GetCurrentDeltaSecond());
 		PhysicsScene->UpdateScene();
 
@@ -223,9 +228,15 @@ namespace Utils
 		}
 
 		if (opt_fullscreen)
-			ImGui::Image((void*)(intptr_t)ViewFrame->GetTexture(0), {(float)TGE::Application::GetMainWindow().GetWidth(),
-			(float)TGE::Application::GetMainWindow().GetHeight() },
+		{
+			ImGui::Image((void*)(intptr_t)TGE::Renderer2D::GetUIManager().GetFont(0).CharacterSheet.Get(), {800.0f,
+			400.0f },
 				{ 0,1 }, { 1,0 });
+			ImGui::Image((void*)(intptr_t)ViewFrame->GetTexture(0), {1280.0f,
+			720.0f },
+				{ 0,1 }, { 1,0 });
+		}
+			
 
 		ImGui::End();
 

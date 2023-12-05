@@ -23,12 +23,10 @@ namespace TGE
 		GLuint index = 0;
 	};
 
+	enum class BufferType { VertexBuffer = 0, IndexBuffer, UniformBuffer, ShaderStorageBuffer };
 
 	class BufferObject
 	{
-	public:
-		enum class BufferType { VertexBuffer = 0, IndexBuffer, UniformBuffer, ShaderStorageBuffer };
-
 	public:
 		BufferObject(const BufferType& t, const BufferData& BufferData);
 
@@ -63,7 +61,7 @@ namespace TGE
 	public:
 
 	public:
-		Framebuffer(std::vector<Attachment> Attachments, std::map<GLenum, const char*> ShaderList);
+		Framebuffer(std::vector<Attachment> Attachments, std::map<GLenum, std::string_view> ShaderList);
 		~Framebuffer();
 
 		inline void Bind() const { glBindFramebuffer(GL_FRAMEBUFFER, m_Framebuffer); }
