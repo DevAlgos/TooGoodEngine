@@ -2,6 +2,7 @@
 #include "UserApplication.h"
 #include <memory>
 
+
 namespace TGE
 {
 	int Main(const UserApplication& UserApp)

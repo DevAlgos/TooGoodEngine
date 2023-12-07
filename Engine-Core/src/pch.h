@@ -1,5 +1,9 @@
 #pragma once
 
+#define AL_LIBTYPE_STATIC 
+#include <AL/al.h>
+#include <AL/alext.h>
+
 #include <glad/glad.h>
 #include <GL/GL.h>
 #include <GLFW/glfw3.h>
@@ -34,6 +38,7 @@
 #include <Physics/PhysicsScene.h>
 #include <Particles/ParticleScene.h>
 
+
 #include <Utils/RandomNumbers.h>
 #include <Utils/Clock.h>
 #include <Utils/Layers/BaseLayer.h>
@@ -49,6 +54,8 @@
 #include <Utils/Camera.h>
 #include <Utils/Logger.h>
 #include <Window.h>
+
+#include <Audio/Audio.h>
 
 #include <Graphics/Shader.h>
 #include <Graphics/VertexArray.h>

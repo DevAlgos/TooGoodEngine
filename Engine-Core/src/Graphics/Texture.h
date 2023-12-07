@@ -9,8 +9,7 @@ namespace TGE {
 	enum class TextureType 
 	{   // Will add more when needed, however Texture2D is all thats required for now
 		Texture2D = 0, 
-		Texture3D, 
-		Texture2DCompute
+		Texture2DMultisample
 	};
 
 	enum class TextureFormat
@@ -29,6 +28,7 @@ namespace TGE {
 		TextureType Type = TextureType::Texture2D;
 		int Width, Height = 0; //leave empty if specifiying a texture from file as these will be sampled from the image
 		int MipmapLevels = 0;
+		int NumberOfSamples = 4;
 
 		std::unordered_map<GLenum, GLenum> TextureParamaters =
 		{
@@ -76,6 +76,7 @@ namespace TGE {
 		
 		GLenum m_InternalFormat;
 		GLenum m_FileFormat;
+		GLenum m_TextureType;
 		int m_DesiredChannels = 0;
 	};
 }

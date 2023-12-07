@@ -60,7 +60,7 @@ namespace TGE
 	}
 
 	Texture::Texture(uint32_t* Data, const TextureData& textureData)
-		: m_Texture(0), m_TextureData(textureData), m_InternalFormat(0), m_FileFormat(GL_RGBA)
+		: m_Texture(0), m_TextureData(textureData), m_InternalFormat(0), m_FileFormat(GL_RGBA), m_TextureType(0)
 	{
 		switch (m_TextureData.InternalFormat)
 		{
@@ -75,7 +75,12 @@ namespace TGE
 		switch (m_TextureData.Type)
 		{
 		case TGE::TextureType::Texture2D:
+			m_TextureType = GL_TEXTURE_2D;
 			CreateTexture(GL_TEXTURE_2D, Data);
+			break;
+		case TGE::TextureType::Texture2DMultisample:
+			m_TextureType = GL_TEXTURE_2D_MULTISAMPLE;
+			CreateTexture(GL_TEXTURE_2D_MULTISAMPLE, Data);
 			break;
 		default:
 			break;
@@ -94,7 +99,7 @@ namespace TGE
 
 		glDeleteTextures(1, &m_Texture);
 
-		CreateTexture(GL_TEXTURE_2D, Data);
+		CreateTexture(m_TextureType, Data);
 	}
 
 	void Texture::ResizeImage(uint32_t* Data, int Width, int Height)
@@ -104,20 +109,20 @@ namespace TGE
 
 		glDeleteTextures(1, &m_Texture);
 
-		CreateTexture(GL_TEXTURE_2D, Data);
+		CreateTexture(m_TextureType, Data);
 	}
 
 	void Texture::SetData(float* Data)
 	{
-		glBindTexture(GL_TEXTURE_2D, m_Texture);
-		glTexSubImage2D(GL_TEXTURE_2D, m_TextureData.MipmapLevels, 0, 0, m_TextureData.Width, m_TextureData.Height,
+		glBindTexture(m_TextureType, m_Texture);
+		glTexSubImage2D(m_TextureType, m_TextureData.MipmapLevels, 0, 0, m_TextureData.Width, m_TextureData.Height,
 			m_FileFormat, GL_FLOAT, Data);
 	}
 
 	void Texture::SetData(uint32_t* Data)
 	{
-		glBindTexture(GL_TEXTURE_2D, m_Texture);
-		glTexSubImage2D(GL_TEXTURE_2D, m_TextureData.MipmapLevels, 0, 0, m_TextureData.Width, m_TextureData.Height,
+		glBindTexture(m_TextureType, m_Texture);
+		glTexSubImage2D(m_TextureType, m_TextureData.MipmapLevels, 0, 0, m_TextureData.Width, m_TextureData.Height,
 			m_FileFormat, GL_UNSIGNED_BYTE, Data);
 	}
 
@@ -143,18 +148,18 @@ namespace TGE
 		{
 			glDeleteTextures(1, &m_Texture);
 
-			glBindTexture(GL_TEXTURE_2D, m_Texture);
-			glCreateTextures(GL_TEXTURE_2D,1, &m_Texture);
+			glBindTexture(m_TextureType, m_Texture);
+			glCreateTextures(m_TextureType,1, &m_Texture);
 
 			for (auto& kv : m_TextureData.TextureParamaters)
 				glTextureParameteri(m_Texture, kv.first, kv.second);
 
-			UploadTextureImage(GL_TEXTURE_2D, image);
+			UploadTextureImage(m_TextureType, image);
 		}
 		else
 		{
-			glBindTexture(GL_TEXTURE_2D, m_Texture);
-			glTexSubImage2D(GL_TEXTURE_2D, m_TextureData.MipmapLevels, 0, 0, m_TextureData.Width, m_TextureData.Height,
+			glBindTexture(m_TextureType, m_Texture);
+			glTexSubImage2D(m_TextureType, m_TextureData.MipmapLevels, 0, 0, m_TextureData.Width, m_TextureData.Height,
 				m_FileFormat, GL_UNSIGNED_BYTE, image);
 		}
 
@@ -253,6 +258,11 @@ namespace TGE
 			glTexSubImage2D(GL_TEXTURE_2D, m_TextureData.MipmapLevels, 0, 0, m_TextureData.Width, m_TextureData.Height, m_FileFormat,
 				GL_UNSIGNED_BYTE, Data);
 			glGenerateTextureMipmap(m_Texture);
+			break;
+		case GL_TEXTURE_2D_MULTISAMPLE:
+			glTextureStorage2DMultisample(m_Texture, m_TextureData.NumberOfSamples, m_InternalFormat, m_TextureData.Width, m_TextureData.Height, GL_TRUE);
+			glTexSubImage2D(GL_TEXTURE_2D_MULTISAMPLE, m_TextureData.MipmapLevels, 0, 0, m_TextureData.Width, m_TextureData.Height, m_FileFormat,
+				GL_UNSIGNED_BYTE, Data);
 			break;
 		default:
 			break;

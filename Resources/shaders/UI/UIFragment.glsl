@@ -115,8 +115,6 @@ void main()
             break;
     }
 
-    if(t == vec4(0, 0, 0, 1))
-        FragColor = vec4(0,0,0,0);
-    else
-	    FragColor = t * oColor;
+    
+	FragColor = t * oColor;
 }

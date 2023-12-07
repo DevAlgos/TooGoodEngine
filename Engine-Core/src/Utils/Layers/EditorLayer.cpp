@@ -229,9 +229,6 @@ namespace Utils
 
 		if (opt_fullscreen)
 		{
-			ImGui::Image((void*)(intptr_t)TGE::Renderer2D::GetUIManager().GetFont(0).CharacterSheet.Get(), {800.0f,
-			400.0f },
-				{ 0,1 }, { 1,0 });
 			ImGui::Image((void*)(intptr_t)ViewFrame->GetTexture(0), {1280.0f,
 			720.0f },
 				{ 0,1 }, { 1,0 });

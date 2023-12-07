@@ -14,11 +14,12 @@ namespace TGE
 	struct RendererData2D
 	{
 #pragma region Constants
-		static const uint32_t MaxQuads = 1000;
+		static const uint32_t MaxQuads = 10000;
 		static const uint32_t MaxUIComponents = 1000;
 
 		static const uint32_t MaxIndicies = MaxQuads * 6;
 		static const uint32_t MaxVertices = MaxQuads * 4;
+		static const uint32_t MaxUIVertices = MaxUIComponents * 4;
 
 		static const uint32_t MaxLightSources = 6;
 #pragma endregion Constants
@@ -114,8 +115,6 @@ namespace TGE
 		static void ClearDepth(const glm::vec3& Color);
 		static void Clear();
 		static void Init();
-
-		static UIManager& GetUIManager();
 
 		static void LoadInFont(const std::string_view& FontLocation, uint32_t Index = 0);
 

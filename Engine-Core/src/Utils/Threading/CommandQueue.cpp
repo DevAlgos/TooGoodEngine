@@ -105,7 +105,6 @@ namespace Utils
 					ThisFunc = m_WorkQueue.front().Func;
 					ThisFunc();
 				}
-				else continue;
 
 				m_WorkQueue.pop();
 			}

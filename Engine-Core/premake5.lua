@@ -5,6 +5,11 @@ IncludeDir["ImGui"] = "../Libs/imgui"
 IncludeDir["glm"] = "../Libs/glm"
 IncludeDir["stb_image"] = "../Libs/STB"
 IncludeDir["freetype"] = "../Libs/freetype/include"
+IncludeDir["OpenAl"]="../Libs/openal-soft/include"
+IncludeDir["libsndfile"] = "../Libs/libsndfile/include"
+
+
+
 
 project "Engine-Core"
     kind "StaticLib"
@@ -25,6 +30,12 @@ project "Engine-Core"
         "ext/**.cpp"
     }
 
+    prebuildcommands
+    {
+        "cmake ../Libs/libsndfile  -DLIBTYPE=STATIC",
+        "cmake ../Libs/openal-soft -DLIBTYPE=STATIC"
+    }
+
     includedirs 
     {
         "src",
@@ -34,12 +45,17 @@ project "Engine-Core"
         IncludeDir["ImGui"],
         IncludeDir["glm"],
         IncludeDir["stb_image"],
-        IncludeDir["freetype"]
+        IncludeDir["freetype"],
+        IncludeDir["OpenAl"],
+        IncludeDir["libsndfile"] 
     }
 
     links 
     {
         "FreeType",
+        "sndfile",
+        "OpenAL32",
+        "winmm",
         "GLFW",
         "Glad",
         "opengl32",
@@ -48,11 +64,11 @@ project "Engine-Core"
 
     libdirs 
     {
-        "../Libs/imgui/bin/" .. outputdir .. "/ImGui",
-        "../Libs/glfw/bin/" .. outputdir .. "/GLFW",
-        "../Libs/glad/bin/" .. outputdir .. "/GLAD",
-        "../Libs/freetype/bin/" ..outputdir .. "/FreeType"
-    }
+        "../Libs/imgui/bin/"        .. outputdir ..  "/ImGui",
+        "../Libs/glfw/bin/"         .. outputdir ..  "/GLFW",
+        "../Libs/glad/bin/"         .. outputdir ..  "/GLAD",
+        "../Libs/freetype/bin/"     .. outputdir ..  "/FreeType"
+    } 
 
     targetdir ("../bin/" .. outputdir .. "/%{prj.name}")
     objdir ("../bin-int/" .. outputdir .. "/%{prj.name}")
@@ -61,13 +77,37 @@ project "Engine-Core"
         defines { "DEBUG" }
         symbols "On"
 
+        libdirs
+        {
+            "../Libs/libsndfile/Debug",
+            "../Libs/openal-soft/Debug/"
+        }
+
     filter "configurations:Release"
         defines { "NDEBUG" }
         optimize "On"
+
+        libdirs
+        {
+            "../Libs/libsndfile/Release",
+            "../Libs/openal-soft/Release/"
+        }
 
     group "Engine-Dependencies"
         include "../Libs/glfw"
         include "../Libs/glad"
         include "../Libs/imgui"
         include "../Libs/freetype"
+        
+        externalproject "OpenAL"
+             location "../Libs/openal-soft" 
+             kind "StaticLib" 
+             language "C++"
+             cppdialect "C++20"
+
+        externalproject "sndfile"
+             location "../Libs/libsndfile" 
+             kind "StaticLib" 
+             language "C++"
+             cppdialect "C++20"
     group ""

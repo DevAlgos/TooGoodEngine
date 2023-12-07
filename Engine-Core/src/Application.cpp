@@ -1,6 +1,7 @@
 
 #include <pch.h>
 #include <Application.h>
+#include <Audio/Audio.h>
 
 namespace
 {
@@ -19,10 +20,13 @@ namespace TGE
 
 
 
-	Application::Application(const TGE::UserApplication& App)
+	Application::Application(const UserApplication& App)
 		: Manager()
 	{
 		Utils::Logger::Init(Utils::Logger::Platform::Windows);
+		Audio::Init();
+		AudioID id = Audio::Load("../Resources/Audio/dream.wav");
+		Audio::Submit(id);
 
 		ApplicationClock = std::make_unique<Utils::Clock>();
 
@@ -31,7 +35,7 @@ namespace TGE
 
 		s_MainWindow.Init();
 
-		TGE::Renderer2D::Init();
+		Renderer2D::Init();
 
 		glEnable(GL_BLEND);
 		glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
@@ -61,7 +65,8 @@ namespace TGE
 
 	Application::~Application()
 	{
-		TGE::Renderer2D::ShutDown();
+		Audio::Shutdown();
+		Renderer2D::ShutDown();
 		Utils::Logger::ShutDown();
 
 	}
@@ -106,7 +111,7 @@ namespace TGE
 
 	}
 
-	TGE::Window& Application::GetMainWindow()
+	Window& Application::GetMainWindow()
 	{
 		return s_MainWindow;
 	}

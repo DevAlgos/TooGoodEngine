@@ -33,14 +33,15 @@ namespace TGE
 	{
 		TextureData TexData;
 		TexData.InternalFormat = TextureFormat::RGBA8;
+		TexData.Type = TextureType::Texture2D;
 		TexData.Width = FONTMAP_WIDTH;
 		TexData.Height = FONTMAP_HEIGHT;
 		TexData.TextureParamaters =
 		{
-			{GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE},
-			{GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE},
 			{GL_TEXTURE_MIN_FILTER, GL_NEAREST},
-			{GL_TEXTURE_MAG_FILTER, GL_NEAREST}
+			{GL_TEXTURE_MAG_FILTER, GL_NEAREST},
+			{GL_TEXTURE_WRAP_S,		GL_CLAMP_TO_BORDER},
+			{GL_TEXTURE_WRAP_T,		GL_CLAMP_TO_BORDER}
 		};
 
 		uint32_t* TextureBuffer = new uint32_t[FONTMAP_WIDTH * FONTMAP_HEIGHT];
@@ -92,7 +93,7 @@ namespace TGE
 					if (x < bitmap->width && y < bitmap->rows)
 						val = bitmap->buffer[x + y * bitmap->width];
 
-					Buffer[(PIXEL_PER_CHAR - 1 - y) + x * PIXEL_PER_CHAR] = ConvertToRGBA(val, val, val, 0xFF);
+					Buffer[(PIXEL_PER_CHAR - 1 - y) + x * PIXEL_PER_CHAR] = ConvertToRGBA(val, val, val, val);
 				}
 			}
 

@@ -12,8 +12,6 @@ namespace
 
 namespace TGE
 {
-	UIManager& Renderer2D::GetUIManager() { return RenderData.UIManager; }
-
 	void Renderer2D::Init()
 	{
 #pragma region InitTextures
@@ -64,11 +62,11 @@ namespace TGE
 		BufferData UIBufferData;
 		UIBufferData.data = nullptr;
 		UIBufferData.DrawType = GL_DYNAMIC_DRAW;
-		UIBufferData.VertexSize = RenderData.MaxUIComponents * sizeof(UIVertex);
+		UIBufferData.VertexSize = sizeof(UIVertex) * RenderData.MaxUIVertices;
 
 		RenderData.UIVbo = std::make_unique<BufferObject>(BufferType::VertexBuffer, UIBufferData);
 
-		RenderData.UIBuffer = new UIVertex[RenderData.MaxUIComponents];
+		RenderData.UIBuffer = new UIVertex[RenderData.MaxUIVertices];
 		RenderData.UIBufferIndex = RenderData.UIBuffer;
 
 		constexpr GLsizei UIStride = sizeof(UIVertex);

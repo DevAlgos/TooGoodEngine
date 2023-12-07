@@ -5,6 +5,8 @@ IncludeDir["ImGui"] = "../Libs/imgui"
 IncludeDir["glm"] = "../Libs/glm"
 IncludeDir["stb_image"] = "../Libs/STB"
 IncludeDir["freetype"] = "../Libs/freetype/include"
+IncludeDir["OpenAl"]="../Libs/openal-soft/include"
+IncludeDir["libsndfile"] = "../Libs/libsndfile/include"
 
 project "App"
    kind "ConsoleApp"
@@ -30,7 +32,9 @@ project "App"
       IncludeDir["ImGui"],
       IncludeDir["glm"],
       IncludeDir["stb_image"],
-      IncludeDir["freetype"]
+      IncludeDir["freetype"],
+      IncludeDir["OpenAl"],
+      IncludeDir["libsndfile"]
    }
 
    links
