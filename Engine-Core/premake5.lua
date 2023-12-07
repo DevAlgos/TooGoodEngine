@@ -9,6 +9,10 @@ IncludeDir["OpenAl"]="../Libs/openal-soft/include"
 IncludeDir["libsndfile"] = "../Libs/libsndfile/include"
 
 
+function runPreBuildCommands()
+    os.execute("cmake -B ../Libs/libsndfile -S ../Libs/libsndfile -DLIBTYPE=STATIC")
+    os.execute("cmake -B ../Libs/openal-soft -S ../Libs/openal-soft -DLIBTYPE=STATIC")
+end
 
 
 project "Engine-Core"
@@ -30,11 +34,7 @@ project "Engine-Core"
         "ext/**.cpp"
     }
 
-    prebuildcommands
-    {
-        "cmake ../Libs/libsndfile  -DLIBTYPE=STATIC",
-        "cmake ../Libs/openal-soft -DLIBTYPE=STATIC"
-    }
+    runPreBuildCommands()
 
     includedirs 
     {
@@ -54,7 +54,7 @@ project "Engine-Core"
     {
         "FreeType",
         "sndfile",
-        "OpenAL32",
+        "OpenAL",
         "winmm",
         "GLFW",
         "Glad",
@@ -98,16 +98,17 @@ project "Engine-Core"
         include "../Libs/glad"
         include "../Libs/imgui"
         include "../Libs/freetype"
-        
         externalproject "OpenAL"
-             location "../Libs/openal-soft" 
-             kind "StaticLib" 
-             language "C++"
-             cppdialect "C++20"
+            location "../Libs/openal-soft" 
+            uuid "BE2461B7-236F-4278-81D3-F0D476F9A4C0"
+            kind "StaticLib" 
+            language "C++"
+            cppdialect "C++20"
 
         externalproject "sndfile"
-             location "../Libs/libsndfile" 
-             kind "StaticLib" 
-             language "C++"
-             cppdialect "C++20"
+            location "../Libs/libsndfile" 
+            uuid "BE2461B7-236F-4278-81D3-F0D476F9A4CD"
+            kind "StaticLib" 
+            language "C++"
+            cppdialect "C++20"
     group ""
