@@ -22,6 +22,9 @@ namespace
 
 	TGE::UIManager manager;
 	uint32_t font;
+
+	TGE::AudioID id;
+	
 }
 
 namespace Test
@@ -61,6 +64,10 @@ namespace Utils
 	}
 	void EditorLayer::OnInit()
 	{
+		id = TGE::Audio::Load("../Resources/Audio/dream.wav");
+		TGE::Audio::Submit(id);
+
+
 		TGE::Renderer2D::LoadInFont("../Resources/fonts/Anonymous.ttf");
 		
 
@@ -135,6 +142,8 @@ namespace Utils
 		TGE::Renderer2D::ClearColor({ 0.4f, 0.2f, 0.8f });
 		TGE::Renderer2D::BeginScene(m_OrthoCam);
 
+		
+
 		if (InputManager::IsMouseButtonDown(RIGHT_MOUSE))
 		{
 			glm::vec4 ObjectColor = { Utils::GenFloat(0.0f, 1.0f), Utils::GenFloat(0.0f, 1.0f), Utils::GenFloat(0.0f, 1.0f), 1.0f};
@@ -146,19 +155,8 @@ namespace Utils
 			NumbOfEntites++;
 		}
 
-		if (InputManager::IsMouseButtonDown(LEFT_MOUSE))
-		{
-			TGE::Particle p;
-			p.Position = glm::vec3(m_OrthoCam.GetMousePressCoordinates(), 0.0);
-			p.xVelocity = Utils::GenFloat(-0.05f, 0.05f);
-			p.yVelocity = Utils::GenFloat(-0.05f, 0.05f);
-			p.DecaySpeed = 0.005f;
-			p.Color = { 0.5f, 0.4f, 0.2f };
-			p.EndColor = { 1.0f, 1.0f, 1.0f };
-			p.Rotation = Utils::GenFloat(0, 360.0f);
-			PScene->PushParticle(p);
 
-		}
+
 
 		for (float i = -10.0f; i < 10.0f; i++)
 		{

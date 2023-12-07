@@ -19,7 +19,6 @@ static void OpenGLDebugCallback(GLenum source, GLenum type, GLuint id, GLenum se
 		break;
 	case GL_DEBUG_SEVERITY_HIGH:
 		LOGERROR(message);
-		__debugbreak();
 		break;
 	default:
 		break;

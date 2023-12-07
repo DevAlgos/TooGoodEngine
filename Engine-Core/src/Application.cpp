@@ -25,9 +25,8 @@ namespace TGE
 	{
 		Utils::Logger::Init(Utils::Logger::Platform::Windows);
 		Audio::Init();
-		AudioID id = Audio::Load("../Resources/Audio/dream.wav");
-		Audio::Submit(id);
-
+		
+		
 		ApplicationClock = std::make_unique<Utils::Clock>();
 
 		s_MainWindow.Create((uint32_t)App.GetDetails().Width, (uint32_t)App.GetDetails().Height,
@@ -74,6 +73,9 @@ namespace TGE
 	void Application::Run()
 	{
 		ImVec4 clear_color = ImVec4(0.45f, 0.55f, 0.60f, 1.00f);
+		
+		
+		
 
 		while (!s_MainWindow.WindowClosed())
 		{
@@ -88,6 +90,7 @@ namespace TGE
 
 
 			Manager.UpdateLayers();
+			
 
 
 			ImGui::GetIO().DisplaySize = ImVec2((float)s_MainWindow.GetWidth(), (float)s_MainWindow.GetHeight());

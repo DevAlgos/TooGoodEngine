@@ -38,6 +38,7 @@
 #include <Physics/PhysicsScene.h>
 #include <Particles/ParticleScene.h>
 
+#include <Audio/Audio.h>
 
 #include <Utils/RandomNumbers.h>
 #include <Utils/Clock.h>
@@ -54,8 +55,6 @@
 #include <Utils/Camera.h>
 #include <Utils/Logger.h>
 #include <Window.h>
-
-#include <Audio/Audio.h>
 
 #include <Graphics/Shader.h>
 #include <Graphics/VertexArray.h>
