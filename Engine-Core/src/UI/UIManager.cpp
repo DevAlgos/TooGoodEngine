@@ -46,7 +46,7 @@ namespace TGE
 
 		uint32_t* TextureBuffer = new uint32_t[FONTMAP_WIDTH * FONTMAP_HEIGHT];
 		for (uint32_t i = 0; i < FONTMAP_WIDTH * FONTMAP_HEIGHT; i++)
-			TextureBuffer[i] = 0xFF000000;
+			TextureBuffer[i] = 0x000000;
 
 		m_Faces.emplace_back(TexData, TextureBuffer);
 		FT_Face& FontFace = m_Faces.back().FontFace;

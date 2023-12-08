@@ -10,10 +10,10 @@ namespace
 
 struct WavHeader
 {
-	char        ChunkID[4];
+	char        ChunkHandle[4];
 	uint32_t    ChunckSize;
 	char        Format[4];
-	char        SubChunk1ID[4];
+	char        SubChunk1Handle[4];
 	uint32_t    SubChunk1Size;
 	uint16_t    AudioFormat;
 	uint16_t    NumChannels;
@@ -21,7 +21,7 @@ struct WavHeader
 	uint32_t    ByteRate;
 	uint16_t    BlockAlign;
 	uint16_t    BitsPerSample;
-	char        SubChunk2ID[4];
+	char        SubChunk2Handle[4];
 	uint32_t    SubChunk2Size;
 };
 
@@ -36,8 +36,8 @@ std::vector<char> ReadWavFile(const std::string_view& FileLocation, WavHeader& H
 
 	file.read(reinterpret_cast<char*>(&Header), sizeof(WavHeader));
 
-	if (std::string(Header.ChunkID, 4) != "RIFF" || std::string(Header.Format, 4) != "WAVE" ||
-		std::string(Header.SubChunk1ID, 4) != "fmt " || Header.AudioFormat != 1) {
+	if (std::string(Header.ChunkHandle, 4) != "RIFF" || std::string(Header.Format, 4) != "WAVE" ||
+		std::string(Header.SubChunk1Handle, 4) != "fmt " || Header.AudioFormat != 1) {
 		LOG("Unsupported WAV format or not PCM.");
 		return {};
 	}
@@ -81,7 +81,7 @@ namespace TGE
 			alDeleteBuffers(1, &m_BufferList[i]);
 	}
 
-	AudioID AudioBuffers::Generate(const std::string_view& FileLocation)
+	AudioHandle AudioBuffers::Generate(const std::string_view& FileLocation)
 	{
 		void* membuf = nullptr;
 		sf_count_t num_frames;
@@ -119,7 +119,7 @@ namespace TGE
 		case SF_FORMAT_IMA_ADPCM:
 			/* ADPCM formats require setting a block alignment as specified in the
 			 * file, which needs to be read from the wave 'fmt ' chunk manually
-			 * since libsndfile doesn't provide it in a format-agnostic way.
+			 * since libsndfile doesn't provHandlee it in a format-agnostic way.
 			 */
 			if (sfinfo.channels <= 2 && (sfinfo.format & SF_FORMAT_TYPEMASK) == SF_FORMAT_WAV
 				&& alIsExtensionPresent("AL_EXT_IMA4")
@@ -156,7 +156,7 @@ namespace TGE
 				else
 				{
 					/* Read the nBlockAlign field, and convert from bytes- to
-					 * samples-per-block (verifying it's valid by converting back
+					 * samples-per-block (verifying it's valHandle by converting back
 					 * and comparing to the original value).
 					 */
 					byteblockalign = fmtbuf[12] | (fmtbuf[13] << 8);
@@ -283,7 +283,7 @@ namespace TGE
 		return buffer;
 	}
 
-	void AudioBuffers::Remove(AudioID Buffer)
+	void AudioBuffers::Remove(AudioHandle Buffer)
 	{
 		auto Iterator = std::find(m_BufferList.begin(), m_BufferList.end(), Buffer);
 		if (Iterator != m_BufferList.end())
@@ -301,9 +301,12 @@ namespace TGE
 	AudioSources::~AudioSources()
 	{
 		for (Source& src : m_Sources)
+		{
+			alSourcei(src.Handle, AL_BUFFER, 0);
 			alDeleteSources(1, &src.Handle);
+		}
 	}
-	uint32_t AudioSources::PushSource(const SourceData& source, const SourcePriority& Priority, AudioID BufferID)
+	Source AudioSources::PushSource(const SourceData& source, const SourcePriority& Priority, AudioHandle BufferHandle)
 	{
 		Source TempSource;
 
@@ -320,14 +323,11 @@ namespace TGE
 		
 		TempSource.Data = source;
 		TempSource.Priority = Priority;
-		TempSource.BufferID = BufferID;
+		TempSource.BufferHandle = BufferHandle;
 
 		m_Sources.push_back(TempSource);
 
-		uint32_t Temp = m_SourceCount;
-		m_SourceCount++;
-
-		return Temp;
+		return TempSource;
 	}
 	void AudioSources::RemoveSource(uint32_t Index)
 	{
@@ -353,23 +353,15 @@ namespace TGE
 		m_Sources[Index].Priority = Priority;
 	}
 
-	void AudioSources::PlaySource(uint32_t SourceIndex)
+	void AudioSources::NullAllSources()
 	{
-		if (SourceIndex >= m_Sources.size())
-			return;
-
-		alSourcei(m_Sources[SourceIndex].Handle, AL_BUFFER, m_Sources[SourceIndex].BufferID);
-		alSourcePlay(m_Sources[SourceIndex].Handle);
-
-		//ALenum Playing = AL_PLAYING;
-
-		//while (Playing == AL_PLAYING && s_AudioData.GlobalState == GlobalAudioState::Playing)
-		//{
-		//	alGetSourcei(m_Sources[SourceIndex].Handle, AL_SOURCE_STATE, &Playing);
-		//}
+		for (size_t i = 0; i < m_Sources.size(); i++)
+		{
+			alSourceStop(m_Sources[i].Handle);
+			alSourcei(m_Sources[i].Handle, AL_BUFFER, 0);
+		}
 	}
 #pragma endregion Audio Sources
-
 
 #pragma region Main Audio 
 	void Audio::Init()
@@ -403,30 +395,124 @@ namespace TGE
 				if (!name || alcGetError(s_AudioData.CurrentDevice) != AL_NO_ERROR)
 					name = alcGetString(s_AudioData.CurrentDevice, ALC_DEVICE_SPECIFIER);
 				
-				
-
-				std::string msg = "Opened " + std::string(name);
-				LOG(msg);
+				LOG(std::string(name));
 				
 			} });
 	}
-	AudioID Audio::Load(const std::string_view& AudioLocation)
+	AudioHandle Audio::Load(const std::string_view& AudioLocation)
 	{	
 		return s_AudioData.Buffers.Generate(AudioLocation);
 	}
-	void Audio::Submit(AudioID ID)
+	Source Audio::GenerateSource(const SourceData& data, AudioHandle BufferHandle)
 	{
-		s_AudioData.GlobalState = GlobalAudioState::Playing;
-
-		SourceData Data;
-		Data.Pitch = 0.8f;
-
-		uint32_t SourceID =  s_AudioData.Sources.PushSource(Data, SourcePriority::Ambient, ID);
-
-		s_AudioData.AudioQueue->Attach({ [SourceID]()
+		return s_AudioData.Sources.PushSource(data, SourcePriority::Ambient, BufferHandle);
+	}
+	void Audio::Submit(const Source& src)
+	{
+		s_AudioData.AudioQueue->Attach({ [src]()
 			{
-				s_AudioData.Sources.PlaySource(SourceID);
+				alSourcei(src.Handle, AL_BUFFER, src.BufferHandle);
+				alSourcePlay(src.Handle);
 			} });
+	}
+	void Audio::SubmitV(const std::vector<Source>& Sources)
+	{
+		s_AudioData.AudioQueue->Attach({ [Sources] 
+			{
+				std::vector<ALuint> Handles;
+				for (size_t i = 0; i < Sources.size(); i++)
+				{
+					alSourcei(Sources[i].Handle, AL_BUFFER, Sources[i].BufferHandle);
+					Handles.push_back(Sources[i].Handle);
+				}
+
+				alSourcePlayv(Handles.size(), Handles.data());
+			} });
+	}
+
+	void Audio::Play(const Source& src)
+	{
+		s_AudioData.AudioQueue->Attach({ [src]()
+			{
+				alSourcePlay(src.Handle);
+			} });
+	}
+	void Audio::PlayV(const std::vector<Source>& Sources)
+	{
+	}
+
+	void Audio::PauseSource(const Source& src)
+	{
+		s_AudioData.AudioQueue->Attach({ [src]() 
+		{
+				alSourcePause(src.Handle);
+		} });
+	}
+	void Audio::PauseSourceV(const std::vector<Source>& Sources)
+	{
+		s_AudioData.AudioQueue->Attach({ [Sources]()
+		{
+				std::vector<ALuint> SourceHandle;
+				for (size_t i = 0; i < Sources.size(); i++)
+					SourceHandle.push_back(Sources[i].Handle);
+
+				alSourcePausev(SourceHandle.size(), SourceHandle.data());
+		} });
+	}
+
+	void Audio::StopSource(const Source& src)
+	{
+		s_AudioData.AudioQueue->Attach({ [src]()
+		{
+				alSourcei(src.Handle, AL_BUFFER, 0);
+				alSourceStop(src.Handle);
+		} });
+	}
+	void Audio::StopSourceV(const std::vector<Source>& Sources)
+	{
+		s_AudioData.AudioQueue->Attach({ [Sources]()
+		{
+				std::vector<ALuint> SourceHandle;
+				for (const Source& Src : Sources)
+				{
+					alSourcei(Src.Handle, AL_BUFFER, 0);
+					SourceHandle.push_back(Src.Handle);
+				}
+
+				alSourceStopv(SourceHandle.size(), SourceHandle.data());
+		} });
+	}
+
+	void Audio::EditSource(const Source& src)
+	{
+		s_AudioData.AudioQueue->Attach({ [src]()
+		{
+			alSourcef(src.Handle, AL_PITCH, src.Data.Pitch);
+			alSourcef(src.Handle, AL_GAIN, src.Data.Gain);
+			alSource3f(src.Handle, AL_POSITION, src.Data.Position.x, src.Data.Position.y, src.Data.Position.z);
+			alSource3f(src.Handle, AL_VELOCITY, src.Data.Velocity.x, src.Data.Velocity.y, src.Data.Velocity.z);
+
+			ALenum Loop = src.Data.Looping == true ? AL_TRUE : AL_FALSE;
+
+			alSourcei(src.Handle, AL_LOOPING, Loop);
+		} });
+	}
+	void Audio::EditSourceV(const std::vector<Source>& Sources)
+	{
+		s_AudioData.AudioQueue->Attach({ [Sources]()
+		{
+			for(size_t i = 0; i < Sources.size(); i++)
+			{
+				alSourcef(Sources[i].Handle, AL_PITCH, Sources[i].Data.Pitch);
+				alSourcef(Sources[i].Handle, AL_GAIN, Sources[i].Data.Gain);
+				alSource3f(Sources[i].Handle, AL_POSITION, Sources[i].Data.Position.x, Sources[i].Data.Position.y, Sources[i].Data.Position.z);
+				alSource3f(Sources[i].Handle, AL_VELOCITY, Sources[i].Data.Velocity.x, Sources[i].Data.Velocity.y, Sources[i].Data.Velocity.z);
+
+				ALenum Loop = Sources[i].Data.Looping == true ? AL_TRUE : AL_FALSE;
+
+				alSourcei(Sources[i].Handle, AL_LOOPING, Loop);
+			}
+		} });
 	}
 
 	void Audio::Shutdown()
@@ -435,6 +521,11 @@ namespace TGE
 
 		s_AudioData.AudioQueue->Attach({ []()
 			{
+				s_AudioData.Sources.NullAllSources();
+				s_AudioData.Sources.~AudioSources();
+				s_AudioData.Buffers.~AudioBuffers();
+
+
 				alcMakeContextCurrent(nullptr);
 				alcDestroyContext(s_AudioData.Context);
 				alcCloseDevice(s_AudioData.CurrentDevice);
@@ -444,8 +535,7 @@ namespace TGE
 		s_AudioData.AudioQueue->Wait();
 		s_AudioData.AudioQueue.release();
 
-		s_AudioData.Buffers.~AudioBuffers();
-		s_AudioData.Sources.~AudioSources();
+		
 	}
 #pragma endregion Main Audio 
 	

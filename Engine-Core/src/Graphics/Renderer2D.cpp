@@ -80,7 +80,7 @@ namespace TGE
 		RenderData.UIVao->AttribPointer(6, 4, GL_FLOAT, GL_FALSE, UIStride, (void*)(offsetof(UIVertex, UIVertex::ModelMatrix) + (sizeof(GLfloat) * 8))); // col 2
 		RenderData.UIVao->AttribPointer(7, 4, GL_FLOAT, GL_FALSE, UIStride, (void*)(offsetof(UIVertex, UIVertex::ModelMatrix) + (sizeof(GLfloat) * 12))); // col 3
 
-		RenderData.TestFont = RenderData.UIManager.LoadFont("../Resources/fonts/Anonymous.ttf");
+		RenderData.TestFont = RenderData.UIManager.LoadFont("../Resources/fonts/The Smile.otf");
 
 #pragma endregion InitUI
 

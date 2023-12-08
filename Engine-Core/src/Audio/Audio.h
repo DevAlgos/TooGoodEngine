@@ -7,9 +7,8 @@
 namespace TGE
 {
 
-	using AudioID = ALuint;
+	using AudioHandle = ALuint;
 
-	//TODO removing Playing state
 	enum class GlobalAudioState {On = 0, Playing, Off};
 
 	enum class SourcePriority
@@ -41,7 +40,7 @@ namespace TGE
 		SourceData Data;
 		SourcePriority Priority;
 		SourceState State = SourceState::NotPlaying;
-		ALuint BufferID;
+		ALuint BufferHandle;
 		bool Condition = false;
 	};
 
@@ -51,27 +50,25 @@ namespace TGE
 		AudioBuffers();
 		~AudioBuffers();
 		
-		AudioID Generate(const std::string_view& FileLocation);
-		void	Remove(AudioID Buffer);
+		AudioHandle Generate(const std::string_view& FileLocation);
+		void	Remove(AudioHandle Buffer);
 
 	private:
-		std::vector<AudioID> m_BufferList;
+		std::vector<AudioHandle> m_BufferList;
 	};
 
-	//TODO: change return of push source to be the ID of the source itself
 	class AudioSources
 	{
 	public:
 		AudioSources();
 		~AudioSources();
 
-		uint32_t PushSource(const SourceData& source, const SourcePriority& Priority, ALuint BufferID);
+		Source PushSource(const SourceData& source, const SourcePriority& Priority, ALuint BufferHandle);
 
 		void	 RemoveSource(uint32_t Index);
 		void	 EditSource(uint32_t Index, const SourceData& source);
 		void	 EditSource(uint32_t Index, const SourceData& source, const SourcePriority& Priority);
-
-		void PlaySource(uint32_t SourceIndex);
+		void	 NullAllSources();
 
 	private:
 		std::vector<Source> m_Sources;
@@ -84,8 +81,6 @@ namespace TGE
 
 		AudioSources Sources;
 		AudioBuffers Buffers;
-
-		std::vector<AudioID> AudioBuffers;
 
 		GlobalAudioState GlobalState = GlobalAudioState::On;
 		
@@ -100,8 +95,24 @@ namespace TGE
 		~Audio() = delete;
 
 		static void		Init();
-		static AudioID  Load(const std::string_view& AudioLocation);
-		static void		Submit(AudioID ID);
+		static AudioHandle  Load(const std::string_view& AudioLocation);
+		static Source	GenerateSource(const SourceData& data, AudioHandle BufferHandle);
+
+		static void		Submit(const Source& src);
+		static void		SubmitV(const std::vector<Source>& Sources);
+
+		static void		Play(const Source& src);
+		static void		PlayV(const std::vector<Source>& Sources);
+
+		static void		PauseSource(const Source& src);
+		static void		PauseSourceV(const std::vector<Source>& Sources);
+
+		static void		StopSource(const Source& src);
+		static void		StopSourceV(const std::vector<Source>& Sources);
+
+		static void		EditSource(const Source& src);
+		static void		EditSourceV(const std::vector<Source>& Sources);
+
 		static void		Shutdown();
 
 	};

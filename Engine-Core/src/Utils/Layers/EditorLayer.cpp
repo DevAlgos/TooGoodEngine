@@ -23,8 +23,10 @@ namespace
 	TGE::UIManager manager;
 	uint32_t font;
 
-	TGE::AudioID id;
+	TGE::AudioHandle id;
+	TGE::AudioHandle id2;
 	
+	int count = 0;
 }
 
 namespace Test
@@ -65,10 +67,11 @@ namespace Utils
 	void EditorLayer::OnInit()
 	{
 		id = TGE::Audio::Load("../Resources/Audio/dream.wav");
-		TGE::Audio::Submit(id);
+		id2 = TGE::Audio::Load("../Resources/Audio/dream1.wav");
+		
 
 
-		TGE::Renderer2D::LoadInFont("../Resources/fonts/Anonymous.ttf");
+		TGE::Renderer2D::LoadInFont("../Resources/fonts/The Smile.otf");
 		
 
 		TGE::TextureData data;
@@ -155,6 +158,24 @@ namespace Utils
 			NumbOfEntites++;
 		}
 
+		if (InputManager::IsMouseButtonDown(LEFT_MOUSE))
+		{
+			while (count < 1)
+			{
+				TGE::SourceData srcData;
+				srcData.Pitch = 0.7;
+
+				TGE::Source Source = TGE::Audio::GenerateSource(srcData, id);
+				TGE::Source SecondSource = TGE::Audio::GenerateSource(srcData, id2);
+
+				std::vector<TGE::Source> Sources = { Source, SecondSource };
+
+				TGE::Audio::SubmitV(Sources );
+				count += 1;
+			}	
+			
+
+		}
 
 
 
