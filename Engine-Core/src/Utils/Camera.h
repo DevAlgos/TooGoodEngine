@@ -41,11 +41,17 @@ public:
 	inline glm::mat4 GetProjection() { return m_Proj; }
 	inline glm::mat4 GetView() { return m_View; }
 
+	inline glm::mat4 GetInverseProjection() { return m_InverseProjection; }
+	inline glm::mat4 GetInverseView() { return m_InverseView; }
+
 
 private:
 	OrthoCameraData m_CameraData;
 
 	glm::mat4 m_Proj;
 	glm::mat4 m_View;
+
+	glm::mat4 m_InverseProjection;
+	glm::mat4 m_InverseView;
 
 };

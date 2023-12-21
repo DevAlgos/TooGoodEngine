@@ -25,6 +25,7 @@ namespace TGE
 		switch (m_TextureData.Type)
 		{
 		case TGE::TextureType::Texture2D:
+			m_TextureType = GL_TEXTURE_2D;
 			CreateTexture(GL_TEXTURE_2D, FileLocation);
 			break;
 		default:
@@ -52,6 +53,7 @@ namespace TGE
 		switch (m_TextureData.Type)
 		{
 		case TGE::TextureType::Texture2D:
+			m_TextureType = GL_TEXTURE_2D;
 			CreateTexture(GL_TEXTURE_2D, Data);
 			break;
 		default:

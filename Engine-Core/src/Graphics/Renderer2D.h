@@ -95,16 +95,7 @@ namespace TGE
 #pragma endregion Slots
 	};
 
-
-	struct RaytracingData
-	{
-		int ImageWidth;
-		int ImageHeight;
-
-
-		std::shared_ptr<Texture> RenderImage;
-	};
-
+#pragma region Primary 2D Renderer
 	class Renderer2D
 	{
 	public:
@@ -148,15 +139,62 @@ namespace TGE
 		static void FlushScene();
 	};
 
+#pragma endregion Primary 2D Renderer
+
+#pragma region Secondary 2D Raytracing Renderer
+
+	struct Circle
+	{
+		glm::vec4 Position;
+		glm::vec4 DiffuseColor;
+		glm::vec4 Radius;
+	};
+
+	
+	struct RaytracingData
+	{
+		//Default size
+		int ImageWidth = 1920;
+		int ImageHeight = 1080;
+		std::vector<int> Widths;
+		std::vector<int> Heights;
+
+		std::vector<Circle> CircleData;
+
+		std::unique_ptr<Shader> ComputeShaders;
+		std::unique_ptr<Shader> Shaders;
+
+		std::shared_ptr<Texture> RenderImage;
+
+		std::unique_ptr<BufferObject> VertexBuffer;
+		std::unique_ptr<BufferObject> IndexBuffer;
+		std::unique_ptr<BufferObject> ShaderStorage;
+
+		uint32_t* Data = nullptr;
+		OrthoGraphicCamera Camera;
+	};
 
 	class Raytracing2D
 	{
 	public:
 		Raytracing2D() = delete;
-		~Raytracing2D() = default;
+		~Raytracing2D() = delete;
 
 		static void Init();
 
+		/*Just used for testing performance of different algorithms will remove when finished*/
+		static void Test();
+
+		static void PushCircle(const glm::vec3& Position, float Radius, float Rotation, const glm::vec4& color);
+
+		static void Trace();
+
+		static void Shutdown();
+
+		static std::shared_ptr<Texture> GetRenderImage();
+
 	};
+
+#pragma endregion Secondary 2D Raytracing Renderer
 
 }		

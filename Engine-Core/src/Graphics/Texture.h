@@ -7,7 +7,7 @@
 namespace TGE {
 
 	enum class TextureType 
-	{   // Will add more when needed, however Texture2D is all thats required for now
+	{   // Will add more when needed
 		Texture2D = 0, 
 		Texture2DMultisample
 	};
@@ -56,7 +56,7 @@ namespace TGE {
 		void SetData(const std::string_view& NewImageLocation);
 
 		inline void Bind(int Unit) { glBindTextureUnit(Unit, m_Texture); }
-		inline void BindImage(int Unit) { glBindImageTexture(Unit, m_Texture, m_TextureData.MipmapLevels, GL_FALSE, 0, GL_WRITE_ONLY, GL_RGBA); };
+		inline void BindImage(int Unit) { glBindImageTexture(Unit, m_Texture, m_TextureData.MipmapLevels, GL_FALSE, 0, GL_WRITE_ONLY, m_InternalFormat); };
 		inline const uint32_t Get() const { return m_Texture; }
 
 	private:

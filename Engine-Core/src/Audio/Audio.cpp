@@ -439,6 +439,14 @@ namespace TGE
 	}
 	void Audio::PlayV(const std::vector<Source>& Sources)
 	{
+		s_AudioData.AudioQueue->Attach({ [Sources]()
+		{
+				std::vector<ALuint> SourceHandle;
+				for (size_t i = 0; i < Sources.size(); i++)
+					SourceHandle.push_back(Sources[i].Handle);
+
+				alSourcePlayv(SourceHandle.size(), SourceHandle.data());
+		} });
 	}
 
 	void Audio::PauseSource(const Source& src)

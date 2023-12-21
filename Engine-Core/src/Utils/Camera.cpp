@@ -42,6 +42,8 @@ void OrthoGraphicCamera::SetCam(const OrthoCameraData& CameraData)
 
 	m_Proj = glm::ortho(-m_CameraData.AspectRatio * m_CameraData.ZoomLevel, 
 		m_CameraData.AspectRatio * m_CameraData.ZoomLevel, -m_CameraData.ZoomLevel, m_CameraData.ZoomLevel, -1.0f, 1.0f);
+	
+	m_InverseProjection = glm::inverse(m_Proj);
 }
 
 void OrthoGraphicCamera::Update(float dt)
@@ -89,6 +91,9 @@ void OrthoGraphicCamera::Update(float dt)
 
 	m_View = glm::lookAt(m_CameraData.Position, m_CameraData.Position + m_CameraData.Front, m_CameraData.Up);
 	m_Proj = glm::ortho(-m_CameraData.AspectRatio * m_CameraData.ZoomLevel, m_CameraData.AspectRatio * m_CameraData.ZoomLevel, -m_CameraData.ZoomLevel, m_CameraData.ZoomLevel, -1.0f, 1.0f);
+
+	m_InverseView =		  glm::inverse(m_View);
+	m_InverseProjection = glm::inverse(m_Proj);
 }
 
 glm::vec2 OrthoGraphicCamera::GetMousePressCoordinates()
@@ -100,10 +105,7 @@ glm::vec2 OrthoGraphicCamera::GetMousePressCoordinates()
 		((float)mouseX * 2.0f / TGE::Application::GetMainWindow().GetWidth())  - 1.0f,
 		1.0f - ((float)mouseY * 2.0f / TGE::Application::GetMainWindow().GetHeight()), 0.0f, 1.0f);
 
-	glm::mat4 ViewInverse = glm::inverse(m_View);
-	glm::mat4 ProjInverse = glm::inverse(m_Proj);
-
-	glm::vec4 Coords = ViewInverse * ProjInverse * VecCoords;
+	glm::vec4 Coords = m_InverseView * m_InverseProjection * VecCoords;
 
 	return Coords;
 }

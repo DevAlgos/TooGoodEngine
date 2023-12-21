@@ -8,6 +8,150 @@ namespace
 {
 	static TGE::RendererData2D RenderData;
 	static TGE::RaytracingData s_RaytracingData;
+
+	static glm::vec3 TestOrigin(0.0f);
+
+
+	uint32_t RGBAtoARGB(const glm::vec4& Color)
+	{
+		uint8_t r = static_cast<uint8_t>(Color.r * 255.0f);
+		uint8_t g = static_cast<uint8_t>(Color.g * 255.0f);
+		uint8_t b = static_cast<uint8_t>(Color.b * 255.0f);
+		uint8_t a = static_cast<uint8_t>(Color.a * 255.0f);
+
+		return static_cast<uint32_t>((a << 24) | (b << 16) | (g << 8) | r);
+	}
+}
+
+/*Trying to mimic vulkan raytracing pipeline*/
+
+namespace RaytracingPipeline
+{
+	struct RayPayload
+	{
+		glm::vec3 Direction;
+		glm::vec3 Origin;
+
+		glm::vec3 Normal;
+		glm::vec3 IntersectionPoint;
+
+		float ClosestTarget = std::numeric_limits<float>::max();
+		size_t ClosestCircleIndex = 0;
+	};
+
+	struct OrthoGraphicRayCamera
+	{
+		glm::vec2 Origin;
+		float     ZoomLevel;
+	};
+	
+	static OrthoGraphicRayCamera s_Camera{ {0.0f, 0.0f}, 1.0f };
+
+	uint32_t Miss()
+	{
+		return 0xFF000000;
+	}
+
+	uint32_t Hit(RayPayload& payload, size_t CircleIndex, const glm::vec3& AccumulatedColor)
+	{
+		glm::vec3 LightDirection = { -1.0f, -1.0f, 1.0f};
+		float DiffuseIntensity = glm::max(glm::dot(payload.Normal, -LightDirection), 0.004f);
+		DiffuseIntensity *= 0.5f;
+		glm::vec3 Diffuse = AccumulatedColor * DiffuseIntensity;
+
+		Diffuse = glm::clamp(Diffuse, { 0.0f, 0.0f, 0.0f }, { 1.0f, 1.0f, 1.0f });
+
+		return RGBAtoARGB(glm::vec4(Diffuse, 1.0f));
+	}
+
+	bool TraceCircleRay(RayPayload& Payload, glm::vec3& AccumulatedColor)
+	{
+		bool Hit = false;
+
+		float a = glm::dot(Payload.Direction, Payload.Direction);
+
+		for (size_t i = 0; i < s_RaytracingData.CircleData.size(); i++)
+		{
+			glm::vec3 CircleCenter = s_RaytracingData.CircleData[i].Position;
+			glm::vec3 OriginToCenter = Payload.Origin - CircleCenter;
+
+			float b = 2.0f * glm::dot(OriginToCenter, Payload.Direction);
+			float c = glm::dot(OriginToCenter, OriginToCenter) - s_RaytracingData.CircleData[i].Radius.x * s_RaytracingData.CircleData[i].Radius.x;
+
+			float discriminant = b * b - 4 * a * c;
+
+			if (discriminant >= 0)
+			{
+				float t1 = (-b + sqrt(discriminant)) / (2.0f * a);
+
+				if (Payload.ClosestTarget >= t1)
+				{
+					Payload.ClosestTarget = t1;
+					Payload.ClosestCircleIndex = i;
+					Hit = true;
+					AccumulatedColor += glm::vec3(s_RaytracingData.CircleData[i].DiffuseColor);
+					AccumulatedColor = glm::max(AccumulatedColor, { 1.0f, 1.0f, 1.0f });
+				}
+
+			}
+		}
+
+		return Hit;
+	}
+
+	void GenerateRay(const glm::ivec2& Coordinate, const glm::vec3& Origin, float AspectRatio)
+	{
+		RayPayload Payload;
+		Payload.Origin = Origin;
+		Payload.Direction = { static_cast<float>(Coordinate.x) / static_cast<float>(s_RaytracingData.ImageWidth),
+							  static_cast<float>(Coordinate.y) / static_cast<float>(s_RaytracingData.ImageHeight) , -1.0f };
+
+		Payload.Direction = Payload.Direction * 2.0f - 1.0f;
+
+		Payload.Origin *= AspectRatio;
+
+		bool HitOnce = false;
+
+		glm::vec3 AccumulatedColor(0.0f);
+		
+		for (size_t bounce = 0; bounce < 3; bounce++)
+		{
+			bool RayHit = TraceCircleRay(Payload, AccumulatedColor);
+
+			if (RayHit)
+			{
+				Payload.IntersectionPoint = Payload.Origin + Payload.ClosestTarget * Payload.Direction;
+				Payload.Normal = Payload.IntersectionPoint - glm::vec3(s_RaytracingData.CircleData[Payload.ClosestCircleIndex].Position);
+
+				Payload.Origin = Payload.IntersectionPoint + Payload.Normal * 0.0001f;
+				Payload.Direction = glm::reflect(Payload.Direction, Payload.Normal);
+				HitOnce = true;
+			}
+			else
+			{
+				break;
+			}
+		}
+
+		if(HitOnce)
+			s_RaytracingData.Data[Coordinate.x + Coordinate.y * s_RaytracingData.ImageWidth] 
+			= RaytracingPipeline::Hit(Payload, Payload.ClosestCircleIndex, AccumulatedColor);
+		else
+			s_RaytracingData.Data[Coordinate.x + Coordinate.y * s_RaytracingData.ImageWidth] = 0xFF000000;
+	}
+
+	void RayGen()
+	{
+		static float AspectRatio = s_RaytracingData.ImageWidth / s_RaytracingData.ImageHeight;
+
+		std::for_each(std::execution::par, s_RaytracingData.Widths.begin(), s_RaytracingData.Widths.end(), [](int x)
+			{
+				std::for_each(std::execution::par, s_RaytracingData.Heights.begin(), s_RaytracingData.Heights.end(), [x](int y)
+				{
+						GenerateRay({ x,y }, { s_Camera.Origin, s_Camera.ZoomLevel},  AspectRatio);
+				});
+		});
+	}
 }
 
 namespace TGE
@@ -313,7 +457,7 @@ namespace TGE
 
 		float TextureIndex = -1.0f;
 
-		for (int i = 1; i < (int)RenderData.UITextureCount; i++)
+		for (int i = 0; i < (int)RenderData.UITextureCount; i++)
 		{
 			if (RenderData.UITextureSlots[i] == TextureUnit)
 			{
@@ -816,5 +960,275 @@ namespace TGE
 
 	void Raytracing2D::Init()
 	{
+		OrthoCameraData CameraData{};
+		CameraData.Position = glm::vec3(0.0f, 0.0f, 0.0f);
+		CameraData.Front = glm::vec3(0.0f, 0.0f, -1.0f);
+		CameraData.Up = glm::vec3(0.0f, 1.0f, 0.0f);
+
+		CameraData.AspectRatio = (float)TGE::Application::GetMainWindow().GetWidth() /
+			(float)TGE::Application::GetMainWindow().GetHeight();
+
+		CameraData.ZoomLevel = 1.0f;
+		CameraData.CameraSpeed = 1.0f;
+
+		s_RaytracingData.Camera.SetCam(CameraData);
+
+		TextureData ImageData;
+		ImageData.Width  =         s_RaytracingData.ImageWidth;
+		ImageData.Height =         s_RaytracingData.ImageHeight;
+		ImageData.Type   =		   TextureType::Texture2D;
+		ImageData.InternalFormat = TextureFormat::RGBA8;
+		ImageData.TextureParamaters =
+		{
+			{GL_TEXTURE_MIN_FILTER, GL_NEAREST},
+			{GL_TEXTURE_MAG_FILTER, GL_NEAREST},
+			{GL_TEXTURE_WRAP_S,		GL_CLAMP_TO_EDGE},
+			{GL_TEXTURE_WRAP_T,		GL_CLAMP_TO_EDGE}	
+		};
+
+		s_RaytracingData.Data = new uint32_t[s_RaytracingData.ImageWidth * s_RaytracingData.ImageHeight];
+		for (size_t i = 0; i < s_RaytracingData.ImageWidth * s_RaytracingData.ImageHeight; i++)
+			s_RaytracingData.Data[i] = 0xFF000000;
+		
+		s_RaytracingData.RenderImage = std::make_shared<Texture>(s_RaytracingData.Data, ImageData);
+
+		BufferData ShaderStorageData{};
+		ShaderStorageData.data = nullptr;
+		ShaderStorageData.DrawType = GL_DYNAMIC_DRAW;
+		ShaderStorageData.VertexSize = sizeof(Circle) * 100;
+
+		s_RaytracingData.ShaderStorage = std::make_unique<BufferObject>(BufferType::ShaderStorageBuffer, ShaderStorageData);
+		s_RaytracingData.ShaderStorage->BindBase(1);
+
+		std::map<GLenum, std::string_view> ComputeShaderLocation =
+		{ {GL_COMPUTE_SHADER, "../Resources/Shaders/Defaults/RayTracing/RayTracing.glsl"} };
+
+		s_RaytracingData.ComputeShaders = std::make_unique<Shader>(ComputeShaderLocation);
+
+
+		for (int i = 0; i < s_RaytracingData.ImageWidth; i++)
+			s_RaytracingData.Widths.push_back(i);
+
+		for (int i = 0; i < s_RaytracingData.ImageHeight; i++)
+			s_RaytracingData.Heights.push_back(i);
+
+		/* Triangles will come in later as they are a bit more complicated 
+		*  For now a basice pipeline will be established that is fast and efficient
+		*  Then triangles will be added in later
+		*/
+#ifdef TRIANGLE
+		
+		/* ----Triangle---- */
+		glm::vec3 Point1 = { 0.8f, 0.8f, 0.0f };
+		glm::vec3 Point2 = { 0.8f, 0.1f, 0.0f };
+		glm::vec3 Point3 = { 0.1f, 0.8f, 0.0f };
+
+		glm::vec3 Edge0 = Point2 - Point1;
+		glm::vec3 Edge1 = Point3 - Point2;
+		glm::vec3 Edge2 = Point1 - Point3;
+		glm::vec3 Normal = glm::cross(Edge1, Edge2);
+		Normal = glm::normalize(Normal);
+
+		glm::vec3 RayDirection = { 0.0f, 0.0f, -1.0f };
+
+		for (size_t x = 0; x < s_RaytracingData.ImageWidth; x++)
+		{
+			for (size_t y = 0; y < s_RaytracingData.ImageHeight; y++)
+			{
+				//cast out rays from each pixel of camera, normalize these coordiantes in a range from -1.0 to 1.0
+				glm::vec3 RayOrigin = {
+				(2.0f * static_cast<float>(x) / s_RaytracingData.ImageWidth) - 1.0f,
+					1.0f - (2.0f * static_cast<float>(y) / s_RaytracingData.ImageHeight), 0.0f
+				};
+
+
+				/*check to see if ray is parralel to triangle(per vectors have dot product of 0)*/
+				float NdotRayDirection = glm::dot(Normal,RayDirection);
+				if (fabs(NdotRayDirection) <= 0.0f) // almost 0
+					continue;
+
+				//Here we are calculating the distance of the triangles point from the plane
+				float d = -glm::dot(Normal, Point1);
+
+				//here we calculate the distance along the ray to the point from the ray origin
+				float t = -(glm::dot(Normal, RayOrigin) + d) / NdotRayDirection;
+
+				//check to see if triangle is behind ray
+				if (t < 0)
+					continue;
+
+				//calculate intersection point along the plane(equation for line: Origin + Distance * Direction)
+				glm::vec3 IntersectionPoint = RayOrigin + t * RayDirection;
+
+				glm::vec3 C{};
+
+				/*Inside out test*/
+
+				//compute if it on left side of VP0
+				glm::vec3 vp0 = IntersectionPoint - Point1;
+				C = glm::cross(Edge0, vp0);
+				if (glm::dot(Normal,C) < 0) 
+					continue; // P is on the right side
+
+				
+				//compute if it on left side of VP1
+				glm::vec3 vp1 = IntersectionPoint - Point2;
+				C = glm::cross(Edge1, vp1);
+				if (glm::dot(Normal,C) < 0)  
+					continue; // P is on the right side
+
+
+				//compute if it on left side of VP2
+				glm::vec3 vp2 = IntersectionPoint - Point3;
+				C = glm::cross(Edge2, vp2);
+				if (glm::dot(Normal,C) < 0) 
+					continue; // P is on the right side;
+
+				float DistanceFromO = glm::distance(IntersectionPoint, RayOrigin);
+				s_RaytracingData.Data[x + y * s_RaytracingData.ImageWidth] = 0xFFFFFF00 - (0xFF0F0FF0 * static_cast<uint32_t>(DistanceFromO));
+
+			}
+		}
+
+
+#endif
+
+
+	}
+	void Raytracing2D::Test()
+	{
+		static glm::vec3 Point1 = { 0.8f, 0.8f, 0.0f };
+		static glm::vec3 Point2 = { 0.8f, 0.1f, 0.0f };
+		static glm::vec3 Point3 = { 0.1f, 0.8f, 0.0f };
+
+		static glm::vec3 Edge0 = Point2 - Point1;
+		static glm::vec3 Edge1 = Point3 - Point2;
+		static glm::vec3 Edge2 = Point1 - Point3;
+		static glm::vec3 Normal = glm::cross(Edge1, Edge2);
+		Normal = glm::normalize(Normal);
+
+		static glm::vec3 RayDirection = { 0.0f, 0.0f, -1.0f };
+
+		/*check to see if ray is parralel to triangle(per vectors have dot product of 0)*/
+		static float NdotRayDirection = glm::dot(Normal, RayDirection);
+
+		//Here we are calculating the distance of the triangles point from the plane
+		static float d = -glm::dot(Normal, Point1);
+		
+		std::for_each(std::execution::par, s_RaytracingData.Widths.begin(), s_RaytracingData.Widths.end(), [](int x) 
+			{
+				std::for_each(std::execution::par, s_RaytracingData.Heights.begin(), s_RaytracingData.Heights.end(), [x](int y) 
+					{
+						
+						//cast out rays from each pixel of camera, normalize these coordiantes in a range from -1.0 to 1.0
+						glm::vec3 RayOrigin = {
+						(2.0f * static_cast<float>(x) / s_RaytracingData.ImageWidth) - 1.0f,
+							1.0f - (2.0f * static_cast<float>(y) / s_RaytracingData.ImageHeight), 0.0f
+						};
+
+						//here we calculate the distance along the ray to the point from the ray origin
+						float t = -(glm::dot(Normal, RayOrigin) + d) / NdotRayDirection;
+
+						//check to see if triangle is behind ray
+						if (t < 0)
+							return;
+
+						//calculate intersection point along the plane(equation for line: Origin + Distance * Direction)
+						glm::vec3 IntersectionPoint = RayOrigin + t * RayDirection;
+
+						glm::vec3 C{};
+
+						glm::vec3 vp0 = IntersectionPoint - Point1;
+						C = glm::cross(Edge0, vp0);
+						if (glm::dot(Normal, C) < 0)
+							return; // P is on the right side
+
+
+						glm::vec3 vp1 = IntersectionPoint - Point2;
+						C = glm::cross(Edge1, vp1);
+						if (glm::dot(Normal, C) < 0)
+							return; // P is on the right side
+
+
+						glm::vec3 vp2 = IntersectionPoint - Point3;
+						C = glm::cross(Edge2, vp2);
+						if (glm::dot(Normal, C) < 0)
+							return; // P is on the right sides
+							
+					});
+			});
+
+	}
+	void Raytracing2D::PushCircle(const glm::vec3& Position, float Radius, float Rotation, const glm::vec4& color)
+	{
+		Circle TempCircle{};
+
+		TempCircle.Position = { Position, .0f };
+		TempCircle.DiffuseColor = color;
+		TempCircle.Radius = glm::vec4(Radius, 0.0f, 0.0f, 0.0f);
+
+		s_RaytracingData.CircleData.push_back(TempCircle);
+
+	}
+	void Raytracing2D::Trace()
+	{
+#ifdef T
+		if (InputManager::IsKeyDown(KEY_D))
+			RaytracingPipeline::s_Camera.Origin.x += 0.01f;
+		
+		if(InputManager::IsKeyDown(KEY_A))
+			RaytracingPipeline::s_Camera.Origin.x -= 0.01f;
+
+		if (InputManager::IsKeyDown(KEY_W))
+			RaytracingPipeline::s_Camera.Origin.y += 0.01f;
+
+		if (InputManager::IsKeyDown(KEY_S))
+			RaytracingPipeline::s_Camera.Origin.y -= 0.01f;
+
+		if (InputManager::IsKeyDown(KEY_R))
+			RaytracingPipeline::s_Camera.ZoomLevel -= 0.01f;
+
+		if(InputManager::IsKeyDown(KEY_T))
+			RaytracingPipeline::s_Camera.ZoomLevel += 0.01f;
+
+
+		RaytracingPipeline::RayGen();
+		s_RaytracingData.RenderImage->SetData(s_RaytracingData.Data);
+#endif
+
+		s_RaytracingData.Camera.Update(Application::GetCurrentDeltaSecond());
+
+		ImGui::Begin("TooGood");
+		ImGui::SliderFloat("RayX", &TestOrigin.x, -1.0f, 1.0f);
+		ImGui::SliderFloat("RayY", &TestOrigin.y, -1.0f, 1.0f);
+		ImGui::SliderFloat("RayZ", &TestOrigin.z, -1.0f, 1.0f);
+		ImGui::End();
+
+		DynamicData ShaderStorageData{};
+
+		ShaderStorageData.data = s_RaytracingData.CircleData.data();
+		ShaderStorageData.index = 0;
+		ShaderStorageData.Offset = 0;
+		ShaderStorageData.VertexSize = s_RaytracingData.CircleData.size() * sizeof(Circle);
+
+		s_RaytracingData.ShaderStorage->PushData(ShaderStorageData);
+		s_RaytracingData.ComputeShaders->Use();
+
+		s_RaytracingData.ComputeShaders->SetUniformFloat3("PlayerOrigin", TestOrigin.x, TestOrigin.y, TestOrigin.z);
+		s_RaytracingData.ComputeShaders->setUniformMat4("InverseView", s_RaytracingData.Camera.GetInverseView());
+		s_RaytracingData.ComputeShaders->setUniformMat4("InverseProjection", s_RaytracingData.Camera.GetProjection());
+
+		s_RaytracingData.RenderImage->BindImage(0);
+		s_RaytracingData.ComputeShaders->Compute(std::ceil(s_RaytracingData.ImageWidth / 8),
+												 std::ceil(s_RaytracingData.ImageHeight / 4), 1);
+		s_RaytracingData.CircleData.clear();
+	}
+	void Raytracing2D::Shutdown()
+	{
+		delete[] s_RaytracingData.Data;
+	}
+	std::shared_ptr<Texture> Raytracing2D::GetRenderImage()
+	{
+		return s_RaytracingData.RenderImage;
 	}
 }

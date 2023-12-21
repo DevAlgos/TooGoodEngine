@@ -9,6 +9,10 @@ namespace
 	static bool opt_fullscreen = true;
 	static ImGuiDockNodeFlags dockspace_flags = ImGuiDockNodeFlags_None;
 	static bool p_open = true;
+	static volatile bool fill = false;
+
+	static int ColorStep = 0;
+
 
 	TGE::LightSource* source;
 	TGE::Material* TestMaterial;
@@ -20,13 +24,13 @@ namespace
 
 	uint32_t* TextureData;
 
-	TGE::UIManager manager;
-	uint32_t font;
-
 	TGE::AudioHandle id;
 	TGE::AudioHandle id2;
 	
 	int count = 0;
+
+	static float offset = 0.0f;
+
 }
 
 namespace Test
@@ -54,6 +58,8 @@ namespace Test
 
 		~OtherObject() {}
 	};
+
+	
 }
 
 namespace Utils
@@ -66,26 +72,13 @@ namespace Utils
 	}
 	void EditorLayer::OnInit()
 	{
+#pragma region ignore1
 		id = TGE::Audio::Load("../Resources/Audio/dream.wav");
-		id2 = TGE::Audio::Load("../Resources/Audio/dream1.wav");
+		id2 = TGE::Audio::Load("../Resources/Audio/mrben.wav");
 		
-
+	
 
 		TGE::Renderer2D::LoadInFont("../Resources/fonts/The Smile.otf");
-		
-
-		TGE::TextureData data;
-		data.Width = 500;
-		data.Height = 500;
-		data.InternalFormat = TGE::TextureFormat::RGBA8;
-		TextureData = new uint32_t[500 * 500];
-		for (uint32_t i = 0; i < 500 * 500; i++) {
-			TextureData[i] = 0xFFFF00FF;
-		}
-
-		TestTexture = std::make_unique<TGE::Texture>(TextureData, data);
-
-		TestTexture->SetData(TextureData);
 
 		TGE::PhysicsData PhysicsData;
 		PhysicsData.Width = 50;
@@ -136,10 +129,13 @@ namespace Utils
 		TestMaterial->diffuse = { 1.0f, 1.0f, 1.0f };
 		TestMaterial->specular = { 1.0f, 1.0f, 1.0f };
 		TestMaterial->shininess = 32.0f;
+#pragma endregion ignore1
+
 	}
 	void EditorLayer::OnUpdate()
 	{
-		ViewFrame->Bind();
+#pragma region ignore
+	/*	ViewFrame->Bind();
 
 		m_OrthoCam.Update(TGE::Application::GetCurrentDeltaSecond());
 		TGE::Renderer2D::ClearColor({ 0.4f, 0.2f, 0.8f });
@@ -220,9 +216,37 @@ namespace Utils
 		if (InputManager::IsKeyPressed(KEY_LEFT))
 			source->Position.x -= 0.005f;
 		if (InputManager::IsKeyPressed(KEY_RIGHT))
-			source->Position.x += 0.005f;
+			source->Position.x += 0.005f;*/
+#pragma endregion ignore
 
+		if (InputManager::IsMouseButtonDown(LEFT_MOUSE))
+		{
+			while (count < 1)
+			{
+				TGE::SourceData srcData;
+				srcData.Pitch = 1.0f;
+				srcData.Gain = 5.0f;
+				srcData.Velocity = { 2.0f, 0.0f, 0.0f };
 
+				TGE::Source SecondSource = TGE::Audio::GenerateSource(srcData, id2);
+
+				std::vector<TGE::Source> Sources = { SecondSource };
+
+				TGE::Audio::SubmitV(Sources);
+				count += 1;
+			}
+		}
+		
+		for (float x = -2.0f; x < 2.0f; x+=1.2f)
+		{
+			for (float y = -2.0f; y < 2.0f; y+=1.2f)
+			{
+				TGE::Raytracing2D::PushCircle({ x + offset/x, y, 0.0f }, 0.5f, 0.0f, { 1.0f, 0.0f, 0.0f, 1.0f });
+			}
+		}
+		
+
+		TGE::Raytracing2D::Trace();
 	}
 	void EditorLayer::OnGUIUpdate()
 	{	
@@ -232,6 +256,8 @@ namespace Utils
 
 		ImGui::ColorEdit3("Light Color", glm::value_ptr(source->Color));
 		ImGui::Text("%i", NumbOfEntites);
+
+		ImGui::SliderFloat("Position", &offset, -1.0f, 1.0f);
 
 		if (ImGui::BeginMenuBar())
 		{
@@ -248,7 +274,7 @@ namespace Utils
 
 		if (opt_fullscreen)
 		{
-			ImGui::Image((void*)(intptr_t)ViewFrame->GetTexture(0), {1280.0f,
+			ImGui::Image((void*)(intptr_t)TGE::Raytracing2D::GetRenderImage()->Get(), {1280.0f,
 			720.0f },
 				{ 0,1 }, { 1,0 });
 		}
