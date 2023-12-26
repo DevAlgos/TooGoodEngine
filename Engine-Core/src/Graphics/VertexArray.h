@@ -11,6 +11,9 @@ namespace TGE
 		VertexArrayObject();
 		~VertexArrayObject();
 
+		static std::unique_ptr<VertexArrayObject> Generate();
+		static std::shared_ptr<VertexArrayObject> GenerateShared();
+
 		inline void Bind() { glBindVertexArray(m_VAO); }
 		inline void Unbind() { glBindVertexArray(0); }
 		inline void Create() { glCreateVertexArrays(1, &m_VAO); }

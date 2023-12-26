@@ -44,7 +44,6 @@
 #include <Utils/Clock.h>
 #include <Utils/Layers/BaseLayer.h>
 #include <Utils/Layers/LayerManager.h>
-#include <Utils/Layers/DebuggingLayer.h>
 #include <Utils/Layers/EditorLayer.h>
 
 #include <Utils/Threading/PriorityQueue.h>

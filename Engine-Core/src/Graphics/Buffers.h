@@ -4,9 +4,12 @@
 #include "Shader.h"
 #include "VertexArray.h"
 #include <map>
+#include <variant>
 
 namespace TGE
 {
+	static int s_GlobalID = 0;
+
 	struct BufferData
 	{
 		const void* data;
@@ -30,7 +33,9 @@ namespace TGE
 	public:
 		BufferObject(const BufferType& t, const BufferData& BufferData);
 
-		void Create();
+		static std::unique_ptr<BufferObject> Generate(const BufferType& t, const BufferData& BufferData);
+		static std::shared_ptr<BufferObject> GenerateShared(const BufferType& t, const BufferData& BufferData);
+
 		void Bind();
 		void PushData(const DynamicData& data);
 		void BindRange(const DynamicData& data);
@@ -45,56 +50,80 @@ namespace TGE
 		BufferData m_Data;
 	};
 
+	enum class AttachmentType { Color = 0, Stencil, Depth, Depth24Stencil8, Depth32Stencil8 };
 
-	enum class AttachmentType { Color = 0, Stencil, Depth, StencilAndDepth };
+	struct RenderBufferData
+	{
+		TextureFormat InternalFormat = TextureFormat::RGBA8;
+		uint32_t width;
+		uint32_t height;
+	};
+
+	class RenderBuffer
+	{
+	public:
+		RenderBuffer(const RenderBufferData& data);
+		~RenderBuffer();
+
+		const void Bind() const { glBindRenderbuffer(GL_FRAMEBUFFER, m_RenderBufferHandle); }
+		
+		const inline uint32_t Get() const { return m_RenderBufferHandle; }
+
+		static std::unique_ptr<RenderBuffer> Generate(const RenderBufferData& data);
+		static std::shared_ptr<RenderBuffer> GenerateShared(const RenderBufferData& data);
+	private:
+		uint32_t m_RenderBufferHandle;
+	};
+
+	template<class Type>
+	concept IsTextureOrRenderBuffer =
+		std::is_same_v<Type, Texture> || std::is_same_v<Type, RenderBuffer>;
+
+	using TextureOrRenderBuffer = std::variant<std::shared_ptr<Texture>, std::shared_ptr<RenderBuffer>>;
 
 	struct Attachment
 	{
 		AttachmentType Type;
-		bool isRenderable; //Render Buffer if true, Texture if false
 		int Width, Height;
-	};
 
+		Attachment(AttachmentType type, int width, int height)
+			: Type(type), Width(width), Height(height), m_ID(s_GlobalID++)
+		{
+		}
+
+		const size_t GetID() const { return m_ID; }
+
+		bool operator>(const Attachment& other) const
+		{
+			return m_ID > other.m_ID;
+		}
+
+		bool operator<(const Attachment& other) const
+		{
+			return m_ID < other.m_ID;
+		}
+
+	private:
+		size_t m_ID;
+	};	
+
+	struct FramebufferData
+	{
+		std::map<Attachment, TextureOrRenderBuffer> AttachmentList;
+	};
 
 	class Framebuffer
 	{
 	public:
-
-	public:
-		Framebuffer(std::vector<Attachment> Attachments, std::map<GLenum, std::string_view> ShaderList);
+		Framebuffer(const FramebufferData& data);
 		~Framebuffer();
 
-		inline void Bind() const { glBindFramebuffer(GL_FRAMEBUFFER, m_Framebuffer); }
-		inline void Unbind() const { glBindFramebuffer(GL_FRAMEBUFFER, 0); }
+		inline const void Bind() const { glBindFramebuffer(GL_FRAMEBUFFER, m_FramebufferHandle); }
+		inline const uint32_t Get() const { return m_FramebufferHandle; }
 
-		inline void BindTexture(int Unit) const { glBindTextureUnit(Unit, m_Textures[Unit]); }
-		inline void BindRenderBuffer(int Index) const { glBindRenderbuffer(GL_RENDERBUFFER, m_Renderbuffers[Index]); }
-		
-		void UseFramebuffer();
-		inline void Draw() { glDrawArrays(GL_TRIANGLES, 0, 6); }
-
-		inline uint32_t GetRenderBuffer(size_t index) const { return m_Renderbuffers[index]; }
-		inline uint32_t GetTexture(size_t index) const { return m_Textures[index]; }
-
+		static std::unique_ptr<Framebuffer> Generate(const FramebufferData& data);
+		static std::shared_ptr<Framebuffer> GenerateShared(const FramebufferData& data);
 	private:
-		void GenerateAttachment(GLenum AttachmentType, GLenum InternalFormat, 
-								 bool isRenderable,
-								 size_t Index);
-	private:
-		uint32_t m_Framebuffer;
-		size_t NumberOfRenderTargets;
-
-		std::array<Attachment, 34> m_Attachments; //32 Color Attachments, 1 Stencil and Depth/1 StencilAndDepth attachment
-		size_t nColorAttachments = 0;
-
-		std::vector<uint32_t> m_Renderbuffers;
-		size_t RenderIndex = 0;
-
-		std::vector<uint32_t> m_Textures;
-		size_t TextureIndex = 0;
-
-		std::unique_ptr<Shader> FramebufferShader;
-		std::unique_ptr<VertexArrayObject> FramebufferVAO;
-		std::unique_ptr<BufferObject> FramebufferVBO;
+		uint32_t m_FramebufferHandle;
 	};
 }

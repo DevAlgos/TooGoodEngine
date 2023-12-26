@@ -14,7 +14,7 @@ namespace TGE {
 
 	enum class TextureFormat
 	{
-		RGBA16F = 0, RGBA32F, RGBA8
+		RGBA16F = 0, RGBA32F, RGBA8, RGBA
 	};
 
 	enum class Format
@@ -46,6 +46,13 @@ namespace TGE {
 		Texture(uint32_t* Data, const TextureData& textureData);
 		~Texture();
 
+		static std::unique_ptr<Texture> Generate(const std::string_view& FileLocation, const TextureData& textureData, const Format& format);
+		static std::unique_ptr<Texture> Generate(float* Data, const TextureData& textureData);
+		static std::unique_ptr<Texture> Generate(uint32_t* Data, const TextureData& textureData);
+
+		static std::shared_ptr<Texture> GenerateShared(const std::string_view& FileLocation, const TextureData& textureData, const Format& format);
+		static std::shared_ptr<Texture> GenerateShared(float* Data, const TextureData& textureData);
+		static std::shared_ptr<Texture> GenerateShared(uint32_t* Data, const TextureData& textureData);
 		
 		void ResizeImage(float* Data, int Width, int Height);
 		void ResizeImage(uint32_t* Data, int Width, int Height);

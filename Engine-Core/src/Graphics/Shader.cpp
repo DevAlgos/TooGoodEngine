@@ -4,7 +4,25 @@
 namespace TGE {
 	Shader::Shader(std::map<GLenum, std::string_view> shaders)
 	{
-		Create(shaders);
+		m_Program = glCreateProgram();
+
+		for (auto& [ShaderType, ShaderLocation] : shaders)
+		{
+			std::string contents = LoadShaderFromFile(ShaderLocation.data());
+			const char* data = contents.c_str();
+
+			uint32_t Shader = glCreateShader(ShaderType);
+			glShaderSource(Shader, 1, &data, nullptr);
+			glCompileShader(Shader);
+			glAttachShader(m_Program, Shader);
+
+			CheckShaderError(GL_COMPILE_STATUS, Shader);
+
+			glDeleteShader(Shader);
+		}
+
+		glLinkProgram(m_Program);
+		CheckProgramError(GL_LINK_STATUS);
 	}
 	Shader::Shader(const Shader& shader)
 	{
@@ -18,29 +36,13 @@ namespace TGE {
 	{
 		glDeleteProgram(m_Program);
 	}
-	void Shader::Create(std::map<GLenum, std::string_view> shaders)
+	std::unique_ptr<Shader> Shader::Generate(std::map<GLenum, std::string_view> shaders)
 	{
-		m_Program = glCreateProgram();
-
-		for (auto& source : shaders)
-		{
-
-			std::string contents = LoadShaderFromFile(source.second.data());
-			const char* data = contents.c_str();
-
-			uint32_t Shader = glCreateShader(source.first);
-			glShaderSource(Shader, 1, &data, nullptr);
-			glCompileShader(Shader);
-			glAttachShader(m_Program, Shader);
-
-			CheckShaderError(GL_COMPILE_STATUS, Shader);
-
-			glDeleteShader(Shader);
-
-		}
-
-		glLinkProgram(m_Program);
-		CheckProgramError(GL_LINK_STATUS);
+		return std::make_unique<Shader>(shaders);
+	}
+	std::shared_ptr<Shader> Shader::GenerateShared(std::map<GLenum, std::string_view> shaders)
+	{
+		return std::make_shared<Shader>(shaders);
 	}
 	void Shader::SetUniformInt(const std::string& name, int value)
 	{

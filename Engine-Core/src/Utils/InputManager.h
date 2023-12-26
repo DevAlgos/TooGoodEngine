@@ -153,5 +153,7 @@ namespace InputManager
 
 	void GetMousePos(double& x, double& y);
 
+	void DisableCursor();
+	void EnableCursor();
 }
 

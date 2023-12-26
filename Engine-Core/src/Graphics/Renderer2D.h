@@ -143,11 +143,20 @@ namespace TGE
 
 #pragma region Secondary 2D Raytracing Renderer
 
+	//Base Reflectivity
+	//Roughness
+	//Albedo
+	//Emmission
+
 	struct Circle
 	{
 		glm::vec4 Position;
-		glm::vec4 DiffuseColor;
 		glm::vec4 Radius;
+
+		glm::vec4 Albedo;
+		glm::vec4 Reflectivity;
+		glm::vec4 Roughness;
+		glm::vec4 Emission;
 	};
 
 	
@@ -171,7 +180,11 @@ namespace TGE
 		std::unique_ptr<BufferObject> ShaderStorage;
 
 		uint32_t* Data = nullptr;
-		OrthoGraphicCamera Camera;
+		OrthoGraphicCamera OrthoCamera;
+		Camera DebuggingCamera;
+
+		uint32_t SampleRate = 2;
+
 	};
 
 	class Raytracing2D
@@ -181,11 +194,12 @@ namespace TGE
 		~Raytracing2D() = delete;
 
 		static void Init();
+		static void ChangeSampleRate(uint32_t NewSampleRate);
 
 		/*Just used for testing performance of different algorithms will remove when finished*/
 		static void Test();
 
-		static void PushCircle(const glm::vec3& Position, float Radius, float Rotation, const glm::vec4& color);
+		static void PushCircle(const Circle& CircleData);
 
 		static void Trace();
 

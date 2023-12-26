@@ -329,12 +329,16 @@ namespace TGE
 
 		return TempSource;
 	}
-	void AudioSources::RemoveSource(uint32_t Index)
+	void AudioSources::RemoveSource(const Source& Src)
 	{
-		if (Index >= m_Sources.size())
-			return;
-
-		m_Sources.erase(m_Sources.begin() + Index);
+		auto it = std::find(m_Sources.begin(), m_Sources.end(), Src);
+		if (it != m_Sources.end())
+		{
+			alSourceStop(Src.Handle);
+			alSourcei(Src.Handle, AL_BUFFER, 0);
+			alDeleteSources(1, &Src.Handle);
+			m_Sources.erase(it);
+		}
 	}
 	void AudioSources::EditSource(uint32_t Index, const SourceData& source)
 	{
@@ -374,6 +378,7 @@ namespace TGE
 				if (!s_AudioData.CurrentDevice)
 				{
 					LOGERROR("Failed to open device");
+					LOG_CORE_ERROR("Failed to open device");
 					__debugbreak();
 				}
 				
@@ -385,6 +390,7 @@ namespace TGE
 
 					alcCloseDevice(s_AudioData.CurrentDevice);
 					LOGERROR("Could not set context!");
+					LOG_CORE_ERROR("Could not set context!");
 
 					__debugbreak();
 				}
@@ -396,6 +402,7 @@ namespace TGE
 					name = alcGetString(s_AudioData.CurrentDevice, ALC_DEVICE_SPECIFIER);
 				
 				LOG(std::string(name));
+				LOG_CORE(std::string(name));
 				
 			} });
 	}
@@ -407,6 +414,7 @@ namespace TGE
 	{
 		return s_AudioData.Sources.PushSource(data, SourcePriority::Ambient, BufferHandle);
 	}
+
 	void Audio::Submit(const Source& src)
 	{
 		s_AudioData.AudioQueue->Attach({ [src]()
@@ -472,8 +480,8 @@ namespace TGE
 	{
 		s_AudioData.AudioQueue->Attach({ [src]()
 		{
-				alSourcei(src.Handle, AL_BUFFER, 0);
 				alSourceStop(src.Handle);
+				alSourcei(src.Handle, AL_BUFFER, 0);
 		} });
 	}
 	void Audio::StopSourceV(const std::vector<Source>& Sources)
@@ -521,6 +529,14 @@ namespace TGE
 				alSourcei(Sources[i].Handle, AL_LOOPING, Loop);
 			}
 		} });
+	}
+
+	void Audio::RemoveSource(const Source& src)
+	{
+		s_AudioData.AudioQueue->Attach({ [src]()
+			{
+				s_AudioData.Sources.RemoveSource(src);
+			} });
 	}
 
 	void Audio::Shutdown()

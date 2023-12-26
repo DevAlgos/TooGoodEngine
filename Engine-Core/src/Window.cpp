@@ -13,19 +13,28 @@ static void OpenGLDebugCallback(GLenum source, GLenum type, GLuint id, GLenum se
 	{
 	case GL_DEBUG_SEVERITY_LOW:
 		LOG(message);
+		LOG_CORE(message);
 		break;
 	case GL_DEBUG_SEVERITY_MEDIUM:
 		LOGWARNING(message);
+		LOG_CORE_WARNING(message);
+
 		break;
 	case GL_DEBUG_SEVERITY_HIGH:
 		LOGERROR(message);
+		LOG_CORE_ERROR(message);
 		break;
 	default:
 		break;
 	}
 }
 
-
+static void GLFWErrorCallBack(int error_code, const char* description)
+{
+	std::string msg = std::to_string(error_code) + " " + description;
+	LOGERROR(msg);
+	LOG_CORE_ERROR(msg);
+}
 
 namespace TGE {
 
@@ -53,20 +62,42 @@ namespace TGE {
 
 	void Window::Init()
 	{
-
 		LOG("Window is initalizing");
+		LOG_CORE("Window is initalizing");
 
 		if (!glfwInit())
+		{
 			LOGERROR("glfw Failed To Initalize");
+			LOG_CORE_ERROR("glfw Failed To Initalize");
+		}
 
 		glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 4);
 		glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 6);
 		glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
 
+		glfwWindowHint(GLFW_RESIZABLE, GLFW_TRUE);
+
 		m_Window = glfwCreateWindow(m_Width, m_Height, m_Title, nullptr, nullptr);
 
+		glfwSetInputMode(m_Window, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
+
+		int width, height, channels;
+		uint8_t* pixels = stbi_load("../Resources/Images/Icon.png", &width, &height, &channels, 4); 
+
+		if (pixels) 
+		{
+			GLFWimage icon;
+			icon.width = width;
+			icon.height = height;
+			icon.pixels = pixels;
+
+			glfwSetWindowIcon(m_Window, 1, &icon);
+			stbi_image_free(pixels);
+		}
+
+
 		if (!m_Window)
-			LOGERROR("window Failed To Create");
+			LOG_CORE_ERROR("window Failed To Create");
 
 		glfwSetWindowUserPointer(m_Window, this);
 
@@ -77,7 +108,9 @@ namespace TGE {
 			});
 
 		glfwSetFramebufferSizeCallback(m_Window, framebuffer_size_callback);
-		
+
+		glfwSetErrorCallback(GLFWErrorCallBack);
+				
 		glfwMakeContextCurrent(m_Window);
 		gladLoadGL();
 
@@ -87,6 +120,7 @@ namespace TGE {
 		
 		const char* version = (const char*)glGetString(GL_VERSION);
 		std::string msg = "OpenGL Version: " + std::string(version);
+		LOG_CORE(msg);
 		LOG(msg);
 
 		InputManager::BeginPolling(m_Window);

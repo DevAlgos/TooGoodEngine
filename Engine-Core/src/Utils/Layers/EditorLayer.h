@@ -7,6 +7,7 @@
 
 #include <memory>
 #include <Utils/Camera.h>
+#include <filesystem>
 
 
 namespace Utils
@@ -21,14 +22,27 @@ namespace Utils
 		void OnUpdate()     override;
 		void OnGUIUpdate()  override;
 		void OnShutdown()	override;
+
+		void DisplayHierarchyPanel();
+		void DisplayPreview();
+		void DisplayAudioPanel();
+		void DisplayDebugStats();
+		void DisplayLog();
+
 	private:
-		std::unique_ptr<TGE::Texture> Ben1;
-		std::unique_ptr<TGE::Texture> ComputeTexture;
-		std::unique_ptr<TGE::Framebuffer> ViewFrame;
-		std::unique_ptr<TGE::Texture> BackGround;
-		std::unique_ptr<TGE::Texture> TestTexture;
+		std::unique_ptr<TGE::Texture> AudioIconImage;
 
-		OrthoGraphicCamera m_OrthoCam;
+		std::unordered_map<std::string, TGE::AudioHandle> AudioFileMap;
+		const std::filesystem::path AudioFiles{ "../Resources/Audio" };
 
+	    std::vector<TGE::Source> Sources;
+
+		std::vector<Utils::LogData> MessagesToDraw;
+		bool ScrollToBottom = false;
+		bool ScrollToBottomCheckBox = true;
+
+		ImVec4 CoreColor = { 1.0f, 0.0f, 1.0f, 1.0f};
+		ImVec4 ErrorColor = { 1.0f, 0.0f, 0.0f, 1.0f};
+		ImVec4 WarnColor = { 1.0f, 1.0f, 0.0f, 1.0f};
 	};
 }

@@ -21,6 +21,7 @@ namespace Utils
 	}
 	void LayerManager::PopLayer()
 	{
+		m_LayerStack[m_LayerIndex]->OnShutdown();
 		m_LayerStack[m_LayerIndex].reset();
 		m_LayerStack.pop_back();
 		m_LayerIndex--;

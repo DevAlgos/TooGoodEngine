@@ -10,7 +10,9 @@ namespace TGE {
 		Shader();
 		~Shader();
 
-		void Create(std::map<GLenum, std::string_view> shaders);
+		static std::unique_ptr<Shader> Generate(std::map<GLenum, std::string_view> shaders);
+		static std::shared_ptr<Shader> GenerateShared(std::map<GLenum, std::string_view> shaders);
+
 
 		inline void Use() { glUseProgram(m_Program); }
 		const inline uint32_t Get() const { return m_Program; }

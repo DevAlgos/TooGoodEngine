@@ -8,6 +8,11 @@ namespace
     static double s_yOffset = 0.0f;
     static bool s_Scrolled = false;
 
+    static double s_LastX = 0.0;
+    static double s_LastY = 0.0;
+
+    static bool Cursor = true;
+
     static void ScrollCallBack(GLFWwindow* window, double xOffset, double yOffset)
     {
         s_Scrolled = true;
@@ -31,19 +36,19 @@ namespace InputManager
 
     const bool IsKeyReleased(int key)
     {
-        auto state = glfwGetKey(s_Window, key);
+        int state = glfwGetKey(s_Window, key);
         return state == GLFW_RELEASE;
     }
 
     const bool IsKeyPressed(int key)
     {
-        auto state = glfwGetKey(s_Window, key);
+        int state = glfwGetKey(s_Window, key);
         return state == GLFW_PRESS;
     }
 
     const bool IsKeyDown(int key)
     {
-        auto state = glfwGetKey(s_Window, key);
+        int state = glfwGetKey(s_Window, key);
         return state == GLFW_PRESS || state == GLFW_REPEAT;
     }
 
@@ -55,13 +60,13 @@ namespace InputManager
 
     const bool IsMouseButtonReleased(int button)
     {
-        auto state = glfwGetMouseButton(s_Window, button);
+        int state = glfwGetMouseButton(s_Window, button);
         return state == GLFW_RELEASE;
     }
 
     const bool IsMouseButtonDown(int button)
     {
-        auto state = glfwGetMouseButton(s_Window, button);
+        int state = glfwGetMouseButton(s_Window, button);
         return state == GLFW_PRESS || state == GLFW_REPEAT;
     }
 
@@ -83,7 +88,29 @@ namespace InputManager
 
     void GetMousePos(double& x, double& y)
     {
-        glfwGetCursorPos(s_Window, &x, &y);
+        if (Cursor)
+        {
+            s_LastX = x;
+            s_LastY = y;
+            glfwGetCursorPos(s_Window, &x, &y);
+        }
+        else
+        {
+            x = s_LastX;
+            y = s_LastY;
+        }
+    }
+
+    void DisableCursor()
+    {
+        glfwSetInputMode(s_Window, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
+        Cursor = true;
+    }
+
+    void EnableCursor()
+    {
+        glfwSetInputMode(s_Window, GLFW_CURSOR, GLFW_CURSOR_NORMAL);
+        Cursor = false;
     }
 
 

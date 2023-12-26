@@ -11,6 +11,7 @@ uniform sampler2D samplerTextures[32];
 void main()
 {
 	int ID = int(oTexID);
+    //vec4 t = texture(samplerTextures[0], TexCoord);;
     vec4 t;
 
 	  switch (ID)

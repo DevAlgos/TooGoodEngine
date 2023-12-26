@@ -4,14 +4,6 @@
 
 namespace
 {
-	static bool keyWPressed = false;
-	static bool keySPressed = false;
-	static bool keyAPressed = false;
-	static bool keyDPressed = false;
-
-	static float ZoomFactor;
-
-
 	template<typename T>
 	static T LinearInterpolation(T a, T b, T t)
 	{
@@ -19,6 +11,8 @@ namespace
 		return ((T)1 - t) * a + t * b;
 	}
 }
+
+#pragma region ortho
 
 OrthoGraphicCamera::OrthoGraphicCamera(const OrthoCameraData& CameraData)
 {
@@ -108,4 +102,103 @@ glm::vec2 OrthoGraphicCamera::GetMousePressCoordinates()
 	glm::vec4 Coords = m_InverseView * m_InverseProjection * VecCoords;
 
 	return Coords;
+}
+#pragma endregion ortho
+
+Camera::Camera(const CameraData& data)
+	: m_CameraData()
+{
+	SetCam(data);
+}
+
+Camera::Camera()
+	: m_CameraData()
+{
+}
+
+Camera::~Camera()
+{
+}
+
+void Camera::Update(float dt)
+{
+	keyWPressed = InputManager::IsKeyDown(KEY_W);
+	keySPressed = InputManager::IsKeyDown(KEY_S);
+	keyAPressed = InputManager::IsKeyDown(KEY_A);
+	keyDPressed = InputManager::IsKeyDown(KEY_D);
+	keyQPressed = InputManager::IsKeyDown(KEY_Q);
+	keyEPressed = InputManager::IsKeyDown(KEY_E);
+	keyVPressed = InputManager::IsKeyPressed(KEY_V);
+
+	if (keyVPressed)
+	{
+		if (CursorEnabled)
+		{
+			InputManager::DisableCursor();
+			CursorEnabled = false;
+		}
+		else
+		{
+			InputManager::EnableCursor();
+			CursorEnabled = true;
+		}
+	}
+
+	glm::vec3 movement(0.0f);
+
+	if (keyWPressed)
+		movement += m_CameraData.CameraSpeed * m_CameraData.Up * dt;
+	if (keySPressed)
+		movement -= m_CameraData.CameraSpeed * m_CameraData.Up * dt;
+	if (keyAPressed)
+		movement -= glm::normalize(glm::cross(m_CameraData.Front, m_CameraData.Up)) * m_CameraData.CameraSpeed * dt;
+	if (keyDPressed)
+		movement += glm::normalize(glm::cross(m_CameraData.Front, m_CameraData.Up)) * m_CameraData.CameraSpeed * dt;
+	if (keyQPressed)
+		movement += m_CameraData.CameraSpeed * m_CameraData.Front * dt;
+	if (keyEPressed)
+		movement -= m_CameraData.CameraSpeed * m_CameraData.Front * dt;
+	
+
+	double xPos = 0.0;
+	double yPos = 0.0;
+
+	InputManager::GetMousePos(xPos, yPos);
+
+	float xOffset = (xPos - LastX) * m_CameraData.Sensitivity;
+	float yOffset = (LastY - yPos) * m_CameraData.Sensitivity;
+
+	LastX = xPos;
+	LastY = yPos;
+
+	Yaw += xOffset;
+	Pitch += yOffset;
+
+	Pitch = std::min(Pitch, 89.0f);
+	Pitch = std::max(Pitch, -89.0f);
+
+	glm::vec3 direction;
+	direction.x = cos(glm::radians(Yaw)) * cos(glm::radians(Pitch));
+	direction.y = sin(glm::radians(Pitch));
+	direction.z = sin(glm::radians(Yaw)) * cos(glm::radians(Pitch));
+	m_CameraData.Front = glm::normalize(direction);
+
+	m_CameraData.Position += movement;
+
+	m_Proj = glm::perspective(glm::radians(m_CameraData.Fov), m_CameraData.AspectRatio, m_CameraData.Near, m_CameraData.Far);
+	m_View = glm::lookAt(m_CameraData.Position, m_CameraData.Position + m_CameraData.Front, m_CameraData.Up);
+
+	m_InverseProjection = glm::inverse(m_Proj);
+	m_InverseView = glm::inverse(m_View);
+}
+
+void Camera::SetCam(const CameraData& data)
+{
+	m_CameraData = data;
+
+	m_Proj = glm::perspective(glm::radians(m_CameraData.Fov), m_CameraData.AspectRatio, m_CameraData.Near, m_CameraData.Far);
+	m_View = glm::lookAt(m_CameraData.Position, m_CameraData.Position + m_CameraData.Front, m_CameraData.Up);
+
+	m_InverseProjection = glm::inverse(m_Proj);
+	m_InverseView = glm::inverse(m_View);
 }

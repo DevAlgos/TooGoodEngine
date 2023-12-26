@@ -42,6 +42,11 @@ namespace TGE
 		SourceState State = SourceState::NotPlaying;
 		ALuint BufferHandle;
 		bool Condition = false;
+
+		bool operator==(const Source& Other)
+		{
+			return Handle == Other.Handle;
+		}
 	};
 
 	class AudioBuffers
@@ -65,7 +70,7 @@ namespace TGE
 
 		Source PushSource(const SourceData& source, const SourcePriority& Priority, ALuint BufferHandle);
 
-		void	 RemoveSource(uint32_t Index);
+		void	 RemoveSource(const Source& Src);
 		void	 EditSource(uint32_t Index, const SourceData& source);
 		void	 EditSource(uint32_t Index, const SourceData& source, const SourcePriority& Priority);
 		void	 NullAllSources();
@@ -112,6 +117,8 @@ namespace TGE
 
 		static void		EditSource(const Source& src);
 		static void		EditSourceV(const std::vector<Source>& Sources);
+
+		static void		RemoveSource(const Source& src);
 
 		static void		Shutdown();
 

@@ -39,20 +39,14 @@ namespace TGE
 
 		switch (m_TextureData.InternalFormat)
 		{
-		case TextureFormat::RGBA16F:
-			m_InternalFormat = GL_RGBA16F;
-			break;
-		case TextureFormat::RGBA32F:
-			m_InternalFormat = GL_RGBA32F;
-			break;
-		default:
-			LOGWARNING("Try using uint32_t instead of floats!");
-			break;
+		case TextureFormat::RGBA16F: m_InternalFormat = GL_RGBA16F; break;
+		case TextureFormat::RGBA32F: m_InternalFormat = GL_RGBA32F; break;
+		default: LOGWARNING("Try using uint32_t instead of floats!"); break;
 		}
 
 		switch (m_TextureData.Type)
 		{
-		case TGE::TextureType::Texture2D:
+		case TGE::TextureType::Texture2D: 
 			m_TextureType = GL_TEXTURE_2D;
 			CreateTexture(GL_TEXTURE_2D, Data);
 			break;
@@ -66,9 +60,7 @@ namespace TGE
 	{
 		switch (m_TextureData.InternalFormat)
 		{
-		case TextureFormat::RGBA8:
-			m_InternalFormat = GL_RGBA8;
-			break;
+		case TextureFormat::RGBA8: m_InternalFormat = GL_RGBA8; break;
 		default:
 			LOGWARNING("texture format not supported, try using float instead of uint32_t");
 			break;
@@ -92,6 +84,36 @@ namespace TGE
 	Texture::~Texture()
 	{
 		glDeleteTextures(1, &m_Texture);
+	}
+
+	std::unique_ptr<Texture> Texture::Generate(const std::string_view& FileLocation, const TextureData& textureData, const Format& format)
+	{
+		return std::make_unique<Texture>(FileLocation, textureData, format);
+	}
+
+	std::unique_ptr<Texture> Texture::Generate(float* Data, const TextureData& textureData)
+	{
+		return std::make_unique<Texture>(Data, textureData);
+	}
+
+	std::unique_ptr<Texture> Texture::Generate(uint32_t* Data, const TextureData& textureData)
+	{
+		return std::make_unique<Texture>(Data, textureData);
+	}
+
+	std::shared_ptr<Texture> Texture::GenerateShared(const std::string_view& FileLocation, const TextureData& textureData, const Format& format)
+	{
+		return std::make_shared<Texture>(FileLocation, textureData, format);
+	}
+
+	std::shared_ptr<Texture> Texture::GenerateShared(float* Data, const TextureData& textureData)
+	{
+		return std::make_shared<Texture>(Data, textureData);
+	}
+
+	std::shared_ptr<Texture> Texture::GenerateShared(uint32_t* Data, const TextureData& textureData)
+	{
+		return std::make_shared<Texture>(Data, textureData);
 	}
 
 	void Texture::ResizeImage(float* Data, int Width, int Height)

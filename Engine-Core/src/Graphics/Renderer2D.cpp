@@ -23,137 +23,6 @@ namespace
 	}
 }
 
-/*Trying to mimic vulkan raytracing pipeline*/
-
-namespace RaytracingPipeline
-{
-	struct RayPayload
-	{
-		glm::vec3 Direction;
-		glm::vec3 Origin;
-
-		glm::vec3 Normal;
-		glm::vec3 IntersectionPoint;
-
-		float ClosestTarget = std::numeric_limits<float>::max();
-		size_t ClosestCircleIndex = 0;
-	};
-
-	struct OrthoGraphicRayCamera
-	{
-		glm::vec2 Origin;
-		float     ZoomLevel;
-	};
-	
-	static OrthoGraphicRayCamera s_Camera{ {0.0f, 0.0f}, 1.0f };
-
-	uint32_t Miss()
-	{
-		return 0xFF000000;
-	}
-
-	uint32_t Hit(RayPayload& payload, size_t CircleIndex, const glm::vec3& AccumulatedColor)
-	{
-		glm::vec3 LightDirection = { -1.0f, -1.0f, 1.0f};
-		float DiffuseIntensity = glm::max(glm::dot(payload.Normal, -LightDirection), 0.004f);
-		DiffuseIntensity *= 0.5f;
-		glm::vec3 Diffuse = AccumulatedColor * DiffuseIntensity;
-
-		Diffuse = glm::clamp(Diffuse, { 0.0f, 0.0f, 0.0f }, { 1.0f, 1.0f, 1.0f });
-
-		return RGBAtoARGB(glm::vec4(Diffuse, 1.0f));
-	}
-
-	bool TraceCircleRay(RayPayload& Payload, glm::vec3& AccumulatedColor)
-	{
-		bool Hit = false;
-
-		float a = glm::dot(Payload.Direction, Payload.Direction);
-
-		for (size_t i = 0; i < s_RaytracingData.CircleData.size(); i++)
-		{
-			glm::vec3 CircleCenter = s_RaytracingData.CircleData[i].Position;
-			glm::vec3 OriginToCenter = Payload.Origin - CircleCenter;
-
-			float b = 2.0f * glm::dot(OriginToCenter, Payload.Direction);
-			float c = glm::dot(OriginToCenter, OriginToCenter) - s_RaytracingData.CircleData[i].Radius.x * s_RaytracingData.CircleData[i].Radius.x;
-
-			float discriminant = b * b - 4 * a * c;
-
-			if (discriminant >= 0)
-			{
-				float t1 = (-b + sqrt(discriminant)) / (2.0f * a);
-
-				if (Payload.ClosestTarget >= t1)
-				{
-					Payload.ClosestTarget = t1;
-					Payload.ClosestCircleIndex = i;
-					Hit = true;
-					AccumulatedColor += glm::vec3(s_RaytracingData.CircleData[i].DiffuseColor);
-					AccumulatedColor = glm::max(AccumulatedColor, { 1.0f, 1.0f, 1.0f });
-				}
-
-			}
-		}
-
-		return Hit;
-	}
-
-	void GenerateRay(const glm::ivec2& Coordinate, const glm::vec3& Origin, float AspectRatio)
-	{
-		RayPayload Payload;
-		Payload.Origin = Origin;
-		Payload.Direction = { static_cast<float>(Coordinate.x) / static_cast<float>(s_RaytracingData.ImageWidth),
-							  static_cast<float>(Coordinate.y) / static_cast<float>(s_RaytracingData.ImageHeight) , -1.0f };
-
-		Payload.Direction = Payload.Direction * 2.0f - 1.0f;
-
-		Payload.Origin *= AspectRatio;
-
-		bool HitOnce = false;
-
-		glm::vec3 AccumulatedColor(0.0f);
-		
-		for (size_t bounce = 0; bounce < 3; bounce++)
-		{
-			bool RayHit = TraceCircleRay(Payload, AccumulatedColor);
-
-			if (RayHit)
-			{
-				Payload.IntersectionPoint = Payload.Origin + Payload.ClosestTarget * Payload.Direction;
-				Payload.Normal = Payload.IntersectionPoint - glm::vec3(s_RaytracingData.CircleData[Payload.ClosestCircleIndex].Position);
-
-				Payload.Origin = Payload.IntersectionPoint + Payload.Normal * 0.0001f;
-				Payload.Direction = glm::reflect(Payload.Direction, Payload.Normal);
-				HitOnce = true;
-			}
-			else
-			{
-				break;
-			}
-		}
-
-		if(HitOnce)
-			s_RaytracingData.Data[Coordinate.x + Coordinate.y * s_RaytracingData.ImageWidth] 
-			= RaytracingPipeline::Hit(Payload, Payload.ClosestCircleIndex, AccumulatedColor);
-		else
-			s_RaytracingData.Data[Coordinate.x + Coordinate.y * s_RaytracingData.ImageWidth] = 0xFF000000;
-	}
-
-	void RayGen()
-	{
-		static float AspectRatio = s_RaytracingData.ImageWidth / s_RaytracingData.ImageHeight;
-
-		std::for_each(std::execution::par, s_RaytracingData.Widths.begin(), s_RaytracingData.Widths.end(), [](int x)
-			{
-				std::for_each(std::execution::par, s_RaytracingData.Heights.begin(), s_RaytracingData.Heights.end(), [x](int y)
-				{
-						GenerateRay({ x,y }, { s_Camera.Origin, s_Camera.ZoomLevel},  AspectRatio);
-				});
-		});
-	}
-}
-
 namespace TGE
 {
 	void Renderer2D::Init()
@@ -195,11 +64,11 @@ namespace TGE
 		UIShaderList[GL_VERTEX_SHADER] = "../Resources/Shaders/UI/UIVertex.glsl";
 		UIShaderList[GL_FRAGMENT_SHADER] = "../Resources/Shaders/UI/UIFragment.glsl";
 
-		RenderData.UIShaders = std::make_unique<Shader>(UIShaderList);
+		RenderData.UIShaders = Shader::Generate(UIShaderList);
 		RenderData.UIShaders->Use();
 		RenderData.UIShaders->SetUniformIntV("samplerTextures", samplers, RenderData.MaxTextureSlots);
 
-		RenderData.UIVao = std::make_unique<VertexArrayObject>();
+		RenderData.UIVao = VertexArrayObject::Generate();
 		RenderData.UIVao->Create();
 		RenderData.UIVao->Bind();
 
@@ -208,7 +77,7 @@ namespace TGE
 		UIBufferData.DrawType = GL_DYNAMIC_DRAW;
 		UIBufferData.VertexSize = sizeof(UIVertex) * RenderData.MaxUIVertices;
 
-		RenderData.UIVbo = std::make_unique<BufferObject>(BufferType::VertexBuffer, UIBufferData);
+		RenderData.UIVbo = BufferObject::Generate(BufferType::VertexBuffer, UIBufferData);
 
 		RenderData.UIBuffer = new UIVertex[RenderData.MaxUIVertices];
 		RenderData.UIBufferIndex = RenderData.UIBuffer;
@@ -224,8 +93,6 @@ namespace TGE
 		RenderData.UIVao->AttribPointer(6, 4, GL_FLOAT, GL_FALSE, UIStride, (void*)(offsetof(UIVertex, UIVertex::ModelMatrix) + (sizeof(GLfloat) * 8))); // col 2
 		RenderData.UIVao->AttribPointer(7, 4, GL_FLOAT, GL_FALSE, UIStride, (void*)(offsetof(UIVertex, UIVertex::ModelMatrix) + (sizeof(GLfloat) * 12))); // col 3
 
-		RenderData.TestFont = RenderData.UIManager.LoadFont("../Resources/fonts/The Smile.otf");
-
 #pragma endregion InitUI
 
 #pragma region QuadInit
@@ -235,7 +102,7 @@ namespace TGE
 
 		};
 
-		RenderData.DefaultShader = std::make_unique<Shader>(ShaderList);
+		RenderData.DefaultShader = Shader::Generate(ShaderList);
 
 
 		RenderData.DefaultShader->Use();
@@ -245,7 +112,7 @@ namespace TGE
 
 		memset(RenderData.TextureSlots.data(), 0, RenderData.MaxTextureSlots);
 
-		RenderData.VertexArray = std::make_unique<VertexArrayObject>();
+		RenderData.VertexArray = VertexArrayObject::Generate();
 		RenderData.VertexArray->Create();
 
 		BufferData VertexData;
@@ -253,7 +120,7 @@ namespace TGE
 		VertexData.data = nullptr;
 		VertexData.VertexSize = sizeof(Vertex) * RenderData.MaxVertices;
 
-		RenderData.VertexBuffer = std::make_unique<BufferObject>(BufferType::VertexBuffer, VertexData);
+		RenderData.VertexBuffer = BufferObject::Generate(BufferType::VertexBuffer, VertexData);
 
 		constexpr GLsizei VertexStride = sizeof(Vertex);
 
@@ -281,18 +148,18 @@ namespace TGE
 			{GL_FRAGMENT_SHADER, "../Resources/shaders/Defaults/circleFragment.glsl"}
 		};
 
-		RenderData.CircleShader = std::make_unique<Shader>(CircleShaderList);
+		RenderData.CircleShader = Shader::Generate(CircleShaderList);
 
 		BufferData CircleVertexData;
 		CircleVertexData.DrawType = GL_DYNAMIC_DRAW;
 		CircleVertexData.data = nullptr;
 		CircleVertexData.VertexSize = sizeof(CircleVertex) * RenderData.MaxVertices;
 
-		RenderData.CircleVertexArray = std::make_unique<VertexArrayObject>();
+		RenderData.CircleVertexArray = VertexArrayObject::Generate();
 		RenderData.CircleVertexArray->Create();
 		RenderData.CircleVertexArray->Bind();
 
-		RenderData.CircleVertexBuffer = std::make_unique<BufferObject>(BufferType::VertexBuffer, CircleVertexData);
+		RenderData.CircleVertexBuffer = BufferObject::Generate(BufferType::VertexBuffer, CircleVertexData);
 
 		constexpr GLsizei CircleVertexStride = sizeof(CircleVertex);
 
@@ -324,14 +191,14 @@ namespace TGE
 		IndexData.DrawType = GL_STATIC_DRAW;
 		IndexData.VertexSize = sizeof(uint32_t) * RenderData.MaxIndicies;
 
-		RenderData.IndexBuffer = std::make_unique<BufferObject>(BufferType::IndexBuffer, IndexData);
+		RenderData.IndexBuffer = BufferObject::Generate(BufferType::IndexBuffer, IndexData);
 
 		BufferData UniformData;
 		UniformData.data = nullptr;
 		UniformData.DrawType = GL_DYNAMIC_DRAW;
 		UniformData.VertexSize = RenderData.MaterialStride * RenderData.MaxMaterialSlots;
 
-		RenderData.UniformBuffer = std::make_unique<BufferObject>(BufferType::UniformBuffer, UniformData);
+		RenderData.UniformBuffer = BufferObject::Generate(BufferType::UniformBuffer, UniformData);
 
 		DynamicData DynamicUniformRange;
 		DynamicUniformRange.Offset = 0;
@@ -352,7 +219,7 @@ namespace TGE
 		LightUniformData.DrawType = GL_DYNAMIC_DRAW;
 		LightUniformData.VertexSize = RenderData.LightStride * RenderData.MaxLightSources;
 
-		RenderData.LightUniformBuffer = std::make_unique<BufferObject>(BufferType::UniformBuffer, LightUniformData);
+		RenderData.LightUniformBuffer = BufferObject::Generate(BufferType::UniformBuffer, LightUniformData);
 
 		DynamicData LightUniformRange;
 		LightUniformRange.index = 1;
@@ -491,7 +358,7 @@ namespace TGE
 				* glm::rotate(ModelMatrix, glm::radians(Rotation), glm::vec3(0.0f, 0.0f, 1.0f))
 				* glm::scale(ModelMatrix, glm::vec3(size, 1.0f));
 
-			RenderData.UIBufferIndex = CreateUI(RenderData.UIBufferIndex, color, TextureUnit, character.Coordinate, ModelMatrix);
+			RenderData.UIBufferIndex = CreateUI(RenderData.UIBufferIndex, color, TextureIndex, character.Coordinate, ModelMatrix);
 			CurrentPosition.x += (character.Advance/FontMapWidth) / 2.0f;
 			RenderData.UIIndexCount += 6;
 
@@ -960,7 +827,7 @@ namespace TGE
 
 	void Raytracing2D::Init()
 	{
-		OrthoCameraData CameraData{};
+		/*OrthoCameraData CameraData{};
 		CameraData.Position = glm::vec3(0.0f, 0.0f, 0.0f);
 		CameraData.Front = glm::vec3(0.0f, 0.0f, -1.0f);
 		CameraData.Up = glm::vec3(0.0f, 1.0f, 0.0f);
@@ -971,7 +838,12 @@ namespace TGE
 		CameraData.ZoomLevel = 1.0f;
 		CameraData.CameraSpeed = 1.0f;
 
-		s_RaytracingData.Camera.SetCam(CameraData);
+		s_RaytracingData.OrthoCamera.SetCam(CameraData);*/
+
+		CameraData CamData;
+		CamData.Sensitivity = 0.05f;
+
+		s_RaytracingData.DebuggingCamera.SetCam(CamData);
 
 		TextureData ImageData;
 		ImageData.Width  =         s_RaytracingData.ImageWidth;
@@ -990,27 +862,22 @@ namespace TGE
 		for (size_t i = 0; i < s_RaytracingData.ImageWidth * s_RaytracingData.ImageHeight; i++)
 			s_RaytracingData.Data[i] = 0xFF000000;
 		
-		s_RaytracingData.RenderImage = std::make_shared<Texture>(s_RaytracingData.Data, ImageData);
+		s_RaytracingData.RenderImage = Texture::Generate(s_RaytracingData.Data, ImageData);
 
 		BufferData ShaderStorageData{};
 		ShaderStorageData.data = nullptr;
 		ShaderStorageData.DrawType = GL_DYNAMIC_DRAW;
 		ShaderStorageData.VertexSize = sizeof(Circle) * 100;
 
-		s_RaytracingData.ShaderStorage = std::make_unique<BufferObject>(BufferType::ShaderStorageBuffer, ShaderStorageData);
+		s_RaytracingData.ShaderStorage = BufferObject::Generate(BufferType::ShaderStorageBuffer, ShaderStorageData);
 		s_RaytracingData.ShaderStorage->BindBase(1);
 
 		std::map<GLenum, std::string_view> ComputeShaderLocation =
 		{ {GL_COMPUTE_SHADER, "../Resources/Shaders/Defaults/RayTracing/RayTracing.glsl"} };
 
-		s_RaytracingData.ComputeShaders = std::make_unique<Shader>(ComputeShaderLocation);
+		s_RaytracingData.ComputeShaders = Shader::Generate(ComputeShaderLocation);
 
-
-		for (int i = 0; i < s_RaytracingData.ImageWidth; i++)
-			s_RaytracingData.Widths.push_back(i);
-
-		for (int i = 0; i < s_RaytracingData.ImageHeight; i++)
-			s_RaytracingData.Heights.push_back(i);
+		Attachment attachment(AttachmentType::Color, s_RaytracingData.ImageWidth, s_RaytracingData.ImageHeight);
 
 		/* Triangles will come in later as they are a bit more complicated 
 		*  For now a basice pipeline will be established that is fast and efficient
@@ -1093,7 +960,10 @@ namespace TGE
 
 #endif
 
-
+	}
+	void Raytracing2D::ChangeSampleRate(uint32_t NewSampleRate)
+	{
+		s_RaytracingData.SampleRate = NewSampleRate;
 	}
 	void Raytracing2D::Test()
 	{
@@ -1159,50 +1029,15 @@ namespace TGE
 			});
 
 	}
-	void Raytracing2D::PushCircle(const glm::vec3& Position, float Radius, float Rotation, const glm::vec4& color)
+	void Raytracing2D::PushCircle(const Circle& CircleData)
 	{
-		Circle TempCircle{};
-
-		TempCircle.Position = { Position, .0f };
-		TempCircle.DiffuseColor = color;
-		TempCircle.Radius = glm::vec4(Radius, 0.0f, 0.0f, 0.0f);
-
-		s_RaytracingData.CircleData.push_back(TempCircle);
-
+		s_RaytracingData.CircleData.push_back(CircleData);
 	}
 	void Raytracing2D::Trace()
 	{
-#ifdef T
-		if (InputManager::IsKeyDown(KEY_D))
-			RaytracingPipeline::s_Camera.Origin.x += 0.01f;
-		
-		if(InputManager::IsKeyDown(KEY_A))
-			RaytracingPipeline::s_Camera.Origin.x -= 0.01f;
 
-		if (InputManager::IsKeyDown(KEY_W))
-			RaytracingPipeline::s_Camera.Origin.y += 0.01f;
-
-		if (InputManager::IsKeyDown(KEY_S))
-			RaytracingPipeline::s_Camera.Origin.y -= 0.01f;
-
-		if (InputManager::IsKeyDown(KEY_R))
-			RaytracingPipeline::s_Camera.ZoomLevel -= 0.01f;
-
-		if(InputManager::IsKeyDown(KEY_T))
-			RaytracingPipeline::s_Camera.ZoomLevel += 0.01f;
-
-
-		RaytracingPipeline::RayGen();
-		s_RaytracingData.RenderImage->SetData(s_RaytracingData.Data);
-#endif
-
-		s_RaytracingData.Camera.Update(Application::GetCurrentDeltaSecond());
-
-		ImGui::Begin("TooGood");
-		ImGui::SliderFloat("RayX", &TestOrigin.x, -1.0f, 1.0f);
-		ImGui::SliderFloat("RayY", &TestOrigin.y, -1.0f, 1.0f);
-		ImGui::SliderFloat("RayZ", &TestOrigin.z, -1.0f, 1.0f);
-		ImGui::End();
+		//s_RaytracingData.OrthoCamera.Update(Application::GetCurrentDeltaSecond());
+		s_RaytracingData.DebuggingCamera.Update(Application::GetCurrentDeltaSecond());
 
 		DynamicData ShaderStorageData{};
 
@@ -1214,9 +1049,13 @@ namespace TGE
 		s_RaytracingData.ShaderStorage->PushData(ShaderStorageData);
 		s_RaytracingData.ComputeShaders->Use();
 
-		s_RaytracingData.ComputeShaders->SetUniformFloat3("PlayerOrigin", TestOrigin.x, TestOrigin.y, TestOrigin.z);
-		s_RaytracingData.ComputeShaders->setUniformMat4("InverseView", s_RaytracingData.Camera.GetInverseView());
-		s_RaytracingData.ComputeShaders->setUniformMat4("InverseProjection", s_RaytracingData.Camera.GetProjection());
+		glm::vec3 Pos = s_RaytracingData.DebuggingCamera.GetPosition();
+
+		s_RaytracingData.ComputeShaders->SetUniformInt("NumberOfObjects", s_RaytracingData.CircleData.size());
+		s_RaytracingData.ComputeShaders->SetUniformInt("SampleRate", static_cast<int>(s_RaytracingData.SampleRate));
+		s_RaytracingData.ComputeShaders->SetUniformFloat3("CameraPosition", Pos.x, Pos.y, Pos.z);
+		s_RaytracingData.ComputeShaders->setUniformMat4("InverseView", s_RaytracingData.DebuggingCamera.GetInverseView());
+		s_RaytracingData.ComputeShaders->setUniformMat4("InverseProjection", s_RaytracingData.DebuggingCamera.GetInverseProjection());
 
 		s_RaytracingData.RenderImage->BindImage(0);
 		s_RaytracingData.ComputeShaders->Compute(std::ceil(s_RaytracingData.ImageWidth / 8),
