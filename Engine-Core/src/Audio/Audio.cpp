@@ -306,7 +306,7 @@ namespace TGE
 			alDeleteSources(1, &src.Handle);
 		}
 	}
-	Source AudioSources::PushSource(const SourceData& source, const SourcePriority& Priority, AudioHandle BufferHandle)
+	Source AudioSources::PushSource(const SourceData& source, AudioHandle BufferHandle)
 	{
 		Source TempSource;
 
@@ -322,7 +322,6 @@ namespace TGE
 		alSourcei(TempSource.Handle, AL_LOOPING, Loop);
 		
 		TempSource.Data = source;
-		TempSource.Priority = Priority;
 		TempSource.BufferHandle = BufferHandle;
 
 		m_Sources.push_back(TempSource);
@@ -340,23 +339,6 @@ namespace TGE
 			m_Sources.erase(it);
 		}
 	}
-	void AudioSources::EditSource(uint32_t Index, const SourceData& source)
-	{
-		if (Index >= m_Sources.size())
-			return;
-
-		m_Sources[Index].Data = source;
-	}
-	void AudioSources::EditSource(uint32_t Index, const SourceData& source, const SourcePriority& Priority)
-	{
-		if (Index >= m_Sources.size())
-			return;
-
-
-		m_Sources[Index].Data = source;
-		m_Sources[Index].Priority = Priority;
-	}
-
 	void AudioSources::NullAllSources()
 	{
 		for (size_t i = 0; i < m_Sources.size(); i++)
@@ -412,7 +394,7 @@ namespace TGE
 	}
 	Source Audio::GenerateSource(const SourceData& data, AudioHandle BufferHandle)
 	{
-		return s_AudioData.Sources.PushSource(data, SourcePriority::Ambient, BufferHandle);
+		return s_AudioData.Sources.PushSource(data, BufferHandle);
 	}
 
 	void Audio::Submit(const Source& src)

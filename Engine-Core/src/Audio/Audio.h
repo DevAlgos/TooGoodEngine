@@ -11,19 +11,6 @@ namespace TGE
 
 	enum class GlobalAudioState {On = 0, Playing, Off};
 
-	enum class SourcePriority
-	{
-		Ambient = 0, /* In the background*/
-		Immediate, /* As soon as pipeline begins*/
-		OnCondition
-	};
-
-	enum class SourceState
-	{
-		NotPlaying = 0,
-		Playing
-	};
-
 	struct SourceData
 	{
 		float Pitch = 1.0f;
@@ -38,8 +25,6 @@ namespace TGE
 	{
 		ALuint Handle;
 		SourceData Data;
-		SourcePriority Priority;
-		SourceState State = SourceState::NotPlaying;
 		ALuint BufferHandle;
 		bool Condition = false;
 
@@ -68,11 +53,9 @@ namespace TGE
 		AudioSources();
 		~AudioSources();
 
-		Source PushSource(const SourceData& source, const SourcePriority& Priority, ALuint BufferHandle);
+		Source PushSource(const SourceData& source, ALuint BufferHandle);
 
 		void	 RemoveSource(const Source& Src);
-		void	 EditSource(uint32_t Index, const SourceData& source);
-		void	 EditSource(uint32_t Index, const SourceData& source, const SourcePriority& Priority);
 		void	 NullAllSources();
 
 	private:

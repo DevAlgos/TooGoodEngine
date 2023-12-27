@@ -68,8 +68,8 @@ roughness
 */
 float GGXNormalDistribution(float Roughness, float NdotH)
 {
-	float RoughnessSquared = pow(Roughness, 2.0);
-	float denominator = Pi * pow(NdotH, 2.0) * (RoughnessSquared - 1.0) + 1.0;
+	float RoughnessSquared = pow(Roughness, 4.0);
+	float denominator = Pi * (pow(NdotH, 2.0) * (RoughnessSquared - 1.0) + 1.0);
 
 	return RoughnessSquared / max(denominator,0.00001);
 }
@@ -83,7 +83,7 @@ reducing the light the surface reflects.
 */
 float G1(float Roughness, float NdotX)
 {
-	float k = Roughness / 2.0;
+	float k = pow(Roughness+1.0,2.0)/8;
 	float denominator = NdotX * (1.0 - k) + k;
 
 	return NdotX / max(denominator, 0.00001);
@@ -105,7 +105,7 @@ float G(float Roughness, float NdotV, float NdotL)
 
 vec3 F(vec3 BaseReflectivity, float NdotH)
 {
-	return BaseReflectivity + (vec3(1.0) - BaseReflectivity) * pow(1 - NdotH,5.0);
+	return BaseReflectivity + (1.0 - BaseReflectivity) * pow(1 - NdotH,5.0);
 }
 
 vec3 GenCosineWeightedSample()
@@ -165,11 +165,13 @@ vec4 Hit(in RayPayload payload, in vec3 AccumulatedLight, in vec3 Throughput)
 	vec3 ViewDir = normalize(CameraPosition - vec3(CircleData.Data[payload.ClosestCircleIndex].Position));
 	vec3 HalfWayDir = normalize(ViewDir + LightDirection);
 
+	float NdotH = max(dot(payload.Normal, HalfWayDir), 0.0);
 	float NdotV = max(dot(payload.Normal, ViewDir),0.0);
 	float NdotL = max(dot(payload.Normal, LightDirection),0.0);
 	float VdotH = max(dot(ViewDir, HalfWayDir), 0.0);
 
-	vec3 Specular = F(vec3(CircleData.Data[payload.ClosestCircleIndex].Reflectivity), VdotH); 
+	vec3  F0 = vec3(CircleData.Data[payload.ClosestCircleIndex].Reflectivity);//mix (vec3 (0.04), pow(Throughput, vec3 (2.2)), 1.0);
+	vec3 Specular = F(F0, VdotH); 
 	vec3 Diffuse = vec3(1.0) - Specular;
 
 	/*
@@ -181,7 +183,7 @@ vec4 Hit(in RayPayload payload, in vec3 AccumulatedLight, in vec3 Throughput)
 		The cook torrance model is responsible for calculating the specular contribution
 	*/
 
-	vec3  CookTorranceNumerator = GGXNormalDistribution(Roughness, VdotH) * G(Roughness, NdotV, NdotL) * Specular; 
+	vec3  CookTorranceNumerator = GGXNormalDistribution(Roughness, NdotH) * G(Roughness, NdotV, NdotL) * Specular; 
 	float CookTorranceDenom = 4.0 * NdotV * NdotL;
 
 	vec3 CookTorrance = CookTorranceNumerator / max(CookTorranceDenom,0.00001);
@@ -247,7 +249,7 @@ vec4 GenCircleRay(ivec2 Coordinate, float AspectRatio)
 		vec3 AccumulatedLight = vec3(0.0);
 		vec3 Throughput = vec3(1.0);
 		
-		for (int bounce = 0; bounce < 2; bounce++)
+		for (int bounce = 0; bounce < 5; bounce++)
 		{
 			bool RayHit = TraceCircleRay(Payload);
 
@@ -259,14 +261,17 @@ vec4 GenCircleRay(ivec2 Coordinate, float AspectRatio)
 				Payload.IntersectionPoint = Payload.Origin + Payload.ClosestTarget * Payload.Direction;
 				Payload.Normal = normalize(Payload.IntersectionPoint - vec3(CircleData.Data[Payload.ClosestCircleIndex].Position));
 
+				float Roughness = CircleData.Data[Payload.ClosestCircleIndex].Roughness.x;
+
 				Payload.Origin = Payload.IntersectionPoint + Payload.Normal * 0.0001;
 				//Payload.Direction = reflect(Payload.Direction, Payload.Normal);
 				Payload.Direction = ImportanceSampleGGX(Payload.Normal, CircleData.Data[Payload.ClosestCircleIndex].Roughness.x);
+				//Payload.Direction = normalize((GenCosineWeightedSample()*Roughness) + Payload.Normal);
 				HitOnce = true;
 			}
 			else
 			{
-				AccumulatedLight += vec3(0.3, 0.3, 0.3) * Throughput;
+				AccumulatedLight += vec3(0.1, 0.1, 0.1) * Throughput;
 				break;
 			}
 		}
@@ -274,7 +279,7 @@ vec4 GenCircleRay(ivec2 Coordinate, float AspectRatio)
 		if(HitOnce)
 			AverageColor += Hit(Payload, AccumulatedLight, Throughput);
 		else
-			AverageColor += vec4(AccumulatedLight, 0.0);
+			AverageColor += vec4(AccumulatedLight, 1.0);
 		
 
 	}

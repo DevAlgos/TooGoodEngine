@@ -19,7 +19,7 @@ namespace
 namespace TGE 
 {
 
-	BufferObject::BufferObject(const BufferType& Type, const BufferData& BufferData)
+	OpenGLBuffer::OpenGLBuffer(const BufferType& Type, const BufferData& BufferData)
 		: m_Data(BufferData), m_Buffer(std::numeric_limits<uint32_t>::max())
 	{
 		switch (Type)
@@ -35,29 +35,29 @@ namespace TGE
 		glBindBuffer(m_Type, m_Buffer);
 		glBufferData(m_Type, m_Data.VertexSize, m_Data.data, m_Data.DrawType);
 	}
-	std::unique_ptr<BufferObject> BufferObject::Generate(const BufferType& t, const BufferData& BufferData)
+	std::unique_ptr<OpenGLBuffer> OpenGLBuffer::Generate(const BufferType& t, const BufferData& BufferData)
 	{
-		return std::make_unique<BufferObject>(t, BufferData);
+		return std::make_unique<OpenGLBuffer>(t, BufferData);
 	}
-	std::shared_ptr<BufferObject> BufferObject::GenerateShared(const BufferType& t, const BufferData& BufferData)
+	std::shared_ptr<OpenGLBuffer> OpenGLBuffer::GenerateShared(const BufferType& t, const BufferData& BufferData)
 	{
-		return std::make_shared<BufferObject>(t, BufferData);
+		return std::make_shared<OpenGLBuffer>(t, BufferData);
 	}
-	BufferObject::~BufferObject()
+	OpenGLBuffer::~OpenGLBuffer()
 	{
 		glDeleteBuffers(1, &m_Buffer);
 	}
-	void BufferObject::BindRange(const DynamicData& data)
+	void OpenGLBuffer::BindRange(const DynamicData& data)
 	{
 		glBindBuffer(m_Type, m_Buffer);
 		glBindBufferRange(m_Type, data.index, m_Buffer, data.Offset, data.VertexSize);
 	}
-	void BufferObject::BindBase(GLuint index)
+	void OpenGLBuffer::BindBase(GLuint index)
 	{
 		glBindBuffer(m_Type, m_Buffer);
 		glBindBufferBase(m_Type, index, m_Buffer);
 	}
-	void BufferObject::PushData(const DynamicData& data)
+	void OpenGLBuffer::PushData(const DynamicData& data)
 	{
 		if (!data.data)
 		{
@@ -69,7 +69,7 @@ namespace TGE
 		glBindBuffer(m_Type, m_Buffer);
 		glBufferSubData(m_Type, data.Offset, data.VertexSize, data.data);
 	}
-	void BufferObject::Bind()
+	void OpenGLBuffer::Bind()
 	{
 		glBindBuffer(m_Type, m_Buffer);
 	}

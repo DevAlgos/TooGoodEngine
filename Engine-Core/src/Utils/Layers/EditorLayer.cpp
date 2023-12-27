@@ -54,6 +54,7 @@ namespace Utils
 
 		ImGui_ImplGlfw_InitForOpenGL(TGE::Application::GetMainWindow().GetWindow(), true);
 		ImGui_ImplOpenGL3_Init("#version 460");
+
 	}
 	void EditorLayer::OnUpdate()
 	{
@@ -79,9 +80,10 @@ namespace Utils
 
 		if (opt_fullscreen)
 		{
-			ImGui::Image((void*)(intptr_t)TGE::Raytracing2D::GetRenderImage()->Get(), {1280.0f,
-			720.0f },
+			ImGui::Image((void*)(intptr_t)TGE::Raytracing2D::GetRenderImage()->Get(), {ImGui::GetContentRegionAvail().x,
+			ImGui::GetContentRegionAvail().y },
 				{ 0,1 }, { 1,0 });
+
 		}
 
 		ImGui::End();
@@ -244,24 +246,14 @@ namespace Utils
 		{
 			switch (Message.MessageColor)
 			{
-			case LogColor::Core:
-				ImGui::PushStyleColor(ImGuiCol_Text, CoreColor);
-				ImGui::TextUnformatted(Message.LogMessage.c_str());
-				break;
-			case LogColor::Error:
-				ImGui::PushStyleColor(ImGuiCol_Text, ErrorColor);
-				ImGui::TextUnformatted(Message.LogMessage.c_str());
-				break;
-			case LogColor::Warn:
-				ImGui::PushStyleColor(ImGuiCol_Text, WarnColor);
-				ImGui::TextUnformatted(Message.LogMessage.c_str());
-				break;
-			default:
-				ImGui::PushStyleColor(ImGuiCol_Text, { 1.0f, 1.0f, 1.0f, 1.0f });
-				ImGui::TextUnformatted(Message.LogMessage.c_str());
+			case LogColor::Core:	ImGui::PushStyleColor(ImGuiCol_Text, CoreColor);	break;
+			case LogColor::Error:	ImGui::PushStyleColor(ImGuiCol_Text, ErrorColor);	break;
+			case LogColor::Warn:	ImGui::PushStyleColor(ImGuiCol_Text, WarnColor);	break;
+			default:				ImGui::PushStyleColor(ImGuiCol_Text, { 1.0f, 1.0f, 1.0f, 1.0f });
 				break;
 			}
 
+			ImGui::TextUnformatted(Message.LogMessage.c_str());
 			ImGui::PopStyleColor();
 		}
 

@@ -57,7 +57,7 @@ void main()
     float Shininess = MatSlots.Materials[MatID].SpecularStrength;
 
     vec3 TotalDiffuse = vec3(0.0);
-    vec3 FinalLightColor = vec3(0.0);
+    vec3 FinalLightColor = Ambient;
 
     vec3 eye = CameraPosition;
     vec3 Normal = vec3(0.0, 0.0, 1.0);
@@ -79,7 +79,7 @@ void main()
         vec3 FinalSpecular = Specular * SpecularIntensity;
         FinalSpecular *= Attenuation;
 
-        vec3 LightContribution = Lights.LightSrc[i].Color * (Ambient + FinalDiffuse + FinalSpecular);
+        vec3 LightContribution = Lights.LightSrc[i].Color * (FinalDiffuse + FinalSpecular);
         FinalLightColor += LightContribution;
     }
     

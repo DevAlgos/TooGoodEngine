@@ -17,8 +17,8 @@ public:
 			Circle circle{};
 			circle.Position = { 0.0f, -501.5f, 0.0f, 1.0f };
 			circle.Radius = { 500.0f, 0.0f, 0.0f, 0.0f };
-			circle.Albedo = { 0.1f, 0.2f, 0.3f, 1.0f };
-			circle.Emission = { 1.0f, 1.0f, 1.0f, 0.0f };
+			circle.Albedo = { 0.3f, 0.3f, 0.3f, 1.0f };
+			circle.Emission = { 0.2f, 0.2f, 0.2f, 0.0f };
 			circle.Reflectivity = { 1.0f, 0.0f, 0.0f, 0.0f };
 			circle.Roughness = {0.0f, 0.0f, 0.0f, 0.0f };
 			Raytracing2D::PushCircle(circle);
@@ -41,7 +41,7 @@ public:
 			circle.Position = { 3.0f, 0.0f, 0.0f, 1.0f };
 			circle.Radius = { 0.5f, 0.0f, 0.0f, 0.0f };
 			circle.Albedo = { 1.0f, 0.0f, 0.0f, 1.0f };
-			circle.Emission = { 1.0f, 1.0f, 1.0f, 1.0f };
+			circle.Emission = { 0.2f, 0.2f, 0.2f, 0.0f };
 			circle.Reflectivity = { 0.0f, 0.0f, 0.0f, 0.0f };
 			circle.Roughness = { 0.0f, 0.0f, 0.0f, 0.0f };
 			Raytracing2D::PushCircle(circle);

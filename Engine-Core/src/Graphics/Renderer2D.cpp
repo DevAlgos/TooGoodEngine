@@ -69,7 +69,6 @@ namespace TGE
 		RenderData.UIShaders->SetUniformIntV("samplerTextures", samplers, RenderData.MaxTextureSlots);
 
 		RenderData.UIVao = VertexArrayObject::Generate();
-		RenderData.UIVao->Create();
 		RenderData.UIVao->Bind();
 
 		BufferData UIBufferData;
@@ -77,21 +76,20 @@ namespace TGE
 		UIBufferData.DrawType = GL_DYNAMIC_DRAW;
 		UIBufferData.VertexSize = sizeof(UIVertex) * RenderData.MaxUIVertices;
 
-		RenderData.UIVbo = BufferObject::Generate(BufferType::VertexBuffer, UIBufferData);
+		RenderData.UIVbo = OpenGLBuffer::Generate(BufferType::VertexBuffer, UIBufferData);
 
 		RenderData.UIBuffer = new UIVertex[RenderData.MaxUIVertices];
 		RenderData.UIBufferIndex = RenderData.UIBuffer;
 
-		constexpr GLsizei UIStride = sizeof(UIVertex);
+		RenderData.UIVao->AttachAttribPointers(
+			{
+				AttributeType::FLOAT_3, //Position
+				AttributeType::FLOAT_4, //Color
+				AttributeType::FLOAT_2, //Texture Coordinate
+				AttributeType::FLOAT,   //Texture Unit
+				AttributeType::MAT_4	//Model/Transform Matrix
 
-		RenderData.UIVao->AttribPointer(0, 3, GL_FLOAT, GL_FALSE, UIStride, (void*)offsetof(UIVertex, UIVertex::Position));
-		RenderData.UIVao->AttribPointer(1, 4, GL_FLOAT, GL_FALSE, UIStride, (void*)offsetof(UIVertex, UIVertex::Color));
-		RenderData.UIVao->AttribPointer(2, 2, GL_FLOAT, GL_FALSE, UIStride, (void*)offsetof(UIVertex, UIVertex::TextureCoordinates));
-		RenderData.UIVao->AttribPointer(3, 1, GL_FLOAT, GL_FALSE, UIStride, (void*)offsetof(UIVertex, UIVertex::TextureUnit));
-		RenderData.UIVao->AttribPointer(4, 4, GL_FLOAT, GL_FALSE, UIStride, (void*)offsetof(UIVertex, UIVertex::ModelMatrix));
-		RenderData.UIVao->AttribPointer(5, 4, GL_FLOAT, GL_FALSE, UIStride, (void*)(offsetof(UIVertex, UIVertex::ModelMatrix) + (sizeof(GLfloat) * 4))); // col 1
-		RenderData.UIVao->AttribPointer(6, 4, GL_FLOAT, GL_FALSE, UIStride, (void*)(offsetof(UIVertex, UIVertex::ModelMatrix) + (sizeof(GLfloat) * 8))); // col 2
-		RenderData.UIVao->AttribPointer(7, 4, GL_FLOAT, GL_FALSE, UIStride, (void*)(offsetof(UIVertex, UIVertex::ModelMatrix) + (sizeof(GLfloat) * 12))); // col 3
+			});
 
 #pragma endregion InitUI
 
@@ -113,29 +111,25 @@ namespace TGE
 		memset(RenderData.TextureSlots.data(), 0, RenderData.MaxTextureSlots);
 
 		RenderData.VertexArray = VertexArrayObject::Generate();
-		RenderData.VertexArray->Create();
 
 		BufferData VertexData;
 		VertexData.DrawType = GL_DYNAMIC_DRAW;
 		VertexData.data = nullptr;
 		VertexData.VertexSize = sizeof(Vertex) * RenderData.MaxVertices;
 
-		RenderData.VertexBuffer = BufferObject::Generate(BufferType::VertexBuffer, VertexData);
+		RenderData.VertexBuffer = OpenGLBuffer::Generate(BufferType::VertexBuffer, VertexData);
 
-		constexpr GLsizei VertexStride = sizeof(Vertex);
+		RenderData.VertexArray->AttachAttribPointers(
+			{
+				AttributeType::FLOAT_3, // Position
+				AttributeType::FLOAT_4, // Color
+				AttributeType::FLOAT_3, // Normal
+				AttributeType::FLOAT_2, // Texture Coordiantes
+				AttributeType::FLOAT,	// Texture Unit
+				AttributeType::FLOAT,	// Material Unit
+				AttributeType::MAT_4	// Model/Transform Matrix
+			});
 
-
-
-		RenderData.VertexArray->AttribPointer(0, 3, GL_FLOAT, GL_FALSE, VertexStride, (void*)offsetof(Vertex, Vertex::Position)); //All vertex attributes that will be passed to shader are set up here
-		RenderData.VertexArray->AttribPointer(1, 4, GL_FLOAT, GL_FALSE, VertexStride, (void*)offsetof(Vertex, Vertex::Color));
-		RenderData.VertexArray->AttribPointer(2, 3, GL_FLOAT, GL_FALSE, VertexStride, (void*)offsetof(Vertex, Vertex::Normal));
-		RenderData.VertexArray->AttribPointer(3, 2, GL_FLOAT, GL_FALSE, VertexStride, (void*)offsetof(Vertex, Vertex::TextureCoordinates));
-		RenderData.VertexArray->AttribPointer(4, 1, GL_FLOAT, GL_FALSE, VertexStride, (void*)offsetof(Vertex, Vertex::TextureUnit));
-		RenderData.VertexArray->AttribPointer(5, 1, GL_FLOAT, GL_FALSE, VertexStride, (void*)offsetof(Vertex, Vertex::MaterialUnit));
-		RenderData.VertexArray->AttribPointer(6, 4, GL_FLOAT, GL_FALSE, VertexStride, (void*)offsetof(Vertex, Vertex::ModelMatrix)); //col 0
-		RenderData.VertexArray->AttribPointer(7, 4, GL_FLOAT, GL_FALSE, VertexStride, (void*)(offsetof(Vertex, Vertex::ModelMatrix) + (sizeof(GLfloat) * 4))); // col 1
-		RenderData.VertexArray->AttribPointer(8, 4, GL_FLOAT, GL_FALSE, VertexStride, (void*)(offsetof(Vertex, Vertex::ModelMatrix) + (sizeof(GLfloat) * 8))); // col 2
-		RenderData.VertexArray->AttribPointer(9, 4, GL_FLOAT, GL_FALSE, VertexStride, (void*)(offsetof(Vertex, Vertex::ModelMatrix) + (sizeof(GLfloat) * 12))); // col 3
 #pragma endregion QuadInit
 
 #pragma region CircleInit
@@ -156,21 +150,19 @@ namespace TGE
 		CircleVertexData.VertexSize = sizeof(CircleVertex) * RenderData.MaxVertices;
 
 		RenderData.CircleVertexArray = VertexArrayObject::Generate();
-		RenderData.CircleVertexArray->Create();
 		RenderData.CircleVertexArray->Bind();
 
-		RenderData.CircleVertexBuffer = BufferObject::Generate(BufferType::VertexBuffer, CircleVertexData);
+		RenderData.CircleVertexBuffer = OpenGLBuffer::Generate(BufferType::VertexBuffer, CircleVertexData);
 
-		constexpr GLsizei CircleVertexStride = sizeof(CircleVertex);
+		RenderData.CircleVertexArray->AttachAttribPointers(
+			{
+				AttributeType::FLOAT_3, //Position
+				AttributeType::FLOAT_4, //Color
+				AttributeType::FLOAT,	//Thickness
+				AttributeType::FLOAT,	//Material Unit
+				AttributeType::MAT_4	//Model/Transform Matrix
+			});
 
-		RenderData.CircleVertexArray->AttribPointer(0, 3, GL_FLOAT, GL_FALSE, CircleVertexStride, (void*)offsetof(CircleVertex, CircleVertex::Position));
-		RenderData.CircleVertexArray->AttribPointer(1, 4, GL_FLOAT, GL_FALSE, CircleVertexStride, (void*)offsetof(CircleVertex, CircleVertex::Color));
-		RenderData.CircleVertexArray->AttribPointer(2, 1, GL_FLOAT, GL_FALSE, CircleVertexStride, (void*)offsetof(CircleVertex, CircleVertex::Thickness));
-		RenderData.CircleVertexArray->AttribPointer(3, 1, GL_FLOAT, GL_FALSE, CircleVertexStride, (void*)offsetof(CircleVertex, CircleVertex::MaterialUnit));
-		RenderData.CircleVertexArray->AttribPointer(4, 4, GL_FLOAT, GL_FALSE, CircleVertexStride, (void*)offsetof(CircleVertex, CircleVertex::ModelMatrix));
-		RenderData.CircleVertexArray->AttribPointer(5, 4, GL_FLOAT, GL_FALSE, CircleVertexStride, (void*)(offsetof(CircleVertex, CircleVertex::ModelMatrix) + (sizeof(GLfloat) * 4)));
-		RenderData.CircleVertexArray->AttribPointer(6, 4, GL_FLOAT, GL_FALSE, CircleVertexStride, (void*)(offsetof(CircleVertex, CircleVertex::ModelMatrix) + (sizeof(GLfloat) * 8)));
-		RenderData.CircleVertexArray->AttribPointer(7, 4, GL_FLOAT, GL_FALSE, CircleVertexStride, (void*)(offsetof(CircleVertex, CircleVertex::ModelMatrix) + (sizeof(GLfloat) * 12)));
 #pragma endregion CircleInit
 
 #pragma region GeneralInit
@@ -191,14 +183,14 @@ namespace TGE
 		IndexData.DrawType = GL_STATIC_DRAW;
 		IndexData.VertexSize = sizeof(uint32_t) * RenderData.MaxIndicies;
 
-		RenderData.IndexBuffer = BufferObject::Generate(BufferType::IndexBuffer, IndexData);
+		RenderData.IndexBuffer = OpenGLBuffer::Generate(BufferType::IndexBuffer, IndexData);
 
 		BufferData UniformData;
 		UniformData.data = nullptr;
 		UniformData.DrawType = GL_DYNAMIC_DRAW;
 		UniformData.VertexSize = RenderData.MaterialStride * RenderData.MaxMaterialSlots;
 
-		RenderData.UniformBuffer = BufferObject::Generate(BufferType::UniformBuffer, UniformData);
+		RenderData.UniformBuffer = OpenGLBuffer::Generate(BufferType::UniformBuffer, UniformData);
 
 		DynamicData DynamicUniformRange;
 		DynamicUniformRange.Offset = 0;
@@ -219,7 +211,7 @@ namespace TGE
 		LightUniformData.DrawType = GL_DYNAMIC_DRAW;
 		LightUniformData.VertexSize = RenderData.LightStride * RenderData.MaxLightSources;
 
-		RenderData.LightUniformBuffer = BufferObject::Generate(BufferType::UniformBuffer, LightUniformData);
+		RenderData.LightUniformBuffer = OpenGLBuffer::Generate(BufferType::UniformBuffer, LightUniformData);
 
 		DynamicData LightUniformRange;
 		LightUniformRange.index = 1;
@@ -869,7 +861,7 @@ namespace TGE
 		ShaderStorageData.DrawType = GL_DYNAMIC_DRAW;
 		ShaderStorageData.VertexSize = sizeof(Circle) * 100;
 
-		s_RaytracingData.ShaderStorage = BufferObject::Generate(BufferType::ShaderStorageBuffer, ShaderStorageData);
+		s_RaytracingData.ShaderStorage = OpenGLBuffer::Generate(BufferType::ShaderStorageBuffer, ShaderStorageData);
 		s_RaytracingData.ShaderStorage->BindBase(1);
 
 		std::map<GLenum, std::string_view> ComputeShaderLocation =

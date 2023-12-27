@@ -33,7 +33,7 @@ namespace TGE
 		std::unique_ptr<Shader> UIShaders;
 
 		std::unique_ptr<VertexArrayObject> UIVao;
-		std::unique_ptr<BufferObject> UIVbo; //we can use same index buffer
+		std::unique_ptr<OpenGLBuffer> UIVbo; //we can use same index buffer
 
 		UIVertex* UIBuffer = nullptr;
 		UIVertex* UIBufferIndex = nullptr;
@@ -55,20 +55,20 @@ namespace TGE
 #pragma endregion RenderData
 
 #pragma region RenderBuffers
-		std::unique_ptr<BufferObject>       VertexBuffer;
-		std::unique_ptr<BufferObject>       IndexBuffer;
-		std::unique_ptr<BufferObject>       UniformBuffer; //Material Buffer
-		std::unique_ptr<BufferObject>       LightUniformBuffer; //Light Buffer;
+		std::unique_ptr<OpenGLBuffer>       VertexBuffer;
+		std::unique_ptr<OpenGLBuffer>       IndexBuffer;
+		std::unique_ptr<OpenGLBuffer>       UniformBuffer; //Material Buffer
+		std::unique_ptr<OpenGLBuffer>       LightUniformBuffer; //Light Buffer;
 		std::unique_ptr<VertexArrayObject>  VertexArray;
 		std::unique_ptr<Shader>				DefaultShader;
 
 
-		std::unique_ptr<BufferObject>			CircleVertexBuffer;
+		std::unique_ptr<OpenGLBuffer>			CircleVertexBuffer;
 		std::unique_ptr<VertexArrayObject>		CircleVertexArray;
 		std::unique_ptr<Shader>					CircleShader;
 
 
-		std::unique_ptr<BufferObject>			ShaderStorage;
+		std::unique_ptr<OpenGLBuffer>			ShaderStorage;
 		std::vector<glm::vec4>					ObjectAttributes;
 
 		uint32_t Indicies[MaxQuads * 6];
@@ -175,9 +175,9 @@ namespace TGE
 
 		std::shared_ptr<Texture> RenderImage;
 
-		std::unique_ptr<BufferObject> VertexBuffer;
-		std::unique_ptr<BufferObject> IndexBuffer;
-		std::unique_ptr<BufferObject> ShaderStorage;
+		std::unique_ptr<OpenGLBuffer> VertexBuffer;
+		std::unique_ptr<OpenGLBuffer> IndexBuffer;
+		std::unique_ptr<OpenGLBuffer> ShaderStorage;
 
 		uint32_t* Data = nullptr;
 		OrthoGraphicCamera OrthoCamera;

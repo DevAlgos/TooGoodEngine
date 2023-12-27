@@ -58,7 +58,7 @@ void main()
     float Shininess = MatSlots.Materials[MatID].SpecularStrength;
 
     vec3 TotalDiffuse = vec3(0.0);
-    vec3 FinalLightColor = vec3(0.0);
+    vec3 FinalLightColor = Ambient;
 
     for(int i = 0; i < NumbOfLightSrc; i++) {
         vec3 LightDirection = normalize(Lights.LightSrc[i].Position - WorldCoordinates);
@@ -77,7 +77,7 @@ void main()
         FinalSpecular *= Attenuation;
         
 
-        vec3 LightContribution = Lights.LightSrc[i].Color * (Ambient + FinalDiffuse + FinalSpecular);
+        vec3 LightContribution = Lights.LightSrc[i].Color * (FinalDiffuse + FinalSpecular);
         FinalLightColor += LightContribution;
     }
     

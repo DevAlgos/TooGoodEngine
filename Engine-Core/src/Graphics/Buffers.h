@@ -28,20 +28,20 @@ namespace TGE
 
 	enum class BufferType { VertexBuffer = 0, IndexBuffer, UniformBuffer, ShaderStorageBuffer };
 
-	class BufferObject
+	class OpenGLBuffer
 	{
 	public:
-		BufferObject(const BufferType& t, const BufferData& BufferData);
+		OpenGLBuffer(const BufferType& t, const BufferData& BufferData);
 
-		static std::unique_ptr<BufferObject> Generate(const BufferType& t, const BufferData& BufferData);
-		static std::shared_ptr<BufferObject> GenerateShared(const BufferType& t, const BufferData& BufferData);
+		static std::unique_ptr<OpenGLBuffer> Generate(const BufferType& t, const BufferData& BufferData);
+		static std::shared_ptr<OpenGLBuffer> GenerateShared(const BufferType& t, const BufferData& BufferData);
 
 		void Bind();
 		void PushData(const DynamicData& data);
 		void BindRange(const DynamicData& data);
 		void BindBase(GLuint index);
 
-		~BufferObject();
+		~OpenGLBuffer();
 
 	private:
 		uint32_t m_Buffer;
@@ -119,6 +119,9 @@ namespace TGE
 		~Framebuffer();
 
 		inline const void Bind() const { glBindFramebuffer(GL_FRAMEBUFFER, m_FramebufferHandle); }
+		inline const void UnBind() const { glBindFramebuffer(GL_FRAMEBUFFER, 0); }
+
+
 		inline const uint32_t Get() const { return m_FramebufferHandle; }
 
 		static std::unique_ptr<Framebuffer> Generate(const FramebufferData& data);
