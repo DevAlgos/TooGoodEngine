@@ -1,6 +1,6 @@
 workspace "TooGoodEngine"
     architecture "x64"
-    configurations { "Debug", "Release" }
+    configurations { "Debug", "Release", "DebugWithPython"}
     startproject "App"
 
     filter "system:windows"

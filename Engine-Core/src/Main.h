@@ -1,7 +1,7 @@
 #include "Application.h"
 #include "UserApplication.h"
 #include <memory>
-
+#include <Python.h>
 
 namespace tge
 {

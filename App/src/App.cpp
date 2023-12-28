@@ -86,9 +86,10 @@ private:
 	std::vector<Circle> Copy;
 };
 
+
 int main()
 {
-	Details AppDetails;
+	/*Details AppDetails;
 	AppDetails.ApplicationName = "TooGoodEngine";
 	AppDetails.Width = 1600;
 	AppDetails.Height = 900;
@@ -96,5 +97,22 @@ int main()
 	UserApplication NewApp(AppDetails);
 	NewApp.PushLayer(std::make_shared<Example>());
 
-	return tge::Main(NewApp);
+	return tge::Main(NewApp);*/
+
+	Py_Initialize();
+
+	FILE* file = nullptr;
+	fopen_s(&file, "../Resources/TestScripts/Test.py", "r");
+
+	if (file)
+	{
+		PyRun_AnyFileEx(file, "../Resources/TestScripts/Test.py", 1);
+		fclose(file);
+	}
+	else
+	{
+		std::cout << "incorrect path" << std::endl;
+	}
+
+	Py_Finalize();
 }

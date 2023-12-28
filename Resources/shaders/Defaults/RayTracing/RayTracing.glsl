@@ -63,16 +63,16 @@ float GenFloat(float Min, float Max)
 /*GGX Normal Distribution function
 
 This function is responsible for determining the alignement
-of the microfacets to the hafway vector, this is influence by the 
+of the microfacets to the hafway vector, this is influenced by the 
 roughness
 
 */
 float GGXNormalDistribution(float Roughness, float NdotH)
 {
-	float RoughnessSquared = pow(Roughness, 4.0);
-	float denominator = Pi * (pow(NdotH, 2.0) * (RoughnessSquared - 1.0) + 1.0);
+	float R2 = pow(Roughness, 2.0);
+	float denominator = Pi * (pow(NdotH, 2.0) * (R2 - 1.0) + 1.0);
 
-	return RoughnessSquared / max(denominator,0.00001);
+	return R2 / max(denominator,0.00001);
 }
 
 /*Schlick-Checkman Gemoetry shadowing function
@@ -126,42 +126,6 @@ vec3 GenInUnitSphere()
 }
 
 
-//generates a random new ray based on the microfacet model.
-//the roughness affects wether the new ray is reflected off like a mirror
-//or if the object is very rough it is reflected in a random direction
-
-vec3 ImportanceSampleGGX(vec3 Normal, float roughness)
-{
-	vec2 Sample = vec2(GenFloat(-1.0, 1.0), GenFloat(-1.0, 1.0));
-
-    float a = roughness * roughness;
-    
-	// Calculate theta and phi for our microfacet normal by
-    // importance sampling the Ggx distribution of normals
-    float phi = 2.0 * Pi * Sample.x;
-    float cosTheta = sqrt((1.0 - Sample.y) / (1.0 + (a * a - 1.0) * Sample.y));
-    float sinTheta = sqrt(1.0 - cosTheta * cosTheta);
-
-	// Convert from spherical to Cartesian coordinates
-    vec3 h;
-    h.x = sinTheta * cos(phi);
-    h.y = sinTheta * sin(phi);
-    h.z = cosTheta;
-
-	//Creates an up vector that is perpendicular to payload normal
-    vec3 up = abs(Normal.z) < 0.999 ? vec3(0.0, 0.0, 1.0) : vec3(1.0, 0.0, 0.0);
-
-	//creates a tangent to the normal
-    vec3 tangentX = normalize(cross(up, Normal));
-    vec3 tangentY = cross(Normal, tangentX);
-
-	//influences this tangent by the distribution generated.
-
-    return tangentX * h.x + tangentY * h.y + Normal * h.z;
-}
-
-
-
 
 vec4 Hit(in RayPayload payload, in vec3 AccumulatedLight, in vec3 Throughput)
 {
@@ -176,7 +140,7 @@ vec4 Hit(in RayPayload payload, in vec3 AccumulatedLight, in vec3 Throughput)
 	float NdotL = max(dot(payload.Normal, LightDirection),0.0);
 	float VdotH = max(dot(ViewDir, HalfWayDir), 0.0);
 
-	vec3  F0 = mix (vec3 (0.04), pow(Throughput, vec3 (2.2)), CircleData.Data[payload.ClosestCircleIndex].Reflectivity.x);
+	vec3  F0 = mix(vec3 (0.04), pow(Throughput, vec3 (2.2)), CircleData.Data[payload.ClosestCircleIndex].Reflectivity.x);
 	vec3 Specular = F(F0, VdotH); 
 	vec3 Diffuse = vec3(1.0) - Specular;
 
@@ -292,7 +256,7 @@ vec4 GenCircleRay(ivec2 Coordinate, float AspectRatio)
 	Payload.ClosestTarget = 3.402823466e+38;
 	Payload.ClosestCircleIndex = 0;
 
-	vec2 NewCoord = vec2(Coordinate.x / 1920.0, Coordinate.y / 1280.0) * 2.0 - 1.0;
+	vec2 NewCoord = vec2(Coordinate.x / 1920.0, Coordinate.y / 1080.0) * 2.0 - 1.0;
 	vec4 Target = InverseProjection * vec4(NewCoord, 1.0, 1.0);
 
 	Payload.Origin = CameraPosition;
@@ -304,7 +268,7 @@ vec4 GenCircleRay(ivec2 Coordinate, float AspectRatio)
 	vec3 AccumulatedLight = vec3(0.0);
 	vec3 Throughput = vec3(1.0);
 	
-	for (int bounce = 0; bounce < 3; bounce++)
+	for (int bounce = 0; bounce < 5; bounce++)
 	{
 		bool RayHit = TraceCircleRay(Payload);
 
@@ -320,7 +284,6 @@ vec4 GenCircleRay(ivec2 Coordinate, float AspectRatio)
 
 			Payload.Origin = Payload.IntersectionPoint + Payload.Normal * 0.0001;
 			//Payload.Direction = reflect(Payload.Direction, Payload.Normal);
-			//Payload.Direction = ImportanceSampleGGX(Payload.Normal, CircleData.Data[Payload.ClosestCircleIndex].Roughness.x);
 			Payload.Direction = normalize((GenInUnitSphere()*Roughness) + Payload.Normal);
 			HitOnce = true;
 		}

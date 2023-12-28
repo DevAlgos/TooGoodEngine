@@ -8,12 +8,19 @@ IncludeDir["freetype"] = "../Libs/freetype/include"
 IncludeDir["OpenAl"]="../Libs/openal-soft/include"
 IncludeDir["libsndfile"] = "../Libs/libsndfile/include"
 
-
-function runPreBuildCommands()
-    os.execute("cmake -B ../Libs/libsndfile -S ../Libs/libsndfile -DLIBTYPE=STATIC")
-    os.execute("cmake -B ../Libs/openal-soft -S ../Libs/openal-soft -DLIBTYPE=STATIC")
+function findPython()
+    local pythonDir = os.getenv("PYTHONHOME") or os.getenv("PYTHONPATH")
+    
+    if pythonDir then
+        includedirs { pythonDir .. "/include" }
+        libdirs { pythonDir .. "/libs" } -- Change this according to your Python installation structure
+        links { "python3" } -- Adjust the Python library name as needed
+        links { "python310" }
+    else
+        -- Handle the case when Python directory is not found
+        print("Python directory not found in environment variables.")
+    end
 end
-
 
 project "Engine-Core"
     kind "StaticLib"
@@ -34,7 +41,7 @@ project "Engine-Core"
         "ext/**.cpp"
     }
 
-    runPreBuildCommands()
+    findPython()
 
     includedirs 
     {
@@ -54,7 +61,7 @@ project "Engine-Core"
     {
         "FreeType",
         "sndfile",
-        "OpenAL",
+        "OpenAL32",
         "winmm",
         "GLFW",
         "Glad",
@@ -92,23 +99,23 @@ project "Engine-Core"
             "../Libs/libsndfile/Release",
             "../Libs/openal-soft/Release/"
         }
+    
+    filter "configurations:DebugWithPython"
+        defines { "DEBUG" }
+        runtime "Release"
+        symbols "On"
+
+        libdirs
+        {
+            "../Libs/libsndfile/Release",
+            "../Libs/openal-soft/Release"
+        }
+
+        
 
     group "Engine-Dependencies"
         include "../Libs/glfw"
         include "../Libs/glad"
         include "../Libs/imgui"
         include "../Libs/freetype"
-        externalproject "OpenAL"
-            location "../Libs/openal-soft" 
-            uuid "BE2461B7-236F-4278-81D3-F0D476F9A4C0"
-            kind "StaticLib" 
-            language "C++"
-            cppdialect "C++20"
-
-        externalproject "sndfile"
-            location "../Libs/libsndfile" 
-            uuid "BE2461B7-236F-4278-81D3-F0D476F9A4CD"
-            kind "StaticLib" 
-            language "C++"
-            cppdialect "C++20"
     group ""

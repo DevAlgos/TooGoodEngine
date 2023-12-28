@@ -8,6 +8,21 @@ IncludeDir["freetype"] = "../Libs/freetype/include"
 IncludeDir["OpenAl"]="../Libs/openal-soft/include"
 IncludeDir["libsndfile"] = "../Libs/libsndfile/include"
 
+
+function findPython()
+   local pythonDir = os.getenv("PYTHONHOME") or os.getenv("PYTHONPATH")
+   
+   if pythonDir then
+       includedirs { pythonDir .. "/include" }
+       libdirs { pythonDir .. "/libs" } -- Change this according to your Python installation structure
+       links { "python3" } -- Adjust the Python library name as needed
+       links { "python310" }
+   else
+       -- Handle the case when Python directory is not found
+       print("Python directory not found in environment variables.")
+   end
+end
+
 project "App"
    kind "ConsoleApp"
    language "C++"
@@ -37,6 +52,8 @@ project "App"
       IncludeDir["libsndfile"]
    }
 
+   findPython()
+
    links
    {
       "Engine-Core"
@@ -55,3 +72,8 @@ project "App"
        runtime "Release"
        optimize "On"
        symbols "On"
+      
+   filter "configurations:DebugWithPython"
+      defines { "DEBUG" }
+      runtime "Release"
+      symbols "On"
