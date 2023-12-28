@@ -5,79 +5,89 @@
 #include <functional>
 #include <type_traits>
 #include <Utils/Logger.h>
+#include <glm/glm.hpp>
+
+#include <Base.h>
+#include "Entity.h"
 
 namespace Ecs
 {
-	template<typename T, typename ...Args>
-	void* ConstructRawObject(Args&&... args)
+	template<typename T, typename... Args>
+	std::enable_if_t<std::is_constructible_v<T, Args...>, void*> ConstructObject(Args&&... args)
 	{
-		if (std::is_constructible_v<T>)
-			return new T(std::forward<Args>(args)...);
-		else
-			return nullptr; //Object destructor deleted
+		return new T(std::forward<Args>(args)...);
 	}
 
-	struct ComponentStorage
+	template<typename T, typename... Args>
+	std::enable_if_t<!std::is_constructible_v<T, Args...>, void*> ConstructObject(Args&&...)
 	{
-		inline constexpr bool operator==(const ComponentStorage& other) const { return Data == other.Data; }
-		inline constexpr bool operator!=(const ComponentStorage& other) const { return Data != other.Data; }
+		LOG_CORE_ERROR("Warning no suitable constructor for this object, nullptr returned!");
+		ENGINE_BREAK();
+		return nullptr; // Object cannot be constructed
+	}
 
-		inline ComponentStorage(const ComponentStorage& other)
-			: Data(other.Data)
+	struct Component
+	{
+		inline Component(const Component& other)
+			: m_Data(other.m_Data)
 		{
 		}
 
-		ComponentStorage& operator=(const ComponentStorage& other)
-		{
-			if (this != &other)
-			{
-				Clear();
-				Data = other.Data;
-			}
-			return *this;
-		}
-
-		inline ComponentStorage(ComponentStorage&& other) noexcept
-			: Data(std::move(other.Data))
-		{
-			other.RemoveOwnership();
-		}
-
-		ComponentStorage& operator=(ComponentStorage&& other) noexcept
+		Component& operator=(const Component& other)
 		{
 			if (this != &other)
 			{
 				Clear();
-				Data = std::move(other.Data);
-				other.Data = nullptr; 
+				m_Data = other.m_Data;
 			}
 			return *this;
 		}
 
-		inline constexpr ComponentStorage() noexcept : Data(nullptr) {}
+		inline Component(Component&& other) noexcept
+			: m_Data(std::move(other.m_Data))
+		{
+			other.m_Data = nullptr;
+		}
+
+		Component& operator=(Component&& other) noexcept
+		{
+			if (this != &other)
+			{
+				Clear();
+				m_Data = std::move(other.m_Data);
+				other.m_Data = nullptr;
+			}
+			return *this;
+		}
+
+		inline Component() noexcept : m_Data(nullptr), m_Entity("null entity", Ecs::NullEntity) {}
 
 		template<typename T, typename ...Args>
-		inline void Construct(Args&&... args)
+		inline void Construct(Ecs::Entity entity, Args&&... args)
 		{
-			Data = ConstructRawObject<T>(std::forward<Args>(args)...);
+			m_Data = ConstructObject<T>(std::forward<Args>(args)...);
+			m_Entity = Ecs::Entity(entity);
 		}
 
 		inline void Clear() 
 		{ 
-			delete Data; 
-			RemoveOwnership();
+			delete m_Data;
+			m_Data = nullptr;
+			m_Entity.~Entity();
 		}
 
-		inline void* GetRaw() { return Data; }
-
+		inline void* GetRaw() { return m_Data; }
 		template<typename T>
-		inline T* Get() {  return static_cast<T*>(Data); }
+		inline T* Get() {  return static_cast<T*>(m_Data); }
 
-		inline void RemoveOwnership() { Data = nullptr; }
-		inline ~ComponentStorage() noexcept { Clear(); }
+		inline const Ecs::Entity GetEntity() const { return m_Entity; }
+	
 
-		void* Data;
+		inline ~Component() noexcept { Clear(); }
 
+	private:
+		void* m_Data;
+		Ecs::Entity m_Entity;
 	};
 
 #pragma region Base Components List
@@ -224,6 +234,8 @@ namespace Ecs
 		glm::vec2 m_Scale;
 		float m_Rotation;
 	}; 
+
+#pragma endregion Base Components List
 
 
 }

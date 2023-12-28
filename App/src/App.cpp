@@ -87,6 +87,13 @@ private:
 };
 
 
+struct ExampleType
+{
+	float a, b;
+
+	ExampleType(float Oa, float Ob) : a(Oa), b(Ob) {}
+};
+
 int main()
 {
 	/*Details AppDetails;
@@ -98,6 +105,24 @@ int main()
 	NewApp.PushLayer(std::make_shared<Example>());
 
 	return tge::Main(NewApp);*/
+
+	Ecs::Entity entity;
+
+	Ecs::Registry registry;
+	registry.Emplace<ExampleType>(entity, 10.0f, 50.0f);
+
+	registry.View<ExampleType>([](auto component) 
+		{
+			std::cout << component->a << " " << component->b << std::endl;
+		});
+
+	registry.Delete<ExampleType>(entity);
+
+	registry.View<ExampleType>([](auto component)
+		{
+			std::cout << component->a << " " << component->b << std::endl;
+		});
+
 
 	/*Py_Initialize();
 

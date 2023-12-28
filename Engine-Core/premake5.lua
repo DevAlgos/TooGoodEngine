@@ -5,8 +5,8 @@ IncludeDir["ImGui"] = "../Libs/imgui"
 IncludeDir["glm"] = "../Libs/glm"
 IncludeDir["stb_image"] = "../Libs/STB"
 IncludeDir["freetype"] = "../Libs/freetype/include"
-IncludeDir["OpenAl"]="../Libs/openal-soft/include"
-IncludeDir["libsndfile"] = "../Libs/libsndfile/include"
+IncludeDir["OpenAl"]="../Libs/openal-soft-windows-build/include"
+IncludeDir["libsndfile"] = "../Libs/libsndfile-windows-build/include"
 
 function findPython()
     local pythonDir = os.getenv("PYTHONHOME") or os.getenv("PYTHONPATH")
@@ -86,8 +86,8 @@ project "Engine-Core"
 
         libdirs
         {
-            "../Libs/libsndfile/Debug",
-            "../Libs/openal-soft/Debug/"
+            "../Libs/libsndfile-windows-build/Debug-Bin",
+            "../Libs/openal-soft-windows-build/Debug-Bin"
         }
 
     filter "configurations:Release"
@@ -96,8 +96,8 @@ project "Engine-Core"
 
         libdirs
         {
-            "../Libs/libsndfile/Release",
-            "../Libs/openal-soft/Release/"
+            "../Libs/libsndfile-windows-build/Release-Bin",
+            "../Libs/openal-soft-windows-build/Release-Bin"
         }
     
     filter "configurations:DebugWithPython"
@@ -107,8 +107,8 @@ project "Engine-Core"
 
         libdirs
         {
-            "../Libs/libsndfile/Release",
-            "../Libs/openal-soft/Release"
+            "../Libs/libsndfile-windows-build/Release-Bin",
+            "../Libs/openal-soft-windows-build/Release-Bin"
         }
 
         

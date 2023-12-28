@@ -14,21 +14,21 @@ struct Cell
 		EntitiesInCell = other.EntitiesInCell;
 	}
 	
-	inline void AddEntityToCell(Ecs::Entity CurrentEntity)
+	inline void AddEntityToCell(Ecs::EntityID CurrentEntity)
 	{
 		auto iterator = std::find(EntitiesInCell.begin(), EntitiesInCell.end(), CurrentEntity);
 		if (iterator == EntitiesInCell.end())
 			EntitiesInCell.push_back(CurrentEntity);
 	}
 
-	inline void RemoveEntityFromCell(Ecs::Entity CurrentEntity)
+	inline void RemoveEntityFromCell(Ecs::EntityID CurrentEntity)
 	{
 		auto iterator = std::find(EntitiesInCell.begin(), EntitiesInCell.end(), CurrentEntity);
 		if (iterator != EntitiesInCell.end())
 			EntitiesInCell.erase(iterator);
 	}
 
-	std::vector<Ecs::Entity> EntitiesInCell;
+	std::vector<Ecs::EntityID> EntitiesInCell;
 };
 
 struct CollisionMap
@@ -45,14 +45,14 @@ struct CollisionMap
 			Map.emplace_back();
 	}
 
-	void AddEntity(int x, int y, Ecs::Entity Current)
+	void AddEntity(int x, int y, Ecs::EntityID Current)
 	{
 		int adjustedX = x + MapWidth / 2; 
 		int adjustedY = y + MapHeight / 2; 
 		Map[adjustedX + adjustedY * MapWidth].AddEntityToCell(Current);
 	}
 
-	void RemoveEntity(int x, int y, Ecs::Entity Current)
+	void RemoveEntity(int x, int y, Ecs::EntityID Current)
 	{
 		int adjustedX = x + MapWidth / 2;
 		int adjustedY = y + MapHeight / 2;

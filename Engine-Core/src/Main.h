@@ -2,6 +2,8 @@
 #include "UserApplication.h"
 #include <memory>
 #include <Python.h>
+#include <ECS/Registry.h>
+#include <Base.h>
 
 namespace tge
 {

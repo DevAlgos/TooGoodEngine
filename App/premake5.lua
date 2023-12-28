@@ -5,8 +5,8 @@ IncludeDir["ImGui"] = "../Libs/imgui"
 IncludeDir["glm"] = "../Libs/glm"
 IncludeDir["stb_image"] = "../Libs/STB"
 IncludeDir["freetype"] = "../Libs/freetype/include"
-IncludeDir["OpenAl"]="../Libs/openal-soft/include"
-IncludeDir["libsndfile"] = "../Libs/libsndfile/include"
+IncludeDir["OpenAl"]="../Libs/openal-soft-windows-build/include"
+IncludeDir["libsndfile"] = "../Libs/libsndfile-windows-build/include"
 
 
 function findPython()
