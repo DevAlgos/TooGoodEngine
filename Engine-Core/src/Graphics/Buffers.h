@@ -6,7 +6,7 @@
 #include <map>
 #include <variant>
 
-namespace TGE
+namespace tge
 {
 	static int s_GlobalID = 0;
 

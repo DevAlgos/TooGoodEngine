@@ -3,7 +3,7 @@
 #include <memory>
 
 
-namespace TGE
+namespace tge
 {
 	int Main(const UserApplication& UserApp)
 	{

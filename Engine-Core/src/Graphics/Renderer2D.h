@@ -9,7 +9,7 @@
 #include <UI/UIManager.h>
 #include <string_view>
 
-namespace TGE
+namespace tge
 {
 	struct RendererData2D
 	{
@@ -32,7 +32,7 @@ namespace TGE
 
 		std::unique_ptr<Shader> UIShaders;
 
-		std::unique_ptr<VertexArrayObject> UIVao;
+		std::unique_ptr<OpenGLVertexArray> UIVao;
 		std::unique_ptr<OpenGLBuffer> UIVbo; //we can use same index buffer
 
 		UIVertex* UIBuffer = nullptr;
@@ -59,12 +59,12 @@ namespace TGE
 		std::unique_ptr<OpenGLBuffer>       IndexBuffer;
 		std::unique_ptr<OpenGLBuffer>       UniformBuffer; //Material Buffer
 		std::unique_ptr<OpenGLBuffer>       LightUniformBuffer; //Light Buffer;
-		std::unique_ptr<VertexArrayObject>  VertexArray;
+		std::unique_ptr<OpenGLVertexArray>  VertexArray;
 		std::unique_ptr<Shader>				DefaultShader;
 
 
 		std::unique_ptr<OpenGLBuffer>			CircleVertexBuffer;
-		std::unique_ptr<VertexArrayObject>		CircleVertexArray;
+		std::unique_ptr<OpenGLVertexArray>		CircleVertexArray;
 		std::unique_ptr<Shader>					CircleShader;
 
 
@@ -174,17 +174,21 @@ namespace TGE
 		std::unique_ptr<Shader> Shaders;
 
 		std::shared_ptr<Texture> RenderImage;
+		std::unique_ptr<Texture> ScreenPixelData;
 
 		std::unique_ptr<OpenGLBuffer> VertexBuffer;
-		std::unique_ptr<OpenGLBuffer> IndexBuffer;
+
 		std::unique_ptr<OpenGLBuffer> ShaderStorage;
 
-		uint32_t* Data = nullptr;
+		glm::vec4* Data = nullptr;
 		OrthoGraphicCamera OrthoCamera;
 		Camera DebuggingCamera;
 
 		uint32_t SampleRate = 2;
+		uint32_t FrameIndex = 1;
 
+		glm::vec3 LastPosition = { 0.0f, 0.0f, 0.0f };
+		glm::vec3 LastFront = { 0.0f, 0.0f, -1.0f };
 	};
 
 	class Raytracing2D

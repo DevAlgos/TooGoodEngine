@@ -1,7 +1,7 @@
 #include <pch.h>
 #include "Shader.h"
 
-namespace TGE {
+namespace tge {
 	Shader::Shader(std::map<GLenum, std::string_view> shaders)
 	{
 		m_Program = glCreateProgram();
@@ -178,16 +178,24 @@ namespace TGE {
 	}
 	std::string Shader::LoadShaderFromFile(const char* fileLocation)
 	{
-		std::ifstream file(fileLocation);
-		if (!file.is_open())
-			LOGERROR("File Couldn't Open");
+		FILE* File = nullptr;
+		fopen_s(&File, fileLocation, "r");
 
-		std::string FileContents(
-			(std::istreambuf_iterator<char>(file)),
-			(std::istreambuf_iterator<char>())
-		);
+		if (!File)
+		{
+			LOG_CORE_ERROR("File couldn't open");
+			return "no shader";
+		}
 
+		std::string FileContents;
 
+		char buffer[100]{};
+
+		while (fgets(buffer, sizeof(buffer), File) != nullptr)
+			FileContents += buffer;
+		
+
+		fclose(File);
 		return FileContents;
 	}
 

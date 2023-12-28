@@ -3,7 +3,7 @@
 #include <glad/glad.h>
 #include <iostream>
 
-namespace TGE
+namespace tge
 {
 	enum class AttributeType
 	{
@@ -11,18 +11,18 @@ namespace TGE
 		MAT_4
 	};
 
-	class VertexArrayObject
+	class OpenGLVertexArray
 	{
 	public:
-		VertexArrayObject();
-		~VertexArrayObject();
+		OpenGLVertexArray();
+		~OpenGLVertexArray();
 
-		static std::unique_ptr<VertexArrayObject> Generate();
-		static std::shared_ptr<VertexArrayObject> GenerateShared();
+		static std::unique_ptr<OpenGLVertexArray> Generate();
+		static std::shared_ptr<OpenGLVertexArray> GenerateShared();
 
 		inline void Bind() { glBindVertexArray(m_VertexArrayHandle); }
 		inline void Unbind() { glBindVertexArray(0); }
-		inline uint32_t Get() { return m_VertexArrayHandle; }
+		inline const uint32_t Get() const { return m_VertexArrayHandle; }
 
 		void AttribPointer(GLuint index, GLint size, GLenum type, GLboolean normalised, GLsizei stride, const void* start);
 		void AttachAttribPointers(const std::vector<AttributeType>& Attribs);

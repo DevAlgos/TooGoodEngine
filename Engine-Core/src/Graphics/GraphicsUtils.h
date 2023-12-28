@@ -7,11 +7,11 @@
 #include <glm/gtc/type_ptr.hpp>
 
 
-static float FontMapWidth = static_cast<float>(TGE::GetMapWidth());
-static float FontMapHeight = static_cast<float>(TGE::GetMapHeight());
-static float PixelPerChar = static_cast<float>(TGE::GetPixelPerChar());
+static float FontMapWidth = static_cast<float>(tge::GetMapWidth());
+static float FontMapHeight = static_cast<float>(tge::GetMapHeight());
+static float PixelPerChar = static_cast<float>(tge::GetPixelPerChar());
 
-namespace TGE
+namespace tge
 {
 	static glm::vec3 QuadVertices[4] = 
 	{

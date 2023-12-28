@@ -8,7 +8,7 @@
 
 #include "CollisionMap.h"
 
-namespace TGE
+namespace tge
 {
 	struct PhysicsObject
 	{

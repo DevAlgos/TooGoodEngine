@@ -4,7 +4,7 @@
 #include <iostream>
 #include <unordered_map>
 
-namespace TGE {
+namespace tge {
 
 	enum class TextureType 
 	{   // Will add more when needed

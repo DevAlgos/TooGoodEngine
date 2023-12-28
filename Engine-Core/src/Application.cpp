@@ -5,7 +5,7 @@
 
 namespace
 {
-	static TGE::Window s_MainWindow;
+	static tge::Window s_MainWindow;
 	static std::unique_ptr<Utils::Clock> ApplicationClock;
 
 	static float deltaTime = 0.0f;
@@ -15,7 +15,7 @@ namespace
 	
 }
 
-namespace TGE
+namespace tge
 {
 	Application::Application(const UserApplication& App)
 		: Manager()

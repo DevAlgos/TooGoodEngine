@@ -22,10 +22,10 @@ namespace Utils
 	}
 	void EditorLayer::OnInit()
 	{
-		TGE::TextureData AudioImageData;
-		AudioImageData.Type = TGE::TextureType::Texture2D;
+		tge::TextureData AudioImageData;
+		AudioImageData.Type = tge::TextureType::Texture2D;
 
-		AudioIconImage = TGE::Texture::Generate("../Resources/Images/Audio.png", AudioImageData, TGE::Format::RGBA);
+		AudioIconImage = tge::Texture::Generate("../Resources/Images/Audio.png", AudioImageData, tge::Format::RGBA);
 
 		IMGUI_CHECKVERSION();
 		ImGui::CreateContext();
@@ -52,7 +52,7 @@ namespace Utils
 		style.WindowRounding						= 10.0f;
 		style.WindowBorderSize						= 1.0f;
 
-		ImGui_ImplGlfw_InitForOpenGL(TGE::Application::GetMainWindow().GetWindow(), true);
+		ImGui_ImplGlfw_InitForOpenGL(tge::Application::GetMainWindow().GetWindow(), true);
 		ImGui_ImplOpenGL3_Init("#version 460");
 
 	}
@@ -80,7 +80,7 @@ namespace Utils
 
 		if (opt_fullscreen)
 		{
-			ImGui::Image((void*)(intptr_t)TGE::Raytracing2D::GetRenderImage()->Get(), {ImGui::GetContentRegionAvail().x,
+			ImGui::Image((void*)(intptr_t)tge::Raytracing2D::GetRenderImage()->Get(), {ImGui::GetContentRegionAvail().x,
 			ImGui::GetContentRegionAvail().y },
 				{ 0,1 }, { 1,0 });
 
@@ -122,7 +122,7 @@ namespace Utils
 
 			if (!AudioFileMap.contains(Entry))
 			{
-				TGE::AudioHandle NewSource = TGE::Audio::Load(Entry);
+				tge::AudioHandle NewSource = tge::Audio::Load(Entry);
 				AudioFileMap.insert({ Entry, NewSource });
 			}
 
@@ -134,12 +134,12 @@ namespace Utils
 
 			if (Pressed)
 			{
-				TGE::SourceData data;
-				TGE::Source Src = TGE::Audio::GenerateSource(data, AudioFileMap[Entry]);
+				tge::SourceData data;
+				tge::Source Src = tge::Audio::GenerateSource(data, AudioFileMap[Entry]);
 
 				Sources.push_back(Src);
 
-				TGE::Audio::Submit(Src);
+				tge::Audio::Submit(Src);
 			}
 
 			ImGui::TextWrapped("%s", dir_entry.path().filename().string().c_str());
@@ -169,11 +169,11 @@ namespace Utils
 			ImGui::SetColumnWidth(index, 200.0f);
 
 			if (ImGui::Button("Play"))
-				TGE::Audio::Play(Src);
+				tge::Audio::Play(Src);
 			
 
 			if (ImGui::Button("Pause"))
-				TGE::Audio::PauseSource(Src);
+				tge::Audio::PauseSource(Src);
 
 			bool PressedSliderFloat		=	ImGui::SliderFloat("Pitch", &Src.Data.Pitch, 0.0f, 1.0f);
 			bool PressedSliderFloat2	=	ImGui::SliderFloat("Gain", &Src.Data.Gain, 0.0f, 1.0f);
@@ -183,7 +183,7 @@ namespace Utils
 
 
 			if (PressedSliderFloat || PressedSliderFloat2 || CheckedBox || ChangedVelocity || ChangedPosition)
-				TGE::Audio::EditSource(Src);
+				tge::Audio::EditSource(Src);
 
 			if (ImGui::Button("Destroy Source"))
 			{
@@ -191,7 +191,7 @@ namespace Utils
 
 				if (it != Sources.end())
 				{
-					TGE::Audio::RemoveSource(Src);
+					tge::Audio::RemoveSource(Src);
 					Sources.erase(it);
 				}
 			}
@@ -208,7 +208,7 @@ namespace Utils
 	{
 		ImGui::Begin("Debug Window");
 		ImGui::Text("FPS: %.1f", ImGui::GetIO().Framerate);
-		ImGui::Text("MS per frame: %.1f", TGE::Application::GetCurrentDelta());
+		ImGui::Text("MS per frame: %.1f", tge::Application::GetCurrentDelta());
 		ImGui::End();
 	}
 	void EditorLayer::DisplayLog()

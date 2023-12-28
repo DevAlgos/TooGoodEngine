@@ -6,8 +6,8 @@
 
 namespace
 {
-	static TGE::RendererData2D RenderData;
-	static TGE::RaytracingData s_RaytracingData;
+	static tge::RendererData2D RenderData;
+	static tge::RaytracingData s_RaytracingData;
 
 	static glm::vec3 TestOrigin(0.0f);
 
@@ -23,7 +23,7 @@ namespace
 	}
 }
 
-namespace TGE
+namespace tge
 {
 	void Renderer2D::Init()
 	{
@@ -68,7 +68,7 @@ namespace TGE
 		RenderData.UIShaders->Use();
 		RenderData.UIShaders->SetUniformIntV("samplerTextures", samplers, RenderData.MaxTextureSlots);
 
-		RenderData.UIVao = VertexArrayObject::Generate();
+		RenderData.UIVao = OpenGLVertexArray::Generate();
 		RenderData.UIVao->Bind();
 
 		BufferData UIBufferData;
@@ -110,7 +110,7 @@ namespace TGE
 
 		memset(RenderData.TextureSlots.data(), 0, RenderData.MaxTextureSlots);
 
-		RenderData.VertexArray = VertexArrayObject::Generate();
+		RenderData.VertexArray = OpenGLVertexArray::Generate();
 
 		BufferData VertexData;
 		VertexData.DrawType = GL_DYNAMIC_DRAW;
@@ -149,7 +149,7 @@ namespace TGE
 		CircleVertexData.data = nullptr;
 		CircleVertexData.VertexSize = sizeof(CircleVertex) * RenderData.MaxVertices;
 
-		RenderData.CircleVertexArray = VertexArrayObject::Generate();
+		RenderData.CircleVertexArray = OpenGLVertexArray::Generate();
 		RenderData.CircleVertexArray->Bind();
 
 		RenderData.CircleVertexBuffer = OpenGLBuffer::Generate(BufferType::VertexBuffer, CircleVertexData);
@@ -824,8 +824,8 @@ namespace TGE
 		CameraData.Front = glm::vec3(0.0f, 0.0f, -1.0f);
 		CameraData.Up = glm::vec3(0.0f, 1.0f, 0.0f);
 
-		CameraData.AspectRatio = (float)TGE::Application::GetMainWindow().GetWidth() /
-			(float)TGE::Application::GetMainWindow().GetHeight();
+		CameraData.AspectRatio = (float)tge::Application::GetMainWindow().GetWidth() /
+			(float)tge::Application::GetMainWindow().GetHeight();
 
 		CameraData.ZoomLevel = 1.0f;
 		CameraData.CameraSpeed = 1.0f;
@@ -841,7 +841,7 @@ namespace TGE
 		ImageData.Width  =         s_RaytracingData.ImageWidth;
 		ImageData.Height =         s_RaytracingData.ImageHeight;
 		ImageData.Type   =		   TextureType::Texture2D;
-		ImageData.InternalFormat = TextureFormat::RGBA8;
+		ImageData.InternalFormat = TextureFormat::RGBA32F;
 		ImageData.TextureParamaters =
 		{
 			{GL_TEXTURE_MIN_FILTER, GL_NEAREST},
@@ -850,19 +850,42 @@ namespace TGE
 			{GL_TEXTURE_WRAP_T,		GL_CLAMP_TO_EDGE}	
 		};
 
-		s_RaytracingData.Data = new uint32_t[s_RaytracingData.ImageWidth * s_RaytracingData.ImageHeight];
+		s_RaytracingData.Data = new glm::vec4[s_RaytracingData.ImageWidth * s_RaytracingData.ImageHeight];
 		for (size_t i = 0; i < s_RaytracingData.ImageWidth * s_RaytracingData.ImageHeight; i++)
-			s_RaytracingData.Data[i] = 0xFF000000;
+			s_RaytracingData.Data[i] = glm::vec4(0.0f, 0.0f, 0.0f, 1.0f);
 		
-		s_RaytracingData.RenderImage = Texture::Generate(s_RaytracingData.Data, ImageData);
+		s_RaytracingData.RenderImage = Texture::GenerateShared(glm::value_ptr(s_RaytracingData.Data[0]), ImageData);
+		s_RaytracingData.ScreenPixelData = Texture::Generate(glm::value_ptr(s_RaytracingData.Data[0]), ImageData);
 
-		BufferData ShaderStorageData{};
-		ShaderStorageData.data = nullptr;
-		ShaderStorageData.DrawType = GL_DYNAMIC_DRAW;
-		ShaderStorageData.VertexSize = sizeof(Circle) * 100;
+		{
+			BufferData ShaderStorageData{};
+			ShaderStorageData.data = nullptr;
+			ShaderStorageData.DrawType = GL_DYNAMIC_DRAW;
+			ShaderStorageData.VertexSize = sizeof(Circle) * 100;
 
-		s_RaytracingData.ShaderStorage = OpenGLBuffer::Generate(BufferType::ShaderStorageBuffer, ShaderStorageData);
-		s_RaytracingData.ShaderStorage->BindBase(1);
+			s_RaytracingData.ShaderStorage = OpenGLBuffer::Generate(BufferType::ShaderStorageBuffer, ShaderStorageData);
+			s_RaytracingData.ShaderStorage->BindBase(1);
+		}
+
+		{
+			float QuadVertices[] = {
+					-1.0f,  1.0f,  0.0f, 1.0f,
+					-1.0f, -1.0f,  0.0f, 0.0f,
+					 1.0f, -1.0f,  1.0f, 0.0f,
+
+					-1.0f,  1.0f,  0.0f, 1.0f,
+					 1.0f, -1.0f,  1.0f, 0.0f,
+					 1.0f,  1.0f,  1.0f, 1.0f
+			};
+
+			BufferData VertexBufferData{};
+			VertexBufferData.data = QuadVertices;
+			VertexBufferData.DrawType = GL_STATIC_DRAW;
+			VertexBufferData.VertexSize = sizeof(float) * 24;
+
+			s_RaytracingData.VertexBuffer = OpenGLBuffer::Generate(BufferType::VertexBuffer, VertexBufferData);
+		}
+
 
 		std::map<GLenum, std::string_view> ComputeShaderLocation =
 		{ {GL_COMPUTE_SHADER, "../Resources/Shaders/Defaults/RayTracing/RayTracing.glsl"} };
@@ -870,6 +893,11 @@ namespace TGE
 		s_RaytracingData.ComputeShaders = Shader::Generate(ComputeShaderLocation);
 
 		Attachment attachment(AttachmentType::Color, s_RaytracingData.ImageWidth, s_RaytracingData.ImageHeight);
+
+		delete[] s_RaytracingData.Data;
+
+
+	
 
 		/* Triangles will come in later as they are a bit more complicated 
 		*  For now a basice pipeline will be established that is fast and efficient
@@ -1029,7 +1057,16 @@ namespace TGE
 	{
 
 		//s_RaytracingData.OrthoCamera.Update(Application::GetCurrentDeltaSecond());
+		s_RaytracingData.LastPosition = s_RaytracingData.DebuggingCamera.GetPosition();
+		s_RaytracingData.LastFront = s_RaytracingData.DebuggingCamera.GetFront(); 
+
 		s_RaytracingData.DebuggingCamera.Update(Application::GetCurrentDeltaSecond());
+
+		if (s_RaytracingData.LastFront != s_RaytracingData.DebuggingCamera.GetFront() ||
+			s_RaytracingData.LastPosition != s_RaytracingData.DebuggingCamera.GetPosition())
+		{
+			s_RaytracingData.FrameIndex = 1;
+		}
 
 		DynamicData ShaderStorageData{};
 
@@ -1044,15 +1081,18 @@ namespace TGE
 		glm::vec3 Pos = s_RaytracingData.DebuggingCamera.GetPosition();
 
 		s_RaytracingData.ComputeShaders->SetUniformInt("NumberOfObjects", s_RaytracingData.CircleData.size());
-		s_RaytracingData.ComputeShaders->SetUniformInt("SampleRate", static_cast<int>(s_RaytracingData.SampleRate));
+		//s_RaytracingData.ComputeShaders->SetUniformInt("SampleRate", static_cast<int>(s_RaytracingData.SampleRate));
 		s_RaytracingData.ComputeShaders->SetUniformFloat3("CameraPosition", Pos.x, Pos.y, Pos.z);
 		s_RaytracingData.ComputeShaders->setUniformMat4("InverseView", s_RaytracingData.DebuggingCamera.GetInverseView());
 		s_RaytracingData.ComputeShaders->setUniformMat4("InverseProjection", s_RaytracingData.DebuggingCamera.GetInverseProjection());
+		s_RaytracingData.ComputeShaders->SetUniformInt("FrameIndex", static_cast<int>(s_RaytracingData.FrameIndex));
 
 		s_RaytracingData.RenderImage->BindImage(0);
+		s_RaytracingData.ScreenPixelData->BindImage(1);
 		s_RaytracingData.ComputeShaders->Compute(std::ceil(s_RaytracingData.ImageWidth / 8),
 												 std::ceil(s_RaytracingData.ImageHeight / 4), 1);
 		s_RaytracingData.CircleData.clear();
+		s_RaytracingData.FrameIndex++;
 	}
 	void Raytracing2D::Shutdown()
 	{

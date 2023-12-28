@@ -30,12 +30,12 @@ namespace Utils
 		void DisplayLog();
 
 	private:
-		std::unique_ptr<TGE::Texture> AudioIconImage;
+		std::unique_ptr<tge::Texture> AudioIconImage;
 
-		std::unordered_map<std::string, TGE::AudioHandle> AudioFileMap;
+		std::unordered_map<std::string, tge::AudioHandle> AudioFileMap;
 		const std::filesystem::path AudioFiles{ "../Resources/Audio" };
 
-	    std::vector<TGE::Source> Sources;
+	    std::vector<tge::Source> Sources;
 
 		std::vector<Utils::LogData> MessagesToDraw;
 		bool ScrollToBottom = false;

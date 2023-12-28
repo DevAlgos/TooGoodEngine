@@ -4,7 +4,7 @@
 #include <Utils/Layers/LayerManager.h>
 #include <UserApplication.h>
 
-namespace TGE 
+namespace tge 
 {
 
     class Application
@@ -13,12 +13,12 @@ namespace TGE
         Application(const Application&) = delete;
         Application& operator=(const Application&) = delete;
 
-        Application(const TGE::UserApplication& App);
+        Application(const tge::UserApplication& App);
         ~Application();
 
         void Run();
 
-        static TGE::Window& GetMainWindow();
+        static tge::Window& GetMainWindow();
 
         int64_t GetCurrentTime();
 

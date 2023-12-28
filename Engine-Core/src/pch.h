@@ -50,7 +50,7 @@
 #include <Utils/Threading/CommandQueue.h>
 
 #include <Utils/Utils.h>
-#include <Utils/InputManager.h>
+#include <Utils/Input.h>
 #include <Utils/Camera.h>
 #include <Utils/Logger.h>
 #include <Window.h>

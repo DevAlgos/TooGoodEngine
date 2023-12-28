@@ -2,6 +2,7 @@
 
 layout(local_size_x = 8, local_size_y = 4, local_size_z = 1) in;
 layout(rgba32f, binding = 0) uniform image2D screen;
+layout(rgba32f, binding = 1) uniform image2D screenPixelData;
 
 struct Circle
 {
@@ -32,9 +33,9 @@ layout(std430, binding = 1) readonly buffer CircleD
     Circle Data[];
 } CircleData;
 
-
+uniform int FrameIndex;
 uniform int NumberOfObjects;
-uniform int SampleRate;
+//uniform int SampleRate;
 uniform mat4 InverseView;
 uniform mat4 InverseProjection;
 uniform vec3 CameraPosition;
@@ -119,6 +120,11 @@ vec3 GenCosineWeightedSample()
 	return vec3(sin(Angle1) * cos(Angle2), cos(Angle2), cos(Angle1) * sin(Angle2));
 }
 
+vec3 GenInUnitSphere()
+{
+	return vec3(GenFloat(-1.0, 1.0), GenFloat(-1.0, 1.0), GenFloat(-1.0, 1.0));
+}
+
 
 //generates a random new ray based on the microfacet model.
 //the roughness affects wether the new ray is reflected off like a mirror
@@ -159,7 +165,7 @@ vec3 ImportanceSampleGGX(vec3 Normal, float roughness)
 
 vec4 Hit(in RayPayload payload, in vec3 AccumulatedLight, in vec3 Throughput)
 {
-	vec3 LightDirection = normalize(-1 * (vec3(-1.0, -1.0, -1.0)));
+	vec3 LightDirection = payload.Direction;
 	float Roughness = CircleData.Data[payload.ClosestCircleIndex].Roughness.x;
 	
 	vec3 ViewDir = normalize(CameraPosition - vec3(CircleData.Data[payload.ClosestCircleIndex].Position));
@@ -170,7 +176,7 @@ vec4 Hit(in RayPayload payload, in vec3 AccumulatedLight, in vec3 Throughput)
 	float NdotL = max(dot(payload.Normal, LightDirection),0.0);
 	float VdotH = max(dot(ViewDir, HalfWayDir), 0.0);
 
-	vec3  F0 = vec3(CircleData.Data[payload.ClosestCircleIndex].Reflectivity);//mix (vec3 (0.04), pow(Throughput, vec3 (2.2)), 1.0);
+	vec3  F0 = mix (vec3 (0.04), pow(Throughput, vec3 (2.2)), CircleData.Data[payload.ClosestCircleIndex].Reflectivity.x);
 	vec3 Specular = F(F0, VdotH); 
 	vec3 Diffuse = vec3(1.0) - Specular;
 
@@ -229,62 +235,114 @@ bool TraceCircleRay(inout RayPayload Payload)
 
 vec4 GenCircleRay(ivec2 Coordinate, float AspectRatio)
 {
-	vec4 AverageColor = vec4(0.0);
+//	for(int i = 0; i < SampleRate; i++)
+//	{
+//		RayPayload Payload;
+//		Payload.ClosestTarget = 3.402823466e+38;
+//		Payload.ClosestCircleIndex = 0;
+//
+//		vec2 NewCoord = vec2(Coordinate.x / 1920.0, Coordinate.y / 1280.0) * 2.0 - 1.0;
+//		vec4 Target = InverseProjection * vec4(NewCoord, 1.0, 1.0);
+//
+//		Payload.Origin = CameraPosition;
+//		Payload.Direction =  vec3(InverseView * vec4(normalize(vec3(Target) / Target.w), 0));
+//
+//
+//		bool HitOnce = false;
+//
+//		vec3 AccumulatedLight = vec3(0.0);
+//		vec3 Throughput = vec3(1.0);
+//		
+//		for (int bounce = 0; bounce < 5; bounce++)
+//		{
+//			bool RayHit = TraceCircleRay(Payload);
+//
+//			if (RayHit)
+//			{
+//				Throughput  *= vec3(CircleData.Data[Payload.ClosestCircleIndex].Albedo);
+//				AccumulatedLight += vec3(CircleData.Data[Payload.ClosestCircleIndex].Emission);
+//
+//				Payload.IntersectionPoint = Payload.Origin + Payload.ClosestTarget * Payload.Direction;
+//				Payload.Normal = normalize(Payload.IntersectionPoint - vec3(CircleData.Data[Payload.ClosestCircleIndex].Position));
+//
+//				float Roughness = CircleData.Data[Payload.ClosestCircleIndex].Roughness.x;
+//
+//				Payload.Origin = Payload.IntersectionPoint + Payload.Normal * 0.0001;
+//				//Payload.Direction = reflect(Payload.Direction, Payload.Normal);
+//				Payload.Direction = ImportanceSampleGGX(Payload.Normal, CircleData.Data[Payload.ClosestCircleIndex].Roughness.x);
+//				//Payload.Direction = normalize((GenCosineWeightedSample()*Roughness) + Payload.Normal);
+//				HitOnce = true;
+//			}
+//			else
+//			{
+//				AccumulatedLight += vec3(0.1, 0.1, 0.1) * Throughput;
+//				break;
+//			}
+//		}
+//
+//		if(HitOnce)
+//			AverageColor += Hit(Payload, AccumulatedLight, Throughput);
+//		else
+//			AverageColor += vec4(AccumulatedLight, 1.0);
+//		
+//
+//	}
 
-	for(int i = 0; i < SampleRate; i++)
+	RayPayload Payload;
+	Payload.ClosestTarget = 3.402823466e+38;
+	Payload.ClosestCircleIndex = 0;
+
+	vec2 NewCoord = vec2(Coordinate.x / 1920.0, Coordinate.y / 1280.0) * 2.0 - 1.0;
+	vec4 Target = InverseProjection * vec4(NewCoord, 1.0, 1.0);
+
+	Payload.Origin = CameraPosition;
+	Payload.Direction =  vec3(InverseView * vec4(normalize(vec3(Target) / Target.w), 0));
+
+
+	bool HitOnce = false;
+
+	vec3 AccumulatedLight = vec3(0.0);
+	vec3 Throughput = vec3(1.0);
+	
+	for (int bounce = 0; bounce < 3; bounce++)
 	{
-		RayPayload Payload;
-		Payload.ClosestTarget = 3.402823466e+38;
-		Payload.ClosestCircleIndex = 0;
+		bool RayHit = TraceCircleRay(Payload);
 
-		vec2 NewCoord = vec2(Coordinate.x / 1920.0, Coordinate.y / 1280.0) * 2.0 - 1.0;
-		vec4 Target = InverseProjection * vec4(NewCoord, 1.0, 1.0);
-
-		Payload.Origin = CameraPosition;
-		Payload.Direction =  vec3(InverseView * vec4(normalize(vec3(Target) / Target.w), 0));
-
-
-		bool HitOnce = false;
-
-		vec3 AccumulatedLight = vec3(0.0);
-		vec3 Throughput = vec3(1.0);
-		
-		for (int bounce = 0; bounce < 5; bounce++)
+		if (RayHit)
 		{
-			bool RayHit = TraceCircleRay(Payload);
+			Throughput  *= vec3(CircleData.Data[Payload.ClosestCircleIndex].Albedo);
+			AccumulatedLight += vec3(CircleData.Data[Payload.ClosestCircleIndex].Emission);
 
-			if (RayHit)
-			{
-				Throughput  *= vec3(CircleData.Data[Payload.ClosestCircleIndex].Albedo);
-				AccumulatedLight += vec3(CircleData.Data[Payload.ClosestCircleIndex].Emission);
+			Payload.IntersectionPoint = Payload.Origin + Payload.ClosestTarget * Payload.Direction;
+			Payload.Normal = normalize(Payload.IntersectionPoint - vec3(CircleData.Data[Payload.ClosestCircleIndex].Position));
 
-				Payload.IntersectionPoint = Payload.Origin + Payload.ClosestTarget * Payload.Direction;
-				Payload.Normal = normalize(Payload.IntersectionPoint - vec3(CircleData.Data[Payload.ClosestCircleIndex].Position));
+			float Roughness = CircleData.Data[Payload.ClosestCircleIndex].Roughness.x;
 
-				float Roughness = CircleData.Data[Payload.ClosestCircleIndex].Roughness.x;
-
-				Payload.Origin = Payload.IntersectionPoint + Payload.Normal * 0.0001;
-				//Payload.Direction = reflect(Payload.Direction, Payload.Normal);
-				Payload.Direction = ImportanceSampleGGX(Payload.Normal, CircleData.Data[Payload.ClosestCircleIndex].Roughness.x);
-				//Payload.Direction = normalize((GenCosineWeightedSample()*Roughness) + Payload.Normal);
-				HitOnce = true;
-			}
-			else
-			{
-				AccumulatedLight += vec3(0.1, 0.1, 0.1) * Throughput;
-				break;
-			}
+			Payload.Origin = Payload.IntersectionPoint + Payload.Normal * 0.0001;
+			//Payload.Direction = reflect(Payload.Direction, Payload.Normal);
+			//Payload.Direction = ImportanceSampleGGX(Payload.Normal, CircleData.Data[Payload.ClosestCircleIndex].Roughness.x);
+			Payload.Direction = normalize((GenInUnitSphere()*Roughness) + Payload.Normal);
+			HitOnce = true;
 		}
-
-		if(HitOnce)
-			AverageColor += Hit(Payload, AccumulatedLight, Throughput);
 		else
-			AverageColor += vec4(AccumulatedLight, 1.0);
-		
-
+		{
+			AccumulatedLight += vec3(0.1, 0.1, 0.1) * Throughput;
+			break;
+		}
 	}
 
-	AverageColor /= SampleRate;
+	vec4 val = vec4(0.0);
+
+	if(HitOnce)
+		val = Hit(Payload, AccumulatedLight, Throughput);
+	else
+		val = vec4(AccumulatedLight, 1.0);
+
+
+	vec4 PreviousValue = imageLoad(screenPixelData, Coordinate);
+	imageStore(screenPixelData, Coordinate, PreviousValue + val);
+
+	vec4 AverageColor = (PreviousValue + val) / FrameIndex;
 
 	return AverageColor;
 	
@@ -297,9 +355,12 @@ void main()
 	vec4 value = vec4(0.0);
     ivec2 Coordinate = ivec2(gl_GlobalInvocationID.xy);
 
+	if(FrameIndex == 1)
+		imageStore(screenPixelData, Coordinate, vec4(0.0, 0.0, 0.0, 1.0));
+
 	CurrentSeed = PCGHash(CurrentSeed * uint(length(Coordinate) + 1));
 
-	float AspectRatio = 1280.0 / 720.0;
+	float AspectRatio = 1920.0 / 1080.0;
 
 	value = GenCircleRay(Coordinate, AspectRatio);
 

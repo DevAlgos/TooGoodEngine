@@ -5,7 +5,7 @@
 #include <Utils/Layers/BaseLayer.h>
 #include <memory>
 
-namespace TGE
+namespace tge
 {
 	struct Details
 	{

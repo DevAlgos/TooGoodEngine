@@ -11,7 +11,7 @@ constexpr uint32_t FONTMAP_HEIGHT = 1024U;
 constexpr uint32_t PIXEL_PER_CHAR = 64U;
 
 
-namespace TGE
+namespace tge
 {
 	UIManager::UIManager()
 		: m_FaceCount(1)

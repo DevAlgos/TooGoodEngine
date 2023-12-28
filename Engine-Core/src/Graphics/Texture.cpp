@@ -2,7 +2,7 @@
 #include "Texture.h"
 
 
-namespace TGE 
+namespace tge 
 {
 	Texture::Texture(const std::string_view& FileLocation, const TextureData& textureData, const Format& format)
 		: m_Texture(0), m_TextureData(textureData), m_InternalFormat(GL_RGBA8), m_FileFormat(0)
@@ -24,7 +24,7 @@ namespace TGE
 
 		switch (m_TextureData.Type)
 		{
-		case TGE::TextureType::Texture2D:
+		case tge::TextureType::Texture2D:
 			m_TextureType = GL_TEXTURE_2D;
 			CreateTexture(GL_TEXTURE_2D, FileLocation);
 			break;
@@ -46,7 +46,7 @@ namespace TGE
 
 		switch (m_TextureData.Type)
 		{
-		case TGE::TextureType::Texture2D: 
+		case tge::TextureType::Texture2D: 
 			m_TextureType = GL_TEXTURE_2D;
 			CreateTexture(GL_TEXTURE_2D, Data);
 			break;
@@ -68,11 +68,11 @@ namespace TGE
 
 		switch (m_TextureData.Type)
 		{
-		case TGE::TextureType::Texture2D:
+		case tge::TextureType::Texture2D:
 			m_TextureType = GL_TEXTURE_2D;
 			CreateTexture(GL_TEXTURE_2D, Data);
 			break;
-		case TGE::TextureType::Texture2DMultisample:
+		case tge::TextureType::Texture2DMultisample:
 			m_TextureType = GL_TEXTURE_2D_MULTISAMPLE;
 			CreateTexture(GL_TEXTURE_2D_MULTISAMPLE, Data);
 			break;

@@ -16,7 +16,7 @@ namespace
 	};
 }
 
-namespace TGE 
+namespace tge 
 {
 
 	OpenGLBuffer::OpenGLBuffer(const BufferType& Type, const BufferData& BufferData)
@@ -24,10 +24,10 @@ namespace TGE
 	{
 		switch (Type)
 		{
-		case TGE::BufferType::VertexBuffer:        m_Type = GL_ARRAY_BUFFER; break;	
-		case TGE::BufferType::IndexBuffer:		   m_Type = GL_ELEMENT_ARRAY_BUFFER; break;
-		case TGE::BufferType::UniformBuffer:	   m_Type = GL_UNIFORM_BUFFER; break;
-		case TGE::BufferType::ShaderStorageBuffer: m_Type = GL_SHADER_STORAGE_BUFFER; break;
+		case tge::BufferType::VertexBuffer:        m_Type = GL_ARRAY_BUFFER; break;	
+		case tge::BufferType::IndexBuffer:		   m_Type = GL_ELEMENT_ARRAY_BUFFER; break;
+		case tge::BufferType::UniformBuffer:	   m_Type = GL_UNIFORM_BUFFER; break;
+		case tge::BufferType::ShaderStorageBuffer: m_Type = GL_SHADER_STORAGE_BUFFER; break;
 		default:								   m_Type = GL_ARRAY_BUFFER; break;
 		}
 

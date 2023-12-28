@@ -1,5 +1,5 @@
 #include "pch.h"
-#include "InputManager.h"
+#include "Input.h"
 
 namespace 
 {
@@ -22,7 +22,7 @@ namespace
     }
 }
 
-namespace InputManager 
+namespace Input 
 {
     void BeginPolling(GLFWwindow* window)
     {
@@ -88,17 +88,7 @@ namespace InputManager
 
     void GetMousePos(double& x, double& y)
     {
-        if (Cursor)
-        {
-            s_LastX = x;
-            s_LastY = y;
-            glfwGetCursorPos(s_Window, &x, &y);
-        }
-        else
-        {
-            x = s_LastX;
-            y = s_LastY;
-        }
+       glfwGetCursorPos(s_Window, &x, &y);
     }
 
     void DisableCursor()

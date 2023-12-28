@@ -3,7 +3,7 @@
 
 namespace
 {
-	static TGE::AudioData s_AudioData;
+	static tge::AudioData s_AudioData;
 }
 
 #pragma region testing
@@ -66,7 +66,7 @@ enum FormatType {
 	MSADPCM
 };
 
-namespace TGE 
+namespace tge 
 {
 	
 #pragma region Audio Buffer

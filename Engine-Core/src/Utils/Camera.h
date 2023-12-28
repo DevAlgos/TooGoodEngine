@@ -1,7 +1,7 @@
 #pragma once
 
 #include <glm/glm.hpp>
-#include "InputManager.h"
+#include "Input.h"
 
 #pragma region ortho
 struct OrthoCameraData

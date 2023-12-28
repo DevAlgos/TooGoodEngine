@@ -42,10 +42,10 @@ void OrthoGraphicCamera::SetCam(const OrthoCameraData& CameraData)
 
 void OrthoGraphicCamera::Update(float dt)
 {
-	keyWPressed = InputManager::IsKeyDown(GLFW_KEY_W);
-	keySPressed = InputManager::IsKeyDown(GLFW_KEY_S);
-	keyAPressed = InputManager::IsKeyDown(GLFW_KEY_A);
-	keyDPressed = InputManager::IsKeyDown(GLFW_KEY_D);
+	keyWPressed = Input::IsKeyDown(GLFW_KEY_W);
+	keySPressed = Input::IsKeyDown(GLFW_KEY_S);
+	keyAPressed = Input::IsKeyDown(GLFW_KEY_A);
+	keyDPressed = Input::IsKeyDown(GLFW_KEY_D);
 
 	glm::vec3 movement(0.0f);
 
@@ -61,8 +61,8 @@ void OrthoGraphicCamera::Update(float dt)
 
 	m_CameraData.Position += movement;
 
-	double yOffset = InputManager::GetScrollWheel().second;
-	if (InputManager::IsScrolled())
+	double yOffset = Input::GetScrollWheel().second;
+	if (Input::IsScrolled())
 	{ 
 		ZoomFactor += LinearInterpolation<float>(ZoomFactor, (float)yOffset * 0.25f, m_CameraData.ZoomSpeed);
 		
@@ -70,7 +70,7 @@ void OrthoGraphicCamera::Update(float dt)
 		ZoomFactor = std::max(ZoomFactor, -10.0f);
 		ZoomFactor = std::min(ZoomFactor, 10.0f);
 
-		InputManager::SetScrolledToFalse();
+		Input::SetScrolledToFalse();
 	}
 	else
 	{
@@ -93,11 +93,11 @@ void OrthoGraphicCamera::Update(float dt)
 glm::vec2 OrthoGraphicCamera::GetMousePressCoordinates()
 {
 	double mouseX, mouseY;
-	InputManager::GetMousePos(mouseX, mouseY);
+	Input::GetMousePos(mouseX, mouseY);
 
 	glm::vec4 VecCoords = glm::vec4(
-		((float)mouseX * 2.0f / TGE::Application::GetMainWindow().GetWidth())  - 1.0f,
-		1.0f - ((float)mouseY * 2.0f / TGE::Application::GetMainWindow().GetHeight()), 0.0f, 1.0f);
+		((float)mouseX * 2.0f / tge::Application::GetMainWindow().GetWidth())  - 1.0f,
+		1.0f - ((float)mouseY * 2.0f / tge::Application::GetMainWindow().GetHeight()), 0.0f, 1.0f);
 
 	glm::vec4 Coords = m_InverseView * m_InverseProjection * VecCoords;
 
@@ -122,27 +122,31 @@ Camera::~Camera()
 
 void Camera::Update(float dt)
 {
-	keyWPressed = InputManager::IsKeyDown(KEY_W);
-	keySPressed = InputManager::IsKeyDown(KEY_S);
-	keyAPressed = InputManager::IsKeyDown(KEY_A);
-	keyDPressed = InputManager::IsKeyDown(KEY_D);
-	keyQPressed = InputManager::IsKeyDown(KEY_Q);
-	keyEPressed = InputManager::IsKeyDown(KEY_E);
-	keyVPressed = InputManager::IsKeyPressed(KEY_V);
+	keyWPressed = Input::IsKeyDown(KEY_W);
+	keySPressed = Input::IsKeyDown(KEY_S);
+	keyAPressed = Input::IsKeyDown(KEY_A);
+	keyDPressed = Input::IsKeyDown(KEY_D);
+	keyQPressed = Input::IsKeyDown(KEY_Q);
+	keyEPressed = Input::IsKeyDown(KEY_E);
+	keyVPressed = Input::IsKeyPressed(KEY_V);
 
 	if (keyVPressed)
 	{
 		if (CursorEnabled)
 		{
-			InputManager::DisableCursor();
+			Input::EnableCursor();
 			CursorEnabled = false;
 		}
 		else
 		{
-			InputManager::EnableCursor();
+			Input::DisableCursor();
 			CursorEnabled = true;
 		}
 	}
+
+	if (!CursorEnabled)
+		return;
+
 
 	glm::vec3 movement(0.0f);
 
@@ -163,7 +167,7 @@ void Camera::Update(float dt)
 	double xPos = 0.0;
 	double yPos = 0.0;
 
-	InputManager::GetMousePos(xPos, yPos);
+	Input::GetMousePos(xPos, yPos);
 
 	float xOffset = (xPos - LastX) * m_CameraData.Sensitivity;
 	float yOffset = (LastY - yPos) * m_CameraData.Sensitivity;

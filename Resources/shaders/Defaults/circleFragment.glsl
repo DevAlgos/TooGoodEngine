@@ -87,7 +87,7 @@ void main()
     distancef = smoothstep(0.0, fade, distancef);
     distancef *= smoothstep(Thickness + fade, Thickness, distancef);
 
-    FragColor.w = distancef;
+    FragColor.a = distancef;
     FragColor.rgb = Color.rgb;
     FragColor.rgb *= FinalLightColor;
    

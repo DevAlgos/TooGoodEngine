@@ -2,7 +2,7 @@
 #include "PhysicsScene.h"
 #include <Graphics/Renderer2D.h>
 
-namespace TGE
+namespace tge
 {
 	PhysicsScene::PhysicsScene(const PhysicsData& data)
 		: LastEntity(0), PhysicsMap(data.Width, data.Height), m_PhysicsData(data)
@@ -56,7 +56,7 @@ namespace TGE
 
 			GameObject.PhysicsBehaviour->SetAcceleration(glm::vec2(0.0f));
 
-			TGE::Renderer2D::PushQuad(GameObject.Renderable->GetPosition(),
+			tge::Renderer2D::PushQuad(GameObject.Renderable->GetPosition(),
 				GameObject.Renderable->GetScale(), GameObject.Renderable->GetRotation(), GameObject.Renderable->GetColor());
 
 		}

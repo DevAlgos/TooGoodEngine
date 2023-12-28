@@ -1,7 +1,7 @@
 #include <pch.h>
 #include "UserApplication.h"
 
-namespace TGE
+namespace tge
 {
 	UserApplication::UserApplication(const Details& details)
 		: m_Details(details)

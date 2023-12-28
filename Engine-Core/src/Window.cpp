@@ -36,7 +36,7 @@ static void GLFWErrorCallBack(int error_code, const char* description)
 	LOG_CORE_ERROR(msg);
 }
 
-namespace TGE {
+namespace tge {
 
 	Window::Window(const uint32_t& width, const uint32_t& height, const char* title)
 	{
@@ -78,8 +78,6 @@ namespace TGE {
 		glfwWindowHint(GLFW_RESIZABLE, GLFW_TRUE);
 
 		m_Window = glfwCreateWindow(m_Width, m_Height, m_Title, nullptr, nullptr);
-
-		glfwSetInputMode(m_Window, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
 
 		int width, height, channels;
 		uint8_t* pixels = stbi_load("../Resources/Images/Icon.png", &width, &height, &channels, 4); 
@@ -123,7 +121,7 @@ namespace TGE {
 		LOG_CORE(msg);
 		LOG(msg);
 
-		InputManager::BeginPolling(m_Window);
+		Input::BeginPolling(m_Window);
 	}
 
 
@@ -132,8 +130,8 @@ namespace TGE {
 
 void framebuffer_size_callback(GLFWwindow* window, int width, int height)
 {
-	TGE::Application::GetMainWindow().SetWidth(width);
-	TGE::Application::GetMainWindow().SetHeight(height);
+	tge::Application::GetMainWindow().SetWidth(width);
+	tge::Application::GetMainWindow().SetHeight(height);
 
 	glViewport(0, 0, width, height);
 }

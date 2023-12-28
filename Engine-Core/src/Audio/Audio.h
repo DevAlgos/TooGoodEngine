@@ -4,7 +4,7 @@
 
 #include <AL/alc.h>
 
-namespace TGE
+namespace tge
 {
 
 	using AudioHandle = ALuint;

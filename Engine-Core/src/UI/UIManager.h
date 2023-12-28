@@ -7,7 +7,7 @@
 #include <map>
 #include <vector>
 
-namespace TGE
+namespace tge
 {
 	const uint32_t GetMapWidth();
 	const uint32_t GetMapHeight();

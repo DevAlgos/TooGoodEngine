@@ -134,7 +134,7 @@
 #define KEY_LAST               KEY_MENU
 
 
-namespace InputManager 
+namespace Input 
 {
 	void BeginPolling(GLFWwindow* window);
 
