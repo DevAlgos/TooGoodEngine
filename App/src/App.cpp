@@ -99,7 +99,7 @@ int main()
 
 	return tge::Main(NewApp);*/
 
-	Py_Initialize();
+	/*Py_Initialize();
 
 	FILE* file = nullptr;
 	fopen_s(&file, "../Resources/TestScripts/Test.py", "r");
@@ -114,5 +114,5 @@ int main()
 		std::cout << "incorrect path" << std::endl;
 	}
 
-	Py_Finalize();
+	Py_Finalize();*/
 }
