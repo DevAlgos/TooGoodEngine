@@ -6,8 +6,6 @@
 #include <string>
 #include <memory>
 
-#include <Base.h>
-
 #include "Entity.h"
 #include "Bucket.h"
 
@@ -36,7 +34,7 @@ namespace Ecs
 				return m_SparseSet[DataType].GetComponent<Type>(Entity);
 
 			LOG_CORE_ERROR("Not a valid type" + std::string(DataType.name()));
-			ENGINE_BREAK();
+			assert(true);
 			return nullptr;
 		}
 

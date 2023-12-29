@@ -7,8 +7,6 @@ namespace Ecs
 	using	  EntityID = std::uint64_t;
 	constexpr EntityID  NullEntity = std::numeric_limits<std::uint64_t>::max();
 
-	class Registry;
-
 	class Entity
 	{
 	public:

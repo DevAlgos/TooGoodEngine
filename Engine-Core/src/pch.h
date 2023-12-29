@@ -1,5 +1,7 @@
 #pragma once
 
+#include <Python.h>
+
 #define AL_LIBTYPE_STATIC 
 #include <AL/al.h>
 #include <AL/alext.h>
@@ -34,6 +36,9 @@
 
 #include <ECS/Component.h>
 #include <ECS/Entity.h>
+
+#include <Scripting/ScriptComponent.h>
+#include <Scripting/PythonScripting/PythonScriptingEngine.h>
 
 #include <Physics/PhysicsScene.h>
 #include <Particles/ParticleScene.h>

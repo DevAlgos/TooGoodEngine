@@ -22,7 +22,7 @@ namespace tge
 	{
 		Utils::Logger::Init(Utils::Logger::Platform::Windows);
 		Audio::Init();
-		
+		Scripting::PythonScriptingEngine::Init(App.GetDetails().PythonEnviromentPath);
 		
 		ApplicationClock = std::make_unique<Utils::Clock>();
 
@@ -41,10 +41,12 @@ namespace tge
 		for (auto& layer : App.GetLayers())
 			Manager.PushLayer(layer);
 		
+		
 	}
 
 	Application::~Application()
 	{
+		Scripting::PythonScriptingEngine::Shutdown();
 		Audio::Shutdown();
 		Renderer2D::ShutDown();
 		Utils::Logger::ShutDown();
@@ -55,9 +57,13 @@ namespace tge
 	{
 		ImVec4 clear_color = ImVec4(0.45f, 0.55f, 0.60f, 1.00f);
 		
+		Scripting::PythonScriptingEngine::Load("../Resources/Scripts/Test.py");
+
 		while (!s_MainWindow.WindowClosed())
 		{
 			start = (float)ApplicationClock->TimeElapsed(Utils::TimeUnit::mili);
+			Scripting::PythonScriptingEngine::ExecuteAll();
+
 
 			s_MainWindow.SwapBuffers();
 			s_MainWindow.PollEvents();

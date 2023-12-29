@@ -2,6 +2,7 @@
 #include <UserApplication.h>
 #include <Utils/Layers/BaseLayer.h>
 #include <glm/matrix.hpp>
+#include <filesystem>
 
 using namespace tge;
 
@@ -96,48 +97,14 @@ struct ExampleType
 
 int main()
 {
-	/*Details AppDetails;
+	Details AppDetails;
 	AppDetails.ApplicationName = "TooGoodEngine";
 	AppDetails.Width = 1600;
 	AppDetails.Height = 900;
+	AppDetails.PythonEnviromentPath = "../Resources/Scripts/";
 
 	UserApplication NewApp(AppDetails);
 	NewApp.PushLayer(std::make_shared<Example>());
 
-	return tge::Main(NewApp);*/
-
-	Ecs::Entity entity;
-
-	Ecs::Registry registry;
-	registry.Emplace<ExampleType>(entity, 10.0f, 50.0f);
-
-	registry.View<ExampleType>([](auto component) 
-		{
-			std::cout << component->a << " " << component->b << std::endl;
-		});
-
-	registry.Delete<ExampleType>(entity);
-
-	registry.View<ExampleType>([](auto component)
-		{
-			std::cout << component->a << " " << component->b << std::endl;
-		});
-
-
-	/*Py_Initialize();
-
-	FILE* file = nullptr;
-	fopen_s(&file, "../Resources/TestScripts/Test.py", "r");
-
-	if (file)
-	{
-		PyRun_AnyFileEx(file, "../Resources/TestScripts/Test.py", 1);
-		fclose(file);
-	}
-	else
-	{
-		std::cout << "incorrect path" << std::endl;
-	}
-
-	Py_Finalize();*/
+	return tge::Main(NewApp);
 }

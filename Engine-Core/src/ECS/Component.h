@@ -7,7 +7,6 @@
 #include <Utils/Logger.h>
 #include <glm/glm.hpp>
 
-#include <Base.h>
 #include "Entity.h"
 
 namespace Ecs
@@ -22,7 +21,7 @@ namespace Ecs
 	std::enable_if_t<!std::is_constructible_v<T, Args...>, void*> ConstructObject(Args&&...)
 	{
 		LOG_CORE_ERROR("Warning no suitable constructor for this object, nullptr returned!");
-		ENGINE_BREAK();
+		__debugbreak();
 		return nullptr; // Object cannot be constructed
 	}
 

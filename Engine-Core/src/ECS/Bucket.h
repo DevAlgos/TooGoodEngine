@@ -28,7 +28,8 @@ namespace Ecs
 		template<class Type>
 		Type* GetComponent(Ecs::Entity Entity)
 		{
-			if (typeid(Type) == m_BucketType && Entity.GetID() < m_ComponentsList.size()) {
+			std::type_index typeIndex = typeid(Type);
+			if (typeIndex == m_BucketType && Entity.GetID() < m_ComponentsList.size()) {
 				auto component = m_ComponentsList[Entity.GetID()].Get<Type>();
 				return component;
 			}

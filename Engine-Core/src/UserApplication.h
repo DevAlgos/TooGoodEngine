@@ -4,12 +4,14 @@
 #include <Utils/Layers/LayerManager.h>
 #include <Utils/Layers/BaseLayer.h>
 #include <memory>
+#include <filesystem>
 
 namespace tge
 {
 	struct Details
 	{
 		std::string_view ApplicationName = "Game";
+		std::filesystem::path PythonEnviromentPath;
 		int Width = 1280;
 		int Height = 720;
 	};
