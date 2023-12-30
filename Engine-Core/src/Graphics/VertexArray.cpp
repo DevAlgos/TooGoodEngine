@@ -22,7 +22,7 @@ namespace tge
 	}
 	void OpenGLVertexArray::AttribPointer(GLuint index, GLint size, GLenum type, GLboolean normalised, GLsizei stride, const void* start)
 	{
-		Bind();
+		glBindVertexArray(m_VertexArrayHandle);
 
 		glEnableVertexAttribArray(index);
 		glVertexAttribPointer(index, size, type, normalised, stride, start);
@@ -34,6 +34,7 @@ namespace tge
 		
 		constexpr size_t FloatSize = sizeof(float);
 
+		/*Calculate stride*/
 		for (AttributeType type : Attribs)
 		{
 			switch (type)
@@ -52,6 +53,8 @@ namespace tge
 
 		size_t index = 0;
 		size_t CurrentStartingPosition = 0;
+
+		/* enable attributes here */
 
 		for (AttributeType type : Attribs)
 		{	

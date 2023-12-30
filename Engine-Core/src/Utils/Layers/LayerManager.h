@@ -16,6 +16,8 @@ namespace Utils
 		void PopLayer();
 
 		void UpdateLayers();
+		void UpdateGUI();
+		
 
 	private:
 		std::vector<std::shared_ptr<BaseLayer>> m_LayerStack;

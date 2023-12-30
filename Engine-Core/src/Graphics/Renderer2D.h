@@ -33,7 +33,7 @@ namespace tge
 		std::unique_ptr<Shader> UIShaders;
 
 		std::unique_ptr<OpenGLVertexArray> UIVao;
-		std::unique_ptr<OpenGLBuffer> UIVbo; //we can use same index buffer
+		std::unique_ptr<OpenGLBuffer> UIVbo; 
 
 		UIVertex* UIBuffer = nullptr;
 		UIVertex* UIBufferIndex = nullptr;
@@ -54,7 +54,7 @@ namespace tge
 
 #pragma endregion RenderData
 
-#pragma region RenderBuffers
+#pragma region Render Buffers
 		std::unique_ptr<OpenGLBuffer>       VertexBuffer;
 		std::unique_ptr<OpenGLBuffer>       IndexBuffer;
 		std::unique_ptr<OpenGLBuffer>       UniformBuffer; //Material Buffer
@@ -72,7 +72,7 @@ namespace tge
 		std::vector<glm::vec4>					ObjectAttributes;
 
 		uint32_t Indicies[MaxQuads * 6];
-#pragma endregion RenderBuffers
+#pragma endregion Render Buffers
 
 #pragma region Slots
 		std::vector<uint32_t> TextureSlots;

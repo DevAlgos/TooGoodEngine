@@ -199,7 +199,6 @@ namespace tge
 		for (auto& kv : m_TextureData.TextureParamaters)
 			glTextureParameteri(m_Texture, kv.first, kv.second);
 
-
 		int Channels;
 		stbi_set_flip_vertically_on_load(true);
 		unsigned char* image = nullptr;

@@ -77,6 +77,7 @@ namespace tge
 		UIBufferData.VertexSize = sizeof(UIVertex) * RenderData.MaxUIVertices;
 
 		RenderData.UIVbo = OpenGLBuffer::Generate(BufferType::VertexBuffer, UIBufferData);
+		RenderData.UIVbo->Bind();
 
 		RenderData.UIBuffer = new UIVertex[RenderData.MaxUIVertices];
 		RenderData.UIBufferIndex = RenderData.UIBuffer;
@@ -111,6 +112,7 @@ namespace tge
 		memset(RenderData.TextureSlots.data(), 0, RenderData.MaxTextureSlots);
 
 		RenderData.VertexArray = OpenGLVertexArray::Generate();
+		RenderData.VertexArray->Bind();
 
 		BufferData VertexData;
 		VertexData.DrawType = GL_DYNAMIC_DRAW;
@@ -118,6 +120,7 @@ namespace tge
 		VertexData.VertexSize = sizeof(Vertex) * RenderData.MaxVertices;
 
 		RenderData.VertexBuffer = OpenGLBuffer::Generate(BufferType::VertexBuffer, VertexData);
+		RenderData.VertexBuffer->Bind();
 
 		RenderData.VertexArray->AttachAttribPointers(
 			{
@@ -153,6 +156,7 @@ namespace tge
 		RenderData.CircleVertexArray->Bind();
 
 		RenderData.CircleVertexBuffer = OpenGLBuffer::Generate(BufferType::VertexBuffer, CircleVertexData);
+		RenderData.CircleVertexBuffer->Bind();
 
 		RenderData.CircleVertexArray->AttachAttribPointers(
 			{

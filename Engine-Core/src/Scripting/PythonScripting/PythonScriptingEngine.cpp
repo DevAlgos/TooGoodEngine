@@ -3,10 +3,12 @@
 
 #include "Bindings.h"
 
-static Scripting::PythonScriptingData s_Data;
+
 
 namespace Scripting
 {
+	static PythonScriptingData s_Data;
+
 	PythonFileInfo::PythonFileInfo(const std::filesystem::path& fileLocation)
 		: m_File(nullptr), m_Location(fileLocation)
 	{
@@ -80,21 +82,25 @@ namespace Scripting
 		s_Data.FilesToExecute = new PythonFileInfo[PythonScriptingData::MaxFiles];
 		s_Data.FilesToExecutePtr = s_Data.FilesToExecute;
 
+		std::filesystem::path PythonPath = "../Engine-Core/src/Scripting/PythonScripting/";
+
 		PyObject* sys_module = PyImport_ImportModule("sys");
 		PyObject* sys_path = PyObject_GetAttrString(sys_module, "path");
 		PyList_Append(sys_path, PyUnicode_FromString(enviromentPath.string().c_str()));
+		PyList_Append(sys_path, PyUnicode_FromString(PythonPath.string().c_str()));
+
+		//src\Scripting\PythonScripting\Py_Libs
+
 		Py_DECREF(sys_module);
+		Py_DECREF(sys_path);
 
-		/* Initalize python bindings and module*/
-
-		PyObject* TooGoodEngineModule = PyModule_Create(&Bindings::TooGoodEngineModule);
+		s_Data.TooGoodEngineModule = PyModule_Create(&Bindings::TooGoodEngineModule);
 
 
-		PyObject* EntityClass = PyCapsule_New((void*)(&PyType_Type), nullptr, Bindings::CleanUpEntity);
-		PyModule_AddObject(TooGoodEngineModule, "Entity", EntityClass);
+		s_Data.Bindings.EntityClass = PyCapsule_New((void*)(&PyType_Type), nullptr, Bindings::CleanUpEntity);
+		PyModule_AddObject(s_Data.TooGoodEngineModule, "Entity", s_Data.Bindings.EntityClass);
 
-		// Add the module to the dictionary of built-in modules
-		PyDict_SetItemString(PyImport_GetModuleDict(), "TGE", TooGoodEngineModule);
+		PyDict_SetItemString(PyImport_GetModuleDict(), "TGE", s_Data.TooGoodEngineModule);
 
 	}
 	void PythonScriptingEngine::Execute(const std::filesystem::path& PythonFile)
@@ -123,6 +129,44 @@ namespace Scripting
 		PyList_Append(sys_path, PyUnicode_FromString(enviormentPath.string().c_str()));
 		Py_DECREF(sys_module);
 	}
+	PythonScriptWrapper PythonScriptingEngine::LoadScript(const std::string& PythonScript)
+	{		
+		PyObject* pyModule = PyImport_ImportModule(PythonScript.c_str());
+
+		PyObject* onInitFunc = nullptr;
+		PyObject* onUpdateFunc = nullptr;
+
+		if (pyModule) {
+			PyObject* pyFunc = PyObject_GetAttrString(pyModule, "OnInit");
+			if (pyFunc && PyCallable_Check(pyFunc)) {
+				//PyObject_CallObject(pyFunc, NULL);
+				onInitFunc = pyFunc;
+			}
+
+			pyFunc = PyObject_GetAttrString(pyModule, "OnUpdate");
+
+			if (pyFunc && PyCallable_Check(pyFunc)) {
+
+				//double deltaTimeValue = 0.1;  // Example value
+				//PyObject* args = Py_BuildValue("(d)", deltaTimeValue);
+
+				//PyObject_CallObject(pyFunc, args);
+
+				//// Don't forget to decref the args object
+				//Py_DECREF(args);
+				onUpdateFunc = pyFunc;
+			}
+
+		}
+
+		if (!onInitFunc || !onUpdateFunc)
+		{
+			LOG_CORE_ERROR("Those functions were not in script!");
+			__debugbreak();
+		}
+
+		return PythonScriptWrapper(onInitFunc, onUpdateFunc);
+	}
 	void PythonScriptingEngine::Reload(uint32_t Index)
 	{
 		if (Index >= s_Data.CurrentSize)
@@ -140,7 +184,6 @@ namespace Scripting
 			LOG_CORE_WARNING("Max files have been reached script not loaded");
 			return PythonScriptingData::NullFile;
 		}
-
 		s_Data.FilesToExecutePtr->Reload(PythonFile);
 		s_Data.FilesToExecutePtr++;
 		return s_Data.CurrentSize++;
@@ -154,7 +197,7 @@ namespace Scripting
 			if (!file)
 				__debugbreak();
 			
-			PyRun_AnyFile(file, s_Data.FilesToExecute[i].GetLocation());
+			PyRun_AnyFile(file, s_Data.FilesToExecute[i].GetLocation().c_str());
 			fseek(file, 0, 0);
 		}
 	}

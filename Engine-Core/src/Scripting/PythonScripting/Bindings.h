@@ -8,6 +8,8 @@
 
 namespace Bindings {
 
+	
+
 #pragma region Entity Bindings
 	static void CleanUpEntity(PyObject* capsule)
 	{

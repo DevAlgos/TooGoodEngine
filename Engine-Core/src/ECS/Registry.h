@@ -18,6 +18,17 @@ namespace Ecs
 		Registry();
 		~Registry();
 
+		template<class Type>
+		bool HasComponent(Ecs::Entity Entity)
+		{
+			std::type_index DataType = typeid(Type);
+			if (m_SparseSet.contains(DataType))
+				return m_SparseSet[DataType].HasComponent(Entity);
+			else
+				return false;
+		}
+
+
 		template<class Type, class Func>
 		void View(Func func)
 		{
@@ -34,8 +45,19 @@ namespace Ecs
 				return m_SparseSet[DataType].GetComponent<Type>(Entity);
 
 			LOG_CORE_ERROR("Not a valid type" + std::string(DataType.name()));
-			assert(true);
+			assert(false);
 			return nullptr;
+		}
+
+		template<class Type>
+		Type& GetRef(Ecs::Entity Entity)
+		{
+			std::type_index DataType = typeid(Type);
+			if (m_SparseSet.contains(DataType))
+				return m_SparseSet[DataType].GetComponentRef<Type>(Entity);
+
+			LOG_CORE_ERROR("Not a valid type" + std::string(DataType.name()));
+			assert(false);
 		}
 
 		template<class Type, typename ...Args>

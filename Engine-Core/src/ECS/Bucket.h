@@ -13,6 +13,14 @@ namespace Ecs
 		Bucket();
 		~Bucket();
 
+		bool HasComponent(Ecs::Entity Entity)
+		{
+			if (Entity.GetID() > m_ComponentsList.size())
+				return false;
+			else
+				return m_ComponentsList[Entity.GetID()].GetRaw();
+		}
+
 		template<class Type, class Func>
 		void ForEach(Func func)
 		{
@@ -21,7 +29,7 @@ namespace Ecs
 				if (!m_ComponentsList[i].GetRaw())
 					continue;
 
-				func(m_ComponentsList[i].Get<Type>());
+				func(m_ComponentsList[i].GetRef<Type>());
 			}
 		}
 
@@ -35,6 +43,19 @@ namespace Ecs
 			}
 			else {
 				return nullptr;
+			}
+		}
+
+		template<class Type>
+		Type& GetComponentRef(Ecs::Entity Entity)
+		{
+			std::type_index typeIndex = typeid(Type);
+			if (typeIndex == m_BucketType && Entity.GetID() < m_ComponentsList.size()) {
+				return m_ComponentsList[Entity.GetID()].GetRef<Type>();
+			}
+			else {
+				LOG_CORE_ERROR("inavlid component");
+				assert(false);
 			}
 		}
 
@@ -52,7 +73,7 @@ namespace Ecs
 			if (entity.GetID() > m_ComponentsList.size())
 				m_ComponentsList.resize(Size + (entity.GetID() - Size) + 10); //assures enough size for extra entites
 
-			m_ComponentsList[entity.GetID()].Construct<Type>(entity, std::forward<Args>(args)...);
+			m_ComponentsList[entity.GetID()].Construct<Type>(std::forward<Args>(args)...);
 		}
 
 		template<class Type>

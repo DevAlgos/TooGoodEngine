@@ -57,22 +57,26 @@ namespace tge
 	{
 		ImVec4 clear_color = ImVec4(0.45f, 0.55f, 0.60f, 1.00f);
 		
-		Scripting::PythonScriptingEngine::Load("../Resources/Scripts/Test.py");
+		Scripting::PythonScriptWrapper TestScript = 
+			Scripting::PythonScriptingEngine::LoadScript("Test");
+		TestScript.CreateScript();
 
 		while (!s_MainWindow.WindowClosed())
 		{
 			start = (float)ApplicationClock->TimeElapsed(Utils::TimeUnit::mili);
-			Scripting::PythonScriptingEngine::ExecuteAll();
-
-
+			
 			s_MainWindow.SwapBuffers();
 			s_MainWindow.PollEvents();
+
+			Manager.UpdateLayers();
+			TestScript.ScriptOnUpdate(deltaTime);
+
 
 			ImGui_ImplOpenGL3_NewFrame();
 			ImGui_ImplGlfw_NewFrame();
 			ImGui::NewFrame();
 
-			Manager.UpdateLayers();
+			Manager.UpdateGUI();
 			
 			ImGui::GetIO().DisplaySize = ImVec2((float)s_MainWindow.GetWidth(), (float)s_MainWindow.GetHeight());
 
@@ -91,8 +95,7 @@ namespace tge
 			deltaTime = end - start;
 		}
 
-
-
+		TestScript.ScriptOnDestroy();
 	}
 
 	Window& Application::GetMainWindow()

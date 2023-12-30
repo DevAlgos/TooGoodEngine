@@ -30,7 +30,9 @@ namespace Utils
 	{
 		for (size_t i = 0; i < m_LayerIndex; i++)
 			m_LayerStack[i]->OnUpdate();
-
+	}
+	void LayerManager::UpdateGUI()
+	{
 		for (size_t i = 0; i < m_LayerIndex; i++)
 			m_LayerStack[i]->OnGUIUpdate();
 	}

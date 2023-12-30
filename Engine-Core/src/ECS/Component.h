@@ -59,34 +59,31 @@ namespace Ecs
 			return *this;
 		}
 
-		inline Component() noexcept : m_Data(nullptr), m_Entity("null entity", Ecs::NullEntity) {}
+		inline Component() noexcept : m_Data(nullptr) {}
 
 		template<typename T, typename ...Args>
-		inline void Construct(Ecs::Entity entity, Args&&... args)
+		inline void Construct(Args&&... args)
 		{
 			m_Data = ConstructObject<T>(std::forward<Args>(args)...);
-			m_Entity = Ecs::Entity(entity);
 		}
 
 		inline void Clear() 
 		{ 
 			delete m_Data;
 			m_Data = nullptr;
-			m_Entity.~Entity();
 		}
 
 		inline void* GetRaw() { return m_Data; }
 		template<typename T>
 		inline T* Get() {  return static_cast<T*>(m_Data); }
 
-		inline const Ecs::Entity GetEntity() const { return m_Entity; }
-	
+		template<typename T>
+		inline T& GetRef() { return *(static_cast<T*>(m_Data)); }	
 
 		inline ~Component() noexcept { Clear(); }
 
 	private:
 		void* m_Data;
-		Ecs::Entity m_Entity;
 	};
 
 #pragma region Base Components List

@@ -1,4 +1,5 @@
 #include <Main.h>
+#include <ECS/Registry.h>
 #include <UserApplication.h>
 #include <Utils/Layers/BaseLayer.h>
 #include <glm/matrix.hpp>
@@ -9,7 +10,7 @@ using namespace tge;
 class Example : public Utils::BaseLayer
 {
 public:
-	virtual void OnInit() 
+	virtual void OnInit() override
 	{
 		{
 			Circle circle{};
@@ -47,7 +48,7 @@ public:
 
 		}
 	};
-	virtual void OnUpdate() 
+	virtual void OnUpdate() override
 	{
 		Raytracing2D::ChangeSampleRate(SampleRate);
 		
@@ -56,7 +57,7 @@ public:
 		
 		Raytracing2D::Trace();
 	};
-	virtual void OnGUIUpdate() 
+	virtual void OnGUIUpdate() override
 	{
 		ImGui::Begin("User Editing");
 
@@ -78,7 +79,7 @@ public:
 
 		ImGui::End();
 	};
-	virtual void OnShutdown() {};
+	virtual void OnShutdown() override {};
 private:
 	int SampleRate = 2;
 	glm::vec3 CirclePosition1 = { 2.0f, 0.0f, 0.0f };

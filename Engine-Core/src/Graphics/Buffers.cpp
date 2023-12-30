@@ -32,8 +32,7 @@ namespace tge
 		}
 
 		glCreateBuffers(1, &m_Buffer);
-		glBindBuffer(m_Type, m_Buffer);
-		glBufferData(m_Type, m_Data.VertexSize, m_Data.data, m_Data.DrawType);
+		glNamedBufferData(m_Buffer, m_Data.VertexSize, m_Data.data, m_Data.DrawType);
 	}
 	std::unique_ptr<OpenGLBuffer> OpenGLBuffer::Generate(const BufferType& t, const BufferData& BufferData)
 	{
@@ -49,12 +48,10 @@ namespace tge
 	}
 	void OpenGLBuffer::BindRange(const DynamicData& data)
 	{
-		glBindBuffer(m_Type, m_Buffer);
 		glBindBufferRange(m_Type, data.index, m_Buffer, data.Offset, data.VertexSize);
 	}
 	void OpenGLBuffer::BindBase(GLuint index)
 	{
-		glBindBuffer(m_Type, m_Buffer);
 		glBindBufferBase(m_Type, index, m_Buffer);
 	}
 	void OpenGLBuffer::PushData(const DynamicData& data)
@@ -66,8 +63,7 @@ namespace tge
 			return;
 		}
 
-		glBindBuffer(m_Type, m_Buffer);
-		glBufferSubData(m_Type, data.Offset, data.VertexSize, data.data);
+		glNamedBufferSubData(m_Buffer, data.Offset, data.VertexSize, data.data);
 	}
 	void OpenGLBuffer::Bind()
 	{
@@ -79,7 +75,9 @@ namespace tge
 		: m_RenderBufferHandle(std::numeric_limits<uint32_t>::max())
 	{
 		glCreateRenderbuffers(1, &m_RenderBufferHandle);
-		glBindRenderbuffer(GL_RENDERBUFFER, m_RenderBufferHandle);
+		//glBindRenderbuffer(GL_RENDERBUFFER, m_RenderBufferHandle);
+
+		//TODO: Test to make sure new DSA functions work
 
 		GLenum GLInternalFormat = 0;
 
@@ -91,7 +89,8 @@ namespace tge
 		default:					 GLInternalFormat = GL_RGBA;    break;
 		}
 
-		glRenderbufferStorage(GL_RENDERBUFFER, GLInternalFormat, data.width, data.height);
+		//glRenderbufferStorage(GL_RENDERBUFFER, GLInternalFormat, data.width, data.height);
+		glNamedRenderbufferStorage(m_RenderBufferHandle, GLInternalFormat, data.width, data.height);
 	}
 
 	RenderBuffer::~RenderBuffer()
@@ -113,7 +112,7 @@ namespace tge
 		: m_FramebufferHandle(std::numeric_limits<uint32_t>::max())
 	{
 		glCreateFramebuffers(1, &m_FramebufferHandle);
-		glBindFramebuffer(GL_FRAMEBUFFER, m_FramebufferHandle);
+		//glBindFramebuffer(GL_FRAMEBUFFER, m_FramebufferHandle);
 
 		uint32_t ColorIndex = 0;
 
@@ -137,12 +136,15 @@ namespace tge
 			if (std::holds_alternative<std::shared_ptr<Texture>>(Medium))
 			{
 				auto& TextureMedium = std::get<std::shared_ptr<Texture>>(Medium);
-				glFramebufferTexture(GL_FRAMEBUFFER, GLAttachType, TextureMedium->Get(), 0);
+				//glFramebufferTexture(GL_FRAMEBUFFER, GLAttachType, TextureMedium->Get(), 0);
+				glNamedFramebufferTexture(m_FramebufferHandle, GLAttachType, TextureMedium->Get(), 0);
 			}
 			else
 			{
 				auto& RenderBufferMedium = std::get<std::shared_ptr<RenderBuffer>>(Medium);
-				glFramebufferRenderbuffer(GL_FRAMEBUFFER, GLAttachType, GL_RENDERBUFFER,
+				//glFramebufferRenderbuffer(GL_FRAMEBUFFER, GLAttachType, GL_RENDERBUFFER,
+					//RenderBufferMedium->Get());
+				glNamedFramebufferRenderbuffer(m_FramebufferHandle, GLAttachType, GL_RENDERBUFFER,
 					RenderBufferMedium->Get());
 			}
 		}
