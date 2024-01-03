@@ -2,7 +2,7 @@
 //#include "PhysicsScene.h"
 //#include <Graphics/Renderer2D.h>
 //
-//namespace tge
+//namespace TooGoodEngine
 //{
 //	PhysicsScene::PhysicsScene(const PhysicsData& data)
 //		: LastEntity(0), PhysicsMap(data.Width, data.Height), m_PhysicsData(data)
@@ -56,7 +56,7 @@
 //
 //			GameObject.PhysicsBehaviour->SetAcceleration(glm::vec2(0.0f));
 //
-//			tge::Renderer2D::PushQuad(GameObject.Renderable->GetPosition(),
+//			TooGoodEngine::Renderer2D::PushQuad(GameObject.Renderable->GetPosition(),
 //				GameObject.Renderable->GetScale(), GameObject.Renderable->GetRotation(), GameObject.Renderable->GetColor());
 //
 //		}

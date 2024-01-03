@@ -30,12 +30,12 @@ namespace Utils
 		void DisplayLog();
 
 	private:
-		std::unique_ptr<tge::Texture> AudioIconImage;
+		std::unique_ptr<TooGoodEngine::Texture> AudioIconImage;
 
-		std::unordered_map<std::string, tge::AudioHandle> AudioFileMap;
+		std::unordered_map<std::string, TooGoodEngine::AudioHandle> AudioFileMap;
 		const std::filesystem::path AudioFiles{ "../Resources/Audio" };
 
-	    std::vector<tge::Source> Sources;
+	    std::vector<TooGoodEngine::Source> Sources;
 
 		std::vector<Utils::LogData> MessagesToDraw;
 		bool ScrollToBottom = false;

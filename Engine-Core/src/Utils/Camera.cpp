@@ -96,8 +96,8 @@ glm::vec2 OrthoGraphicCamera::GetMousePressCoordinates()
 	Input::GetMousePos(mouseX, mouseY);
 
 	glm::vec4 VecCoords = glm::vec4(
-		((float)mouseX * 2.0f / tge::Application::GetMainWindow().GetWidth())  - 1.0f,
-		1.0f - ((float)mouseY * 2.0f / tge::Application::GetMainWindow().GetHeight()), 0.0f, 1.0f);
+		((float)mouseX * 2.0f / TooGoodEngine::Application::GetMainWindow().GetWidth())  - 1.0f,
+		1.0f - ((float)mouseY * 2.0f / TooGoodEngine::Application::GetMainWindow().GetHeight()), 0.0f, 1.0f);
 
 	glm::vec4 Coords = m_InverseView * m_InverseProjection * VecCoords;
 

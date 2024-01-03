@@ -3,7 +3,7 @@
 #include <Graphics/GraphicsUtils.h>
 #include <Utils/Camera.h>
 
-namespace tge
+namespace TooGoodEngine
 {
 	struct Particle
 	{

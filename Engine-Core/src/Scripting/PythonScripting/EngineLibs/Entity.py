@@ -1,13 +1,13 @@
-import TGE
+import TooGoodEngine
 
 class Entity:
     def __init__(self, name):
-        self._Entity = TGE.PyCreateEntity(name)
+        self._Entity = TooGoodEngine.PyCreateEntity(name)
     
     def GetName(self):
-        name = TGE.PyEntityGetName(self._Entity)
+        name = TooGoodEngine.PyEntityGetName(self._Entity)
         return name
     
     def GetID(self):
-        id = TGE.PyEntityGetID(self._Entity)
+        id = TooGoodEngine.PyEntityGetID(self._Entity)
         return id

@@ -1,5 +1,4 @@
 #pragma once
-#include <xhash>
 
 
 namespace Ecs
@@ -23,15 +22,9 @@ namespace Ecs
 	private:
 		std::string_view m_EntityName;
 		EntityID m_EntityID;
+
+		friend class Registry;
+
 	};
 }
 
-namespace std {
-	template<>
-	struct hash<Ecs::EntityID>
-	{
-		size_t operator()(const Ecs::EntityID& obj) const {
-			return std::hash<uint64_t>{}(static_cast<uint64_t>(obj));
-		}
-	};
-}

@@ -2,7 +2,7 @@
 #include "UserApplication.h"
 #include <memory>
 
-namespace tge
+namespace TooGoodEngine
 {
 	int Main(const UserApplication& UserApp)
 	{

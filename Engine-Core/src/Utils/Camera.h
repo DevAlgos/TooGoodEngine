@@ -3,6 +3,21 @@
 #include <glm/glm.hpp>
 #include "Input.h"
 
+
+class BaseCamera
+{
+public:
+	virtual glm::vec3 GetPosition() = 0;
+	virtual glm::vec3 GetFront() = 0;
+	virtual glm::vec3 GetUp() = 0;
+	
+	virtual glm::mat4 GetProjection() = 0;
+	virtual glm::mat4 GetView() = 0;
+
+	virtual glm::mat4 GetInverseProjection() = 0;
+	virtual glm::mat4 GetInverseView() = 0;
+};
+
 #pragma region ortho
 struct OrthoCameraData
 {
@@ -18,7 +33,7 @@ struct OrthoCameraData
 		float ZoomSpeed = 1.0f; //default Zoom Speed
 };
 
-class OrthoGraphicCamera
+class OrthoGraphicCamera : public BaseCamera
 {
 public:
 	OrthoGraphicCamera(const OrthoCameraData& CameraData);
@@ -34,15 +49,15 @@ public:
 
 	glm::vec2 GetMousePressCoordinates();
 
-	inline glm::vec3 GetPosition() { return m_CameraData.Position; }
-	inline glm::vec3 GetFront() { return m_CameraData.Front; }
-	inline glm::vec3 GetUp() { return m_CameraData.Up; }
+	virtual glm::vec3 GetPosition() override { return m_CameraData.Position; }
+	virtual glm::vec3 GetFront() override { return m_CameraData.Front; }
+	virtual glm::vec3 GetUp() override { return m_CameraData.Up; }
 
-	inline glm::mat4 GetProjection() { return m_Proj; }
-	inline glm::mat4 GetView() { return m_View; }
+	virtual glm::mat4 GetProjection() override { return m_Proj; } 
+	virtual glm::mat4 GetView() override { return m_View; }
 
-	inline glm::mat4 GetInverseProjection() { return m_InverseProjection; }
-	inline glm::mat4 GetInverseView() { return m_InverseView; }
+	virtual glm::mat4 GetInverseProjection() override { return m_InverseProjection; }
+	virtual glm::mat4 GetInverseView() override { return m_InverseView; }
 
 
 private:
@@ -80,7 +95,7 @@ struct CameraData
 	float Sensitivity = 0.1f;
 };
 
-class Camera
+class Camera : public BaseCamera
 {
 public:
 	Camera(const CameraData& data);
@@ -91,15 +106,15 @@ public:
 
 	void SetCam(const CameraData& data);
 
-	inline glm::vec3 GetPosition() { return m_CameraData.Position; }
-	inline glm::vec3 GetFront() { return m_CameraData.Front; }
-	inline glm::vec3 GetUp() { return m_CameraData.Up; }
+	virtual glm::vec3 GetPosition() override { return m_CameraData.Position; }
+	virtual glm::vec3 GetFront() override { return m_CameraData.Front; }
+	virtual glm::vec3 GetUp() override { return m_CameraData.Up; }
 
-	inline glm::mat4 GetProjection() { return m_Proj; }
-	inline glm::mat4 GetView() { return m_View; }
+	virtual glm::mat4 GetProjection() override { return m_Proj; }
+	virtual glm::mat4 GetView() override { return m_View; }
 
-	inline glm::mat4 GetInverseProjection() { return m_InverseProjection; }
-	inline glm::mat4 GetInverseView() { return m_InverseView; }
+	virtual glm::mat4 GetInverseProjection() override { return m_InverseProjection; }
+	virtual glm::mat4 GetInverseView() override { return m_InverseView; }
 
 private:
 	CameraData m_CameraData;
@@ -126,3 +141,4 @@ private:
 	float Pitch = 0.0f;
 	float Yaw = 0.0f;
 };
+

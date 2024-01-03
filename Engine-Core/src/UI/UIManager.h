@@ -7,7 +7,7 @@
 #include <map>
 #include <vector>
 
-namespace tge
+namespace TooGoodEngine
 {
 	const uint32_t GetMapWidth();
 	const uint32_t GetMapHeight();

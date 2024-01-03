@@ -1,7 +1,7 @@
 #include <pch.h>
 #include "Shader.h"
 
-namespace tge {
+namespace TooGoodEngine {
 	Shader::Shader(std::map<GLenum, std::string_view> shaders)
 	{
 		m_Program = glCreateProgram();

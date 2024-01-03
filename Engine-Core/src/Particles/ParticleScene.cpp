@@ -2,7 +2,7 @@
 #include "ParticleScene.h"
 #include <Graphics/Renderer2D.h>
 
-namespace tge
+namespace TooGoodEngine
 {
 	ParticleScene::ParticleScene()
 	{

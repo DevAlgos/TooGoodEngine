@@ -36,7 +36,7 @@ static void GLFWErrorCallBack(int error_code, const char* description)
 	LOG_CORE_ERROR(msg);
 }
 
-namespace tge {
+namespace TooGoodEngine {
 
 	Window::Window(const uint32_t& width, const uint32_t& height, const char* title)
 	{
@@ -130,8 +130,8 @@ namespace tge {
 
 void framebuffer_size_callback(GLFWwindow* window, int width, int height)
 {
-	tge::Application::GetMainWindow().SetWidth(width);
-	tge::Application::GetMainWindow().SetHeight(height);
+	TooGoodEngine::Application::GetMainWindow().SetWidth(width);
+	TooGoodEngine::Application::GetMainWindow().SetHeight(height);
 
 	glViewport(0, 0, width, height);
 }

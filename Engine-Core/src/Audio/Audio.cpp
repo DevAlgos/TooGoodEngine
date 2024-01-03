@@ -3,7 +3,7 @@
 
 namespace
 {
-	static tge::AudioData s_AudioData;
+	static TooGoodEngine::AudioData s_AudioData;
 }
 
 #pragma region testing
@@ -66,7 +66,7 @@ enum FormatType {
 	MSADPCM
 };
 
-namespace tge 
+namespace TooGoodEngine 
 {
 	
 #pragma region Audio Buffer

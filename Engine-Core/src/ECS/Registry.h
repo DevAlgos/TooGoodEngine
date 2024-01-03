@@ -6,7 +6,6 @@
 #include <string>
 #include <memory>
 
-#include "Entity.h"
 #include "Bucket.h"
 
 
@@ -38,41 +37,41 @@ namespace Ecs
 		}
 
 		template<class Type>
-		Type* Get(Ecs::Entity Entity)
+		Type& Get(Ecs::Entity Entity)
 		{
 			std::type_index DataType = typeid(Type);
 			if (m_SparseSet.contains(DataType))
-				return m_SparseSet[DataType].GetComponent<Type>(Entity);
+				return m_SparseSet[DataType].Get<Type>(Entity);
 
 			LOG_CORE_ERROR("Not a valid type" + std::string(DataType.name()));
 			assert(false);
-			return nullptr;
 		}
 
 		template<class Type>
-		Type& GetRef(Ecs::Entity Entity)
-		{
-			std::type_index DataType = typeid(Type);
-			if (m_SparseSet.contains(DataType))
-				return m_SparseSet[DataType].GetComponentRef<Type>(Entity);
+		Type* Begin() { return m_SparseSet[typeid(Type)].BeginComponent<Type>(); }
 
-			LOG_CORE_ERROR("Not a valid type" + std::string(DataType.name()));
-			assert(false);
-		}
+		template<class Type>
+		Type* End() { return m_SparseSet[typeid(Type)].EndComponent<Type>(); }
+
 
 		template<class Type, typename ...Args>
-		void Emplace(Ecs::Entity Entity, Args&&... args)
+		void Insert(Ecs::Entity Entity, Args&&... args)
 		{
 			std::type_index DataType = typeid(Type);
 			if (m_SparseSet.contains(DataType))
 			{
-				m_SparseSet[DataType].PushComponent<Type>(Entity, std::forward<Args>(args)...);
+				m_SparseSet[DataType].Insert<Type>(Entity, std::forward<Args>(args)...);
 			}
 			else
 			{
 				m_SparseSet[DataType] = Bucket(DataType);
-				m_SparseSet[DataType].PushComponent<Type>(Entity, std::forward<Args>(args)...);
+				m_SparseSet[DataType].Insert<Type>(Entity, std::forward<Args>(args)...);
 			}
+		}
+
+		Ecs::Entity CreateEntity(std::string_view Name)
+		{
+			return Ecs::Entity(Name, m_EntityCount++);
 		}
 
 		template<class Type>
@@ -80,10 +79,11 @@ namespace Ecs
 		{
 			std::type_index DataType = typeid(Type);
 			if (m_SparseSet.contains(DataType))
-				m_SparseSet[DataType].DeleteComponent<Type>(Entity);
+				m_SparseSet[DataType].Delete<Type>(Entity);
 		}
 
 	private:
 		std::unordered_map<std::type_index, Bucket> m_SparseSet;
+		EntityID m_EntityCount = 0;
 	};
 }

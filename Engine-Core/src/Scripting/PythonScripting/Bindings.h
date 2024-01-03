@@ -74,7 +74,7 @@ namespace Bindings {
 	static struct PyModuleDef TooGoodEngineModule
 	{
 			PyModuleDef_HEAD_INIT,
-			"TGE",
+			"TooGoodEngine",
 			nullptr,
 			-1,
 			TooGoodEngineMethods

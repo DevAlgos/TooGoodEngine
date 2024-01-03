@@ -6,8 +6,8 @@
 
 namespace
 {
-	static tge::RendererData2D RenderData;
-	static tge::RaytracingData s_RaytracingData;
+	static TooGoodEngine::RendererData2D RenderData;
+	static TooGoodEngine::RaytracingData s_RaytracingData;
 
 	static glm::vec3 TestOrigin(0.0f);
 
@@ -23,7 +23,7 @@ namespace
 	}
 }
 
-namespace tge
+namespace TooGoodEngine
 {
 	void Renderer2D::Init()
 	{
@@ -235,25 +235,25 @@ namespace tge
 #pragma endregion GeneralInit
 
 	}
-	void Renderer2D::BeginScene(OrthoGraphicCamera& Camera)
+	void Renderer2D::BeginScene(BaseCamera& Camera)
 	{
 		RenderData.BufferIndex = RenderData.Buffer;
 		RenderData.CircleBufferIndex = RenderData.CircleBuffer;
 		RenderData.UIBufferIndex = RenderData.UIBuffer;
 
-		RenderData.Camera = Camera;
+		float CamX = Camera.GetPosition().x;
+		float CamY = Camera.GetPosition().y;
+		float CamZ = Camera.GetPosition().z;
 
 		RenderData.DefaultShader->Use();
 		RenderData.DefaultShader->setUniformMat4("view", Camera.GetView());
 		RenderData.DefaultShader->setUniformMat4("projection", Camera.GetProjection());
-		RenderData.DefaultShader->SetUniformFloat3("CameraPosition", RenderData.Camera.GetPosition().x,
-			RenderData.Camera.GetPosition().y, RenderData.Camera.GetPosition().z);
+		RenderData.DefaultShader->SetUniformFloat3("CameraPosition",CamX, CamY, CamZ);
 
 		RenderData.CircleShader->Use();
 		RenderData.CircleShader->setUniformMat4("view", Camera.GetView());
 		RenderData.CircleShader->setUniformMat4("projection", Camera.GetProjection());
-		RenderData.CircleShader->SetUniformFloat3("CameraPosition", RenderData.Camera.GetPosition().x, 
-			RenderData.Camera.GetPosition().y, RenderData.Camera.GetPosition().z);
+		RenderData.CircleShader->SetUniformFloat3("CameraPosition", CamX, CamY, CamZ);
 
 		RenderData.UIShaders->Use();
 		RenderData.UIShaders->setUniformMat4("view", Camera.GetView());
@@ -363,6 +363,17 @@ namespace tge
 			
 		}
 	}
+
+	void Renderer2D::PushQuad(const Ecs::TransformComponent& Transform, const Ecs::MaterialComponent& Mat)
+	{
+		if (RenderData.IndexCount >= RenderData.MaxIndicies) {
+			FlushScene();
+		}
+
+		RenderData.BufferIndex = CreateQuad(RenderData.BufferIndex, Mat.s_Albedo, 0.0f, Transform.s_Transform);
+		RenderData.IndexCount += 6;
+	}
+	
 	void Renderer2D::PushQuad(const glm::vec3& Position, const glm::vec2& size, float Rotation, const glm::vec4& color)
 	{
 		if (RenderData.IndexCount >= RenderData.MaxIndicies) {
@@ -828,8 +839,8 @@ namespace tge
 		CameraData.Front = glm::vec3(0.0f, 0.0f, -1.0f);
 		CameraData.Up = glm::vec3(0.0f, 1.0f, 0.0f);
 
-		CameraData.AspectRatio = (float)tge::Application::GetMainWindow().GetWidth() /
-			(float)tge::Application::GetMainWindow().GetHeight();
+		CameraData.AspectRatio = (float)TooGoodEngine::Application::GetMainWindow().GetWidth() /
+			(float)TooGoodEngine::Application::GetMainWindow().GetHeight();
 
 		CameraData.ZoomLevel = 1.0f;
 		CameraData.CameraSpeed = 1.0f;
@@ -1057,6 +1068,11 @@ namespace tge
 	{
 		s_RaytracingData.CircleData.push_back(CircleData);
 	}
+	void Raytracing2D::SetImageResolution(float width, float height)
+	{
+		s_RaytracingData.ImageWidth = width;
+		s_RaytracingData.ImageHeight = height;
+	}
 	void Raytracing2D::Trace()
 	{
 
@@ -1091,10 +1107,14 @@ namespace tge
 		s_RaytracingData.ComputeShaders->setUniformMat4("InverseProjection", s_RaytracingData.DebuggingCamera.GetInverseProjection());
 		s_RaytracingData.ComputeShaders->SetUniformInt("FrameIndex", static_cast<int>(s_RaytracingData.FrameIndex));
 
+		s_RaytracingData.ComputeShaders->SetUniformFloat("ImageWidth", (float)(s_RaytracingData.ImageWidth));
+		s_RaytracingData.ComputeShaders->SetUniformFloat("ImageHeight", (float)s_RaytracingData.ImageHeight);
+
+
 		s_RaytracingData.RenderImage->BindImage(0);
 		s_RaytracingData.ScreenPixelData->BindImage(1);
-		s_RaytracingData.ComputeShaders->Compute(std::ceil(s_RaytracingData.ImageWidth / 8),
-												 std::ceil(s_RaytracingData.ImageHeight / 4), 1);
+		s_RaytracingData.ComputeShaders->Compute(std::ceil(1920 / 8),
+												 std::ceil(1080 / 4), 1);
 		s_RaytracingData.CircleData.clear();
 		s_RaytracingData.FrameIndex++;
 	}

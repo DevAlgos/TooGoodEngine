@@ -5,7 +5,7 @@
 
 namespace
 {
-	static tge::Window s_MainWindow;
+	static TooGoodEngine::Window s_MainWindow;
 	static std::unique_ptr<Utils::Clock> ApplicationClock;
 
 	static float deltaTime = 0.0f;
@@ -15,7 +15,7 @@ namespace
 	
 }
 
-namespace tge
+namespace TooGoodEngine
 {
 	Application::Application(const UserApplication& App)
 		: Manager()
@@ -69,7 +69,6 @@ namespace tge
 			s_MainWindow.PollEvents();
 
 			Manager.UpdateLayers();
-			TestScript.ScriptOnUpdate(deltaTime);
 
 
 			ImGui_ImplOpenGL3_NewFrame();

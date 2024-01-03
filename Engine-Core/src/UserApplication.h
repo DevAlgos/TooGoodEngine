@@ -6,7 +6,7 @@
 #include <memory>
 #include <filesystem>
 
-namespace tge
+namespace TooGoodEngine
 {
 	struct Details
 	{

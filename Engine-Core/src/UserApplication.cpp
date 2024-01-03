@@ -1,7 +1,7 @@
 #include <pch.h>
 #include "UserApplication.h"
 
-namespace tge
+namespace TooGoodEngine
 {
 	UserApplication::UserApplication(const Details& details)
 		: m_Details(details)

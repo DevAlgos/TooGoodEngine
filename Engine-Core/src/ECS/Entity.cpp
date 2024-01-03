@@ -3,10 +3,8 @@
 
 namespace Ecs
 {
-	static EntityID Count = 0;
-
 	Entity::Entity(std::string_view Name)
-		: m_EntityName(Name), m_EntityID(Count++)
+		: m_EntityName(Name), m_EntityID(NullEntity)
 	{
 	}
 	Entity::Entity(std::string_view Name, EntityID ID)
@@ -17,8 +15,9 @@ namespace Ecs
 		: m_EntityName(other.m_EntityName), m_EntityID(other.m_EntityID)
 	{
 	}
+
 	Entity::Entity()
-		: m_EntityName("No Name"), m_EntityID(Count++)
+		: m_EntityName("null entity"), m_EntityID(NullEntity)
 	{
 	}
 

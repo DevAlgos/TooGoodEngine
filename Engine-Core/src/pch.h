@@ -34,7 +34,6 @@
 #include <random>
 #include <execution>
 
-#include <ECS/Component.h>
 #include <ECS/Entity.h>
 
 #include <Scripting/ScriptComponent.h>

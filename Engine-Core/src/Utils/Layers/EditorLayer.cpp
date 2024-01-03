@@ -6,6 +6,8 @@
 
 #include <filesystem>
 
+#include <SceneSystem/Scene.h>
+
 namespace 
 {
 	static bool opt_fullscreen = true;
@@ -22,10 +24,12 @@ namespace Utils
 	}
 	void EditorLayer::OnInit()
 	{
-		tge::TextureData AudioImageData;
-		AudioImageData.Type = tge::TextureType::Texture2D;
+		TooGoodEngine::CurrentScene = std::make_shared<TooGoodEngine::Scene>("Testing Scene");
 
-		AudioIconImage = tge::Texture::Generate("../Resources/Images/Audio.png", AudioImageData, tge::Format::RGBA);
+		TooGoodEngine::TextureData AudioImageData;
+		AudioImageData.Type = TooGoodEngine::TextureType::Texture2D;
+
+		AudioIconImage = TooGoodEngine::Texture::Generate("../Resources/Images/Audio.png", AudioImageData, TooGoodEngine::Format::RGBA);
 
 		IMGUI_CHECKVERSION();
 		ImGui::CreateContext();
@@ -52,12 +56,15 @@ namespace Utils
 		style.WindowRounding						= 10.0f;
 		style.WindowBorderSize						= 1.0f;
 
-		ImGui_ImplGlfw_InitForOpenGL(tge::Application::GetMainWindow().GetWindow(), true);
+		ImGui_ImplGlfw_InitForOpenGL(TooGoodEngine::Application::GetMainWindow().GetWindow(), true);
 		ImGui_ImplOpenGL3_Init("#version 460");
 
 	}
 	void EditorLayer::OnUpdate()
 	{
+		TooGoodEngine::CurrentScene->SceneUpdate();
+		TooGoodEngine::CurrentScene->SceneDisplay();
+		
 	}
 	void EditorLayer::OnGUIUpdate()
 	{	
@@ -80,13 +87,17 @@ namespace Utils
 
 		if (opt_fullscreen)
 		{
-			ImGui::Image((void*)(intptr_t)tge::Raytracing2D::GetRenderImage()->Get(), {ImGui::GetContentRegionAvail().x,
+			ImGui::Image((void*)(intptr_t)TooGoodEngine::Raytracing2D::GetRenderImage()->Get(), {ImGui::GetContentRegionAvail().x,
 			ImGui::GetContentRegionAvail().y },
 				{ 0,1 }, { 1,0 });
 
+			TooGoodEngine::Raytracing2D::SetImageResolution(ImGui::GetWindowWidth(), 
+				ImGui::GetWindowHeight());
 		}
 
 		ImGui::End();
+
+		TooGoodEngine::CurrentScene->DisplayEntites();
 
 		DisplayDebugStats();
 		DisplayAudioPanel();
@@ -95,6 +106,7 @@ namespace Utils
 	}
 	void EditorLayer::OnShutdown()
 	{
+		TooGoodEngine::CurrentScene = nullptr;
 	}
 	void EditorLayer::DisplayHierarchyPanel()
 	{
@@ -122,7 +134,7 @@ namespace Utils
 
 			if (!AudioFileMap.contains(Entry))
 			{
-				tge::AudioHandle NewSource = tge::Audio::Load(Entry);
+				TooGoodEngine::AudioHandle NewSource = TooGoodEngine::Audio::Load(Entry);
 				AudioFileMap.insert({ Entry, NewSource });
 			}
 
@@ -134,12 +146,12 @@ namespace Utils
 
 			if (Pressed)
 			{
-				tge::SourceData data;
-				tge::Source Src = tge::Audio::GenerateSource(data, AudioFileMap[Entry]);
+				TooGoodEngine::SourceData data;
+				TooGoodEngine::Source Src = TooGoodEngine::Audio::GenerateSource(data, AudioFileMap[Entry]);
 
 				Sources.push_back(Src);
 
-				tge::Audio::Submit(Src);
+				TooGoodEngine::Audio::Submit(Src);
 			}
 
 			ImGui::TextWrapped("%s", dir_entry.path().filename().string().c_str());
@@ -169,11 +181,11 @@ namespace Utils
 			ImGui::SetColumnWidth(index, 200.0f);
 
 			if (ImGui::Button("Play"))
-				tge::Audio::Play(Src);
+				TooGoodEngine::Audio::Play(Src);
 			
 
 			if (ImGui::Button("Pause"))
-				tge::Audio::PauseSource(Src);
+				TooGoodEngine::Audio::PauseSource(Src);
 
 			bool PressedSliderFloat		=	ImGui::SliderFloat("Pitch", &Src.Data.Pitch, 0.0f, 1.0f);
 			bool PressedSliderFloat2	=	ImGui::SliderFloat("Gain", &Src.Data.Gain, 0.0f, 1.0f);
@@ -183,7 +195,7 @@ namespace Utils
 
 
 			if (PressedSliderFloat || PressedSliderFloat2 || CheckedBox || ChangedVelocity || ChangedPosition)
-				tge::Audio::EditSource(Src);
+				TooGoodEngine::Audio::EditSource(Src);
 
 			if (ImGui::Button("Destroy Source"))
 			{
@@ -191,7 +203,7 @@ namespace Utils
 
 				if (it != Sources.end())
 				{
-					tge::Audio::RemoveSource(Src);
+					TooGoodEngine::Audio::RemoveSource(Src);
 					Sources.erase(it);
 				}
 			}
@@ -208,7 +220,7 @@ namespace Utils
 	{
 		ImGui::Begin("Debug Window");
 		ImGui::Text("FPS: %.1f", ImGui::GetIO().Framerate);
-		ImGui::Text("MS per frame: %.1f", tge::Application::GetCurrentDelta());
+		ImGui::Text("MS per frame: %.1f", TooGoodEngine::Application::GetCurrentDelta());
 		ImGui::End();
 	}
 	void EditorLayer::DisplayLog()

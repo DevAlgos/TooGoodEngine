@@ -1,7 +1,7 @@
 #include <pch.h>
 #include "VertexArray.h"
 
-namespace tge
+namespace TooGoodEngine
 {
 	OpenGLVertexArray::OpenGLVertexArray()
 		: m_VertexArrayHandle(0)
@@ -39,11 +39,11 @@ namespace tge
 		{
 			switch (type)
 			{
-			case tge::AttributeType::FLOAT:			stride += FloatSize;	 break;
-			case tge::AttributeType::FLOAT_2:		stride += FloatSize * 2; break;
-			case tge::AttributeType::FLOAT_3:		stride += FloatSize * 3; break;
-			case tge::AttributeType::FLOAT_4:		stride += FloatSize * 4; break;
-			case tge::AttributeType::MAT_4:			stride += FloatSize * 16; break;
+			case TooGoodEngine::AttributeType::FLOAT:			stride += FloatSize;	 break;
+			case TooGoodEngine::AttributeType::FLOAT_2:		stride += FloatSize * 2; break;
+			case TooGoodEngine::AttributeType::FLOAT_3:		stride += FloatSize * 3; break;
+			case TooGoodEngine::AttributeType::FLOAT_4:		stride += FloatSize * 4; break;
+			case TooGoodEngine::AttributeType::MAT_4:			stride += FloatSize * 16; break;
 			default:
 				break;
 			}
@@ -63,11 +63,11 @@ namespace tge
 
 			switch (type)
 			{
-			case tge::AttributeType::FLOAT:	   GLsize = 1;  GLtype = GL_FLOAT;  break;
-			case tge::AttributeType::FLOAT_2:  GLsize = 2;  GLtype = GL_FLOAT;  break;
-			case tge::AttributeType::FLOAT_3:  GLsize = 3;  GLtype = GL_FLOAT;  break;
-			case tge::AttributeType::FLOAT_4:  GLsize = 4;  GLtype = GL_FLOAT;  break;
-			case tge::AttributeType::MAT_4:	   GLsize = 16; GLtype = GL_FLOAT_MAT4; break;
+			case TooGoodEngine::AttributeType::FLOAT:	   GLsize = 1;  GLtype = GL_FLOAT;  break;
+			case TooGoodEngine::AttributeType::FLOAT_2:  GLsize = 2;  GLtype = GL_FLOAT;  break;
+			case TooGoodEngine::AttributeType::FLOAT_3:  GLsize = 3;  GLtype = GL_FLOAT;  break;
+			case TooGoodEngine::AttributeType::FLOAT_4:  GLsize = 4;  GLtype = GL_FLOAT;  break;
+			case TooGoodEngine::AttributeType::MAT_4:	   GLsize = 16; GLtype = GL_FLOAT_MAT4; break;
 			default:
 				break;
 			}

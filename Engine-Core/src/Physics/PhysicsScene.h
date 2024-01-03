@@ -2,13 +2,12 @@
 
 #include <Utils/RandomNumbers.h>
 #include <Utils/Logger.h>
-#include <ECS/Component.h>
 #include <ECS/Entity.h>
 #include <map>
 
 #include "CollisionMap.h"
 //
-//namespace tge
+//namespace TooGoodEngine
 //{
 //	struct PhysicsObject
 //	{

@@ -16,7 +16,7 @@ namespace
 	};
 }
 
-namespace tge 
+namespace TooGoodEngine 
 {
 
 	OpenGLBuffer::OpenGLBuffer(const BufferType& Type, const BufferData& BufferData)
@@ -24,10 +24,10 @@ namespace tge
 	{
 		switch (Type)
 		{
-		case tge::BufferType::VertexBuffer:        m_Type = GL_ARRAY_BUFFER; break;	
-		case tge::BufferType::IndexBuffer:		   m_Type = GL_ELEMENT_ARRAY_BUFFER; break;
-		case tge::BufferType::UniformBuffer:	   m_Type = GL_UNIFORM_BUFFER; break;
-		case tge::BufferType::ShaderStorageBuffer: m_Type = GL_SHADER_STORAGE_BUFFER; break;
+		case TooGoodEngine::BufferType::VertexBuffer:        m_Type = GL_ARRAY_BUFFER; break;	
+		case TooGoodEngine::BufferType::IndexBuffer:		   m_Type = GL_ELEMENT_ARRAY_BUFFER; break;
+		case TooGoodEngine::BufferType::UniformBuffer:	   m_Type = GL_UNIFORM_BUFFER; break;
+		case TooGoodEngine::BufferType::ShaderStorageBuffer: m_Type = GL_SHADER_STORAGE_BUFFER; break;
 		default:								   m_Type = GL_ARRAY_BUFFER; break;
 		}
 

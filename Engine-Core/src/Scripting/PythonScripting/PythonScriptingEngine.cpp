@@ -100,7 +100,7 @@ namespace Scripting
 		s_Data.Bindings.EntityClass = PyCapsule_New((void*)(&PyType_Type), nullptr, Bindings::CleanUpEntity);
 		PyModule_AddObject(s_Data.TooGoodEngineModule, "Entity", s_Data.Bindings.EntityClass);
 
-		PyDict_SetItemString(PyImport_GetModuleDict(), "TGE", s_Data.TooGoodEngineModule);
+		PyDict_SetItemString(PyImport_GetModuleDict(), "TooGoodEngine", s_Data.TooGoodEngineModule);
 
 	}
 	void PythonScriptingEngine::Execute(const std::filesystem::path& PythonFile)

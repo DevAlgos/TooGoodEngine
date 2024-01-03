@@ -11,7 +11,7 @@ constexpr uint32_t FONTMAP_HEIGHT = 1024U;
 constexpr uint32_t PIXEL_PER_CHAR = 64U;
 
 
-namespace tge
+namespace TooGoodEngine
 {
 	UIManager::UIManager()
 		: m_FaceCount(1)
@@ -38,10 +38,10 @@ namespace tge
 		TexData.Height = FONTMAP_HEIGHT;
 		TexData.TextureParamaters =
 		{
-			{GL_TEXTURE_MIN_FILTER, GL_NEAREST},
-			{GL_TEXTURE_MAG_FILTER, GL_NEAREST},
-			{GL_TEXTURE_WRAP_S,		GL_CLAMP_TO_BORDER},
-			{GL_TEXTURE_WRAP_T,		GL_CLAMP_TO_BORDER}
+			{GL_TEXTURE_MIN_FILTER, GL_LINEAR},
+			{GL_TEXTURE_MAG_FILTER, GL_LINEAR},
+			{GL_TEXTURE_WRAP_S,		GL_REPEAT},
+			{GL_TEXTURE_WRAP_T,		GL_REPEAT}
 		};
 
 		uint32_t* TextureBuffer = new uint32_t[FONTMAP_WIDTH * FONTMAP_HEIGHT];

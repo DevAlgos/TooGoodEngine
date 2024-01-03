@@ -6,7 +6,7 @@
 #include <map>
 #include <variant>
 
-namespace tge
+namespace TooGoodEngine
 {
 	static int s_GlobalID = 0;
 

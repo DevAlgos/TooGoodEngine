@@ -3,7 +3,7 @@
 #include <glad/glad.h>
 #include <iostream>
 
-namespace tge
+namespace TooGoodEngine
 {
 	enum class AttributeType
 	{

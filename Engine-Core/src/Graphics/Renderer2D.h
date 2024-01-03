@@ -8,8 +8,9 @@
 #include "Texture.h"
 #include <UI/UIManager.h>
 #include <string_view>
+#include <ECS/BaseComponents.h>
 
-namespace tge
+namespace TooGoodEngine
 {
 	struct RendererData2D
 	{
@@ -44,7 +45,6 @@ namespace tge
 #pragma endregion UI
 
 #pragma region RenderData
-		OrthoGraphicCamera Camera;
 
 		Vertex* Buffer = nullptr;
 		Vertex* BufferIndex = nullptr;
@@ -109,10 +109,12 @@ namespace tge
 
 		static void LoadInFont(const std::string_view& FontLocation, uint32_t Index = 0);
 
-		static void BeginScene(OrthoGraphicCamera& Camera);
+		static void BeginScene(BaseCamera& Camera);
 		static void BeginScene();
 
 		static void PushUIText(const std::string_view& Text, uint32_t Font, const glm::vec3& Position, const glm::vec2& size, float Rotation,  const glm::vec4& color);
+
+		static void PushQuad(const Ecs::TransformComponent& Transform, const Ecs::MaterialComponent& Mat);
 
 		static void PushQuad(const glm::vec3& Position, const glm::vec2& size, float Rotation, uint32_t ID);
 		static void PushQuad(const glm::vec3& Position, const glm::vec2& size, float Rotation, const glm::vec4& color);
@@ -204,6 +206,8 @@ namespace tge
 		static void Test();
 
 		static void PushCircle(const Circle& CircleData);
+
+		static void SetImageResolution(float width, float height);
 
 		static void Trace();
 

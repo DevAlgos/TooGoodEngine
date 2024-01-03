@@ -1,6 +1,6 @@
 #pragma once
 
-namespace tge {
+namespace TooGoodEngine {
 
 	class Shader
 	{

@@ -7,11 +7,11 @@
 #include <glm/gtc/type_ptr.hpp>
 
 
-static float FontMapWidth = static_cast<float>(tge::GetMapWidth());
-static float FontMapHeight = static_cast<float>(tge::GetMapHeight());
-static float PixelPerChar = static_cast<float>(tge::GetPixelPerChar());
+static float FontMapWidth = static_cast<float>(TooGoodEngine::GetMapWidth());
+static float FontMapHeight = static_cast<float>(TooGoodEngine::GetMapHeight());
+static float PixelPerChar = static_cast<float>(TooGoodEngine::GetPixelPerChar());
 
-namespace tge
+namespace TooGoodEngine
 {
 	static glm::vec3 QuadVertices[4] = 
 	{

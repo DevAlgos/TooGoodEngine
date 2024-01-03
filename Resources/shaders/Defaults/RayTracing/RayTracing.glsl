@@ -40,6 +40,9 @@ uniform mat4 InverseView;
 uniform mat4 InverseProjection;
 uniform vec3 CameraPosition;
 
+uniform float ImageWidth;
+uniform float ImageHeight;
+
 const float Pi = 3.14159265359;
 
 const uint UINT_MAX = 0xffffffffu;
@@ -120,6 +123,21 @@ vec3 GenCosineWeightedSample()
 	return vec3(sin(Angle1) * cos(Angle2), cos(Angle2), cos(Angle1) * sin(Angle2));
 }
 
+vec3 UniformSampleHemisphere()
+{
+    // cos(theta) = r1 = y
+    // cos^2(theta) + sin^2(theta) = 1 -> sin(theta) = srtf(1 - cos^2(theta))
+	float r1 = GenFloat(0.0, 1.0);
+	float r2 = GenFloat(0.0, 1.0);
+
+    float sinTheta = sqrt(1 - r1 * r1);
+    float phi = 2 * Pi * r2;
+    float x = sinTheta * cos(phi);
+    float z = sinTheta * sin(phi);
+    return vec3(x, r1, z);
+}
+
+
 vec3 GenInUnitSphere()
 {
 	return vec3(GenFloat(-1.0, 1.0), GenFloat(-1.0, 1.0), GenFloat(-1.0, 1.0));
@@ -199,6 +217,8 @@ bool TraceCircleRay(inout RayPayload Payload)
 
 vec4 GenCircleRay(ivec2 Coordinate, float AspectRatio)
 {
+//	vec4 AverageColor = vec4(0.0);
+//
 //	for(int i = 0; i < SampleRate; i++)
 //	{
 //		RayPayload Payload;
@@ -210,7 +230,7 @@ vec4 GenCircleRay(ivec2 Coordinate, float AspectRatio)
 //
 //		Payload.Origin = CameraPosition;
 //		Payload.Direction =  vec3(InverseView * vec4(normalize(vec3(Target) / Target.w), 0));
-//
+//		Payload.Origin *= AspectRatio;
 //
 //		bool HitOnce = false;
 //
@@ -232,9 +252,8 @@ vec4 GenCircleRay(ivec2 Coordinate, float AspectRatio)
 //				float Roughness = CircleData.Data[Payload.ClosestCircleIndex].Roughness.x;
 //
 //				Payload.Origin = Payload.IntersectionPoint + Payload.Normal * 0.0001;
-//				//Payload.Direction = reflect(Payload.Direction, Payload.Normal);
-//				Payload.Direction = ImportanceSampleGGX(Payload.Normal, CircleData.Data[Payload.ClosestCircleIndex].Roughness.x);
-//				//Payload.Direction = normalize((GenCosineWeightedSample()*Roughness) + Payload.Normal);
+//				Payload.Direction = (UniformSampleHemisphere()*Roughness) + Payload.Normal;
+//				
 //				HitOnce = true;
 //			}
 //			else
@@ -258,10 +277,10 @@ vec4 GenCircleRay(ivec2 Coordinate, float AspectRatio)
 
 	vec2 NewCoord = vec2(Coordinate.x / 1920.0, Coordinate.y / 1080.0) * 2.0 - 1.0;
 	vec4 Target = InverseProjection * vec4(NewCoord, 1.0, 1.0);
-
+	 
 	Payload.Origin = CameraPosition;
 	Payload.Direction =  vec3(InverseView * vec4(normalize(vec3(Target) / Target.w), 0));
-
+	Payload.Origin *= AspectRatio;
 
 	bool HitOnce = false;
 
@@ -270,6 +289,7 @@ vec4 GenCircleRay(ivec2 Coordinate, float AspectRatio)
 	
 	for (int bounce = 0; bounce < 5; bounce++)
 	{
+		CurrentSeed += bounce;
 		bool RayHit = TraceCircleRay(Payload);
 
 		if (RayHit)
@@ -284,7 +304,8 @@ vec4 GenCircleRay(ivec2 Coordinate, float AspectRatio)
 
 			Payload.Origin = Payload.IntersectionPoint + Payload.Normal * 0.0001;
 			//Payload.Direction = reflect(Payload.Direction, Payload.Normal);
-			Payload.Direction = normalize((GenInUnitSphere()*Roughness) + Payload.Normal);
+			//Payload.Direction = normalize((GenInUnitSphere()*Roughness) + Payload.Normal);
+			Payload.Direction = (UniformSampleHemisphere()*Roughness) + Payload.Normal;
 			HitOnce = true;
 		}
 		else
@@ -306,9 +327,8 @@ vec4 GenCircleRay(ivec2 Coordinate, float AspectRatio)
 	imageStore(screenPixelData, Coordinate, PreviousValue + val);
 
 	vec4 AverageColor = (PreviousValue + val) / FrameIndex;
-
-	return AverageColor;
 	
+	return AverageColor;
 }
 
 
@@ -321,9 +341,9 @@ void main()
 	if(FrameIndex == 1)
 		imageStore(screenPixelData, Coordinate, vec4(0.0, 0.0, 0.0, 1.0));
 
-	CurrentSeed = PCGHash(CurrentSeed * uint(length(Coordinate) + 1));
+	CurrentSeed =  uint(CurrentSeed + length(Coordinate)) * FrameIndex;
 
-	float AspectRatio = 1920.0 / 1080.0;
+	float AspectRatio = ImageWidth / ImageHeight;
 
 	value = GenCircleRay(Coordinate, AspectRatio);
 
