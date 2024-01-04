@@ -24,6 +24,38 @@ namespace Utils
 	}
 	void EditorLayer::OnInit()
 	{
+		int Width = TooGoodEngine::Application::GetMainWindow().GetWidth();
+		int Height = TooGoodEngine::Application::GetMainWindow().GetHeight();
+		
+
+		TooGoodEngine::TextureData TextureData;
+		TextureData.InternalFormat = TooGoodEngine::TextureFormat::RGBA32F;
+		TextureData.Width = Width;
+		TextureData.Height = Height;
+
+		float* TempData = new float[Width * Height * 4];
+		memset(TempData, 0, Width * Height * 4);
+
+		DisplayColorAttachment = TooGoodEngine::Texture::GenerateShared(TempData, TextureData);
+
+		delete[] TempData;
+
+		TooGoodEngine::RenderBufferData RenderBufferData;
+		RenderBufferData.width = Width;
+		RenderBufferData.height = Height;
+		RenderBufferData.InternalFormat = TooGoodEngine::TextureFormat::RGBA;
+
+		DisplayRenderBuffer = TooGoodEngine::RenderBuffer::GenerateShared(RenderBufferData);
+
+		TooGoodEngine::FramebufferData FramebufferData;
+		FramebufferData.AttachmentList = 
+		{
+			{TooGoodEngine::Attachment(TooGoodEngine::AttachmentType::Color, Width, Height), DisplayColorAttachment},
+		};
+
+
+		DisplayFramebuffer = TooGoodEngine::Framebuffer::GenerateShared(FramebufferData);
+
 		TooGoodEngine::CurrentScene = std::make_shared<TooGoodEngine::Scene>("Testing Scene");
 
 		TooGoodEngine::TextureData AudioImageData;
@@ -63,14 +95,18 @@ namespace Utils
 	void EditorLayer::OnUpdate()
 	{
 		TooGoodEngine::CurrentScene->SceneUpdate();
+
+		DisplayFramebuffer->Bind();
+
 		TooGoodEngine::CurrentScene->SceneDisplay();
+
+		DisplayFramebuffer->UnBind();
 		
 	}
 	void EditorLayer::OnGUIUpdate()
 	{	
 		ImGui::DockSpaceOverViewport(ImGui::GetMainViewport());
 		ImGui::Begin("Editor", &p_open, ImGuiWindowFlags_MenuBar);
-		ImGui::ShowDemoWindow();
 
 		if (ImGui::BeginMenuBar())
 		{
@@ -87,9 +123,14 @@ namespace Utils
 
 		if (opt_fullscreen)
 		{
-			ImGui::Image((void*)(intptr_t)TooGoodEngine::Raytracing2D::GetRenderImage()->Get(), {ImGui::GetContentRegionAvail().x,
+			/*ImGui::Image((void*)(intptr_t)TooGoodEngine::Raytracing2D::GetRenderImage()->Get(), {ImGui::GetContentRegionAvail().x,
+			ImGui::GetContentRegionAvail().y },
+				{ 0,1 }, { 1,0 });*/
+		
+			ImGui::Image((void*)(intptr_t)DisplayColorAttachment->Get(), {ImGui::GetContentRegionAvail().x,
 			ImGui::GetContentRegionAvail().y },
 				{ 0,1 }, { 1,0 });
+
 
 			TooGoodEngine::Raytracing2D::SetImageResolution(ImGui::GetWindowWidth(), 
 				ImGui::GetWindowHeight());

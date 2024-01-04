@@ -243,7 +243,7 @@ namespace Ecs
 			m_IndexToEntityMap.clear();
 		}
 
-		bool HasComponent(uint64_t EntityID) { return m_Sparse[EntityID] == NoComponent ? false : true; }
+		bool HasComponent(uint64_t EntityID) { return EntityID >= m_Sparse.size() || m_Sparse[EntityID] == NoComponent ? false : true; }
 
 		const uint64_t GetNoElements() const { return m_NoElements; }
 		const uint64_t GetSparseSize() const { return m_Sparse.size(); }

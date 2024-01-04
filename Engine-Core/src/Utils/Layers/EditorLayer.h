@@ -30,6 +30,10 @@ namespace Utils
 		void DisplayLog();
 
 	private:
+		std::shared_ptr<TooGoodEngine::Framebuffer>  DisplayFramebuffer;
+		std::shared_ptr<TooGoodEngine::Texture>		 DisplayColorAttachment;
+		std::shared_ptr<TooGoodEngine::RenderBuffer> DisplayRenderBuffer;
+
 		std::unique_ptr<TooGoodEngine::Texture> AudioIconImage;
 
 		std::unordered_map<std::string, TooGoodEngine::AudioHandle> AudioFileMap;

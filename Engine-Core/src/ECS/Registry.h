@@ -48,10 +48,20 @@ namespace Ecs
 		}
 
 		template<class Type>
-		Type* Begin() { return m_SparseSet[typeid(Type)].BeginComponent<Type>(); }
+		Type* Begin() 
+		{ 
+			if (!m_SparseSet.contains(typeid(Type)))
+				return nullptr;
+			return m_SparseSet[typeid(Type)].BeginComponent<Type>(); 
+		}
 
 		template<class Type>
-		Type* End() { return m_SparseSet[typeid(Type)].EndComponent<Type>(); }
+		Type* End() 
+		{
+			if (!m_SparseSet.contains(typeid(Type)))
+				return nullptr;
+			return m_SparseSet[typeid(Type)].EndComponent<Type>(); 
+		}
 
 
 		template<class Type, typename ...Args>

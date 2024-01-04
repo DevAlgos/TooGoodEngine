@@ -48,12 +48,6 @@ namespace Ecs
 		template<class Type, typename ...Args>
 		void Insert(Ecs::Entity entity, Args&&... args)
 		{	
-			if (typeid(Type) != m_BucketType)
-			{
-				LOG_CORE_WARNING("This bucket is not of that type");
-				return;
-			}
-
 			m_ComponentsList.Insert<Type>(entity.GetID(), std::forward<Args>(args)...);
 		}
 
