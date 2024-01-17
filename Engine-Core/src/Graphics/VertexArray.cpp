@@ -80,7 +80,7 @@ namespace TooGoodEngine
 				for (size_t i = 0; i < 4; i++)
 				{
 					glEnableVertexAttribArray(index);
-					glVertexAttribPointer(index, GLsize, GLtype, GL_FALSE, stride, (void*)(CurrentStartingPosition));
+					glVertexAttribPointer(index, GLsize, GLtype, GL_FALSE, (GLsizei)stride, (void*)(CurrentStartingPosition));
 
 					CurrentStartingPosition += GLsize * FloatSize;
 					index++;
@@ -89,7 +89,7 @@ namespace TooGoodEngine
 			else
 			{
 				glEnableVertexAttribArray(index);
-				glVertexAttribPointer(index, GLsize, GLtype, GL_FALSE, stride, (void*)(CurrentStartingPosition));
+				glVertexAttribPointer(index, GLsize, GLtype, GL_FALSE, (GLsizei)stride, (void*)(CurrentStartingPosition));
 
 				CurrentStartingPosition += GLsize * FloatSize;
 				index++;

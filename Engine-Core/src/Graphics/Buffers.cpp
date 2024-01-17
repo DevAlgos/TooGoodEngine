@@ -58,8 +58,8 @@ namespace TooGoodEngine
 	{
 		if (!data.data)
 		{
-			LOGERROR("Data is nullptr when pushing data!");
-			LOG_CORE_ERROR("Data is nullptr when pushing data!");
+			TGE_LOG_ERROR("Data is nullptr when pushing data!");
+			TGE_CLIENT_ERROR("Data is nullptr when pushing data!");
 			return;
 		}
 
@@ -127,8 +127,7 @@ namespace TooGoodEngine
 			case AttachmentType::Depth24Stencil8: GLAttachType = GL_DEPTH24_STENCIL8; break;
 			case AttachmentType::Depth32Stencil8: GLAttachType = GL_DEPTH32F_STENCIL8; break;
 			default:
-				std::string msg = "Not a valid attachment type, skipping attachment " + AttachmentData.GetID();
-				LOG_CORE_WARNING(msg);
+				TGE_CLIENT_WARN("Not a valid attachment type, skipping attachment ", AttachmentData.GetID());
 				continue;
 				break;
 			}

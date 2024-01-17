@@ -9,9 +9,10 @@
 
 namespace TooGoodEngine
 {
-	const uint32_t GetMapWidth();
-	const uint32_t GetMapHeight();
-	const uint32_t GetPixelPerChar();
+	constexpr uint32_t FONTMAP_WIDTH = 4096U;
+	constexpr uint32_t FONTMAP_HEIGHT = 4096U;
+	constexpr uint32_t PIXEL_PER_CHAR = 256U;
+	constexpr uint32_t BORDER_SIZE = (PIXEL_PER_CHAR / 2U) + 25U;
 
 	struct Character
 	{

@@ -26,9 +26,10 @@ namespace TooGoodEngine {
 	{
 		TextureFormat InternalFormat = TextureFormat::RGBA16F; //This is irrelevant for sampling from a file as automatically will be GL_RGBA8
 		TextureType Type = TextureType::Texture2D;
-		int Width, Height = 0; //leave empty if specifiying a texture from file as these will be sampled from the image
-		int MipmapLevels = 0;
+		int Width = 0, Height = 0; //leave empty if specifiying a texture from file as these will be sampled from the image
+		int MipmapLevels = 1;
 		int NumberOfSamples = 4;
+		int Level = 0;
 
 		std::unordered_map<GLenum, GLenum> TextureParamaters =
 		{
@@ -63,7 +64,7 @@ namespace TooGoodEngine {
 		void SetData(const std::string_view& NewImageLocation);
 
 		inline void Bind(int Unit) { glBindTextureUnit(Unit, m_Texture); }
-		inline void BindImage(int Unit) { glBindImageTexture(Unit, m_Texture, m_TextureData.MipmapLevels, GL_FALSE, 0, GL_WRITE_ONLY, m_InternalFormat); };
+		inline void BindImage(int Unit) { glBindImageTexture(Unit, m_Texture, m_TextureData.Level, GL_FALSE, 0, GL_WRITE_ONLY, m_InternalFormat); };
 		inline const uint32_t Get() const { return m_Texture; }
 
 	private:

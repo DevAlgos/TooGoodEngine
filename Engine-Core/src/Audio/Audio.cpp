@@ -30,15 +30,16 @@ std::vector<char> ReadWavFile(const std::string_view& FileLocation, WavHeader& H
 	std::ifstream file(FileLocation.data(), std::ios::binary);
 	if (!file.is_open())
 	{
-		LOGERROR("Error reading file");
+		TGE_LOG_ERROR("Error reading file");
 		return {};
 	}
+
 
 	file.read(reinterpret_cast<char*>(&Header), sizeof(WavHeader));
 
 	if (std::string(Header.ChunkHandle, 4) != "RIFF" || std::string(Header.Format, 4) != "WAVE" ||
 		std::string(Header.SubChunk1Handle, 4) != "fmt " || Header.AudioFormat != 1) {
-		LOG("Unsupported WAV format or not PCM.");
+		TGE_LOG_ERROR("Unsupported WAV format or not PCM.");
 		return {};
 	}
 
@@ -49,7 +50,7 @@ std::vector<char> ReadWavFile(const std::string_view& FileLocation, WavHeader& H
 
 	if (!file)
 	{
-		LOGERROR("Error reading data chunk");
+		TGE_LOG_ERROR("Error reading data chunk");
 		return {};
 	}
 
@@ -359,9 +360,10 @@ namespace TooGoodEngine
 				s_AudioData.CurrentDevice = alcOpenDevice(nullptr);
 				if (!s_AudioData.CurrentDevice)
 				{
-					LOGERROR("Failed to open device");
-					LOG_CORE_ERROR("Failed to open device");
-					__debugbreak();
+					TGE_LOG_ERROR("Failed to open device");
+					TGE_CLIENT_ERROR("Failed to open device");
+
+					TGE_HAULT();
 				}
 				
 				s_AudioData.Context = alcCreateContext(s_AudioData.CurrentDevice, nullptr);
@@ -371,10 +373,10 @@ namespace TooGoodEngine
 						alcDestroyContext(s_AudioData.Context);
 
 					alcCloseDevice(s_AudioData.CurrentDevice);
-					LOGERROR("Could not set context!");
-					LOG_CORE_ERROR("Could not set context!");
+					TGE_LOG_ERROR("Could not set context!");
+					TGE_CLIENT_ERROR("Could not set context!");
 
-					__debugbreak();
+					TGE_HAULT();
 				}
 
 				const char* name = NULL;
@@ -383,8 +385,8 @@ namespace TooGoodEngine
 				if (!name || alcGetError(s_AudioData.CurrentDevice) != AL_NO_ERROR)
 					name = alcGetString(s_AudioData.CurrentDevice, ALC_DEVICE_SPECIFIER);
 				
-				LOG(std::string(name));
-				LOG_CORE(std::string(name));
+				TGE_LOG_INFO(name);
+				TGE_CLIENT_LOG(name);
 				
 			} });
 	}

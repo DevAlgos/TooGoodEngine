@@ -6,11 +6,6 @@
 #include <glm/glm.hpp>
 #include <glm/gtc/type_ptr.hpp>
 
-
-static float FontMapWidth = static_cast<float>(TooGoodEngine::GetMapWidth());
-static float FontMapHeight = static_cast<float>(TooGoodEngine::GetMapHeight());
-static float PixelPerChar = static_cast<float>(TooGoodEngine::GetPixelPerChar());
-
 namespace TooGoodEngine
 {
 	static glm::vec3 QuadVertices[4] = 
@@ -279,11 +274,11 @@ namespace TooGoodEngine
 
 	static UIVertex* CreateUI(UIVertex* vertex, const glm::vec4& Color, float TextureUnit, const glm::ivec2& MapCoords, const glm::mat4& ModelMatrix)
 	{
-		float Width = 1.0f / (FontMapWidth / PixelPerChar); //400 = texture width, 32 = character width
-		float Height = 1.0f / (FontMapHeight / PixelPerChar);
+		constexpr float Width = (float)(PIXEL_PER_CHAR + BORDER_SIZE) / (float)FONTMAP_WIDTH;
+		constexpr float Height = (float)(PIXEL_PER_CHAR + BORDER_SIZE) / (float)FONTMAP_HEIGHT;
 
-		float x = (MapCoords.x * Width);
-		float y = (MapCoords.y * Height); 
+		float x = ((MapCoords.x) * Width);
+		float y = ((MapCoords.y) * Height); 
 
 		vertex->Position = QuadVertices[0];
 		vertex->Color = Color;

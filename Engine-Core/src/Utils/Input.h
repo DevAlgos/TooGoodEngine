@@ -147,6 +147,8 @@ namespace Input
 	const bool IsMouseButtonDown(int button);
 
 	const bool IsScrolled();
+	const bool IsCursorEnabled();
+
 	void SetScrolledToFalse();
 
 	const std::pair<double, double> GetScrollWheel();

@@ -1,11 +1,12 @@
 #pragma once
 
-#include <Utils/RandomNumbers.h>
-#include <Utils/Logger.h>
-#include <ECS/Entity.h>
+#include "Utils/RandomNumbers.h"
+#include "ECS/Entity.h"
+#include "CollisionMap.h"
+
 #include <map>
 
-#include "CollisionMap.h"
+
 //
 //namespace TooGoodEngine
 //{

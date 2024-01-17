@@ -16,6 +16,7 @@ namespace Ecs
 
 		virtual ~Entity();
 
+		void SetName(const std::string_view& Name) { m_EntityName = Name; }
 		const std::string_view GetName() const { return m_EntityName; }
 		const EntityID GetID() const { return m_EntityID; }
 		

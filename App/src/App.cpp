@@ -106,7 +106,7 @@ int main()
 	AppDetails.PythonEnviromentPath = "../Resources/Scripts/";
 
 	UserApplication NewApp(AppDetails);
-	/*NewApp.PushLayer(std::make_shared<Example>());*/
+	NewApp.PushLayer(std::make_shared<Example>());
 
 	return TooGoodEngine::Main(NewApp);
 

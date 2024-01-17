@@ -1,12 +1,22 @@
-from EngineLibs import Entity
+from EngineLibs.Entity import Entity
+from EngineLibs.Log import Log, LogWarn, LogError
+
+entity = None
 
 
 def OnInit():
-    #This will run once, use this to initalize variables and global variables.
-    print("This will print once")
+    entity = Entity("whoo")
+    print(entity.GetName())
+    
+    Log("this is a msg")
+    LogWarn("this is a warn")
+    LogError("this is a error")
+
     return
 
+
 def OnUpdate(deltaTime):
-    #this will run every frame, use this for your game logic and updating entites
-    print("This will print every frame ", deltaTime)
     return
+
+
+

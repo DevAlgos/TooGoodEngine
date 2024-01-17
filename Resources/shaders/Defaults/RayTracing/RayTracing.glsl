@@ -304,8 +304,8 @@ vec4 GenCircleRay(ivec2 Coordinate, float AspectRatio)
 
 			Payload.Origin = Payload.IntersectionPoint + Payload.Normal * 0.0001;
 			//Payload.Direction = reflect(Payload.Direction, Payload.Normal);
-			//Payload.Direction = normalize((GenInUnitSphere()*Roughness) + Payload.Normal);
-			Payload.Direction = (UniformSampleHemisphere()*Roughness) + Payload.Normal;
+			Payload.Direction = normalize((GenInUnitSphere()*Roughness) + Payload.Normal);
+			//Payload.Direction = (UniformSampleHemisphere()*Roughness) + Payload.Normal;
 			HitOnce = true;
 		}
 		else
@@ -341,11 +341,13 @@ void main()
 	if(FrameIndex == 1)
 		imageStore(screenPixelData, Coordinate, vec4(0.0, 0.0, 0.0, 1.0));
 
-	CurrentSeed =  uint(CurrentSeed + length(Coordinate)) * FrameIndex;
+	vec4 SeedVal = imageLoad(screenPixelData, Coordinate);
+
+	CurrentSeed =  uint(CurrentSeed + length(SeedVal)) * FrameIndex;
 
 	float AspectRatio = ImageWidth / ImageHeight;
 
 	value = GenCircleRay(Coordinate, AspectRatio);
-
+	
     imageStore(screen, Coordinate, value);
 }

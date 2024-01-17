@@ -43,9 +43,21 @@ namespace Ecs
 			if (m_SparseSet.contains(DataType))
 				return m_SparseSet[DataType].Get<Type>(Entity);
 
-			LOG_CORE_ERROR("Not a valid type" + std::string(DataType.name()));
+			TGE_CLIENT_ERROR("Not a valid type" + std::string(DataType.name()));
 			assert(false);
 		}
+
+		template<class Type>
+		EntityID GetEntityFromComponent(uint64_t Index)
+		{
+			std::type_index DataType = typeid(Type);
+			if (m_SparseSet.contains(DataType))
+				return m_SparseSet[DataType].GetEntityFromComponent<Type>(Index);
+
+			TGE_CLIENT_ERROR("Not a valid type" + std::string(DataType.name()));
+			return NullEntity;
+		}
+
 
 		template<class Type>
 		Type* Begin() 

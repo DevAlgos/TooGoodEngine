@@ -7,6 +7,7 @@ IncludeDir["stb_image"] = "../Libs/STB"
 IncludeDir["freetype"] = "../Libs/freetype/include"
 IncludeDir["OpenAl"]="../Libs/openal-soft-windows-build/include"
 IncludeDir["libsndfile"] = "../Libs/libsndfile-windows-build/include"
+IncludeDir["json"] = "../Libs/json-nlohmann/single_include"
 
 function findPython()
     local pythonDir = os.getenv("PYTHONHOME") or os.getenv("PYTHONPATH")
@@ -54,7 +55,8 @@ project "Engine-Core"
         IncludeDir["stb_image"],
         IncludeDir["freetype"],
         IncludeDir["OpenAl"],
-        IncludeDir["libsndfile"] 
+        IncludeDir["libsndfile"],
+        IncludeDir["json"]
     }
 
     links 
@@ -102,6 +104,7 @@ project "Engine-Core"
     
     filter "configurations:DebugWithPython"
         defines { "DEBUG" }
+        defines { "_DEBUG_WITH_PYTHON" }
         runtime "Release"
         symbols "On"
 

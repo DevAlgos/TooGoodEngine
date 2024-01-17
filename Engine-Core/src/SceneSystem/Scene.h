@@ -32,6 +32,11 @@ namespace TooGoodEngine
 			Impl_DisplayComponent::Call<Type>(entity, this);
 		}
 	private:
+		char m_EntityNameBuffer[30]{};
+
+		const float labelWidth = 100.0f;
+		const float labelOffset = -40.0f;
+
 		std::string_view m_DebugName;
 		Ecs::Registry m_SceneRegistry;
 
@@ -42,13 +47,14 @@ namespace TooGoodEngine
 		friend class Impl_DisplayComponent;
 	};
 
-	struct Impl_DisplayComponent
+	class Impl_DisplayComponent
 	{
+	public:
 		//template specialzed in Scene.cpp
 		template<class Type>
 		static void Call(Ecs::Entity entity, Scene* self)
 		{
-			LOG_CORE_WARNING("Not a valid component");
+			TGE_LOG_WARN("Not a valid component");
 		}
 	};
 

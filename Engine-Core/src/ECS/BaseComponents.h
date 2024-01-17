@@ -11,8 +11,9 @@ namespace Ecs
 	struct TransformComponent
 	{
 	public:
-		TransformComponent() : s_Transform(0.0f) {}
+		TransformComponent() : s_Transform(0.0f), s_RotationAxis(0.0f), s_Rotation(0.0f) {}
 		TransformComponent(const glm::vec3& Position, const glm::vec3& Scale, const glm::vec3& RotationAxis, float Rotation)
+			: s_RotationAxis(RotationAxis), s_Rotation(0.0f)
 		{
 			s_Transform = glm::mat4(1.0f);
 			s_Transform = glm::translate(s_Transform, Position)
@@ -21,6 +22,8 @@ namespace Ecs
 		}
 
 
+		float s_Rotation;
+		glm::vec3 s_RotationAxis;
 		glm::mat4 s_Transform;
 	};
 
@@ -45,5 +48,11 @@ namespace Ecs
 		float	  s_Roughness;
 
 		std::shared_ptr<TooGoodEngine::Texture> s_MaterialTexture;
+	};
+
+	//tag saying its a quad component
+	struct QuadComponent
+	{
+		QuadComponent() = default;
 	};
 }

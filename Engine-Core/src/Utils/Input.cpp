@@ -11,7 +11,7 @@ namespace
     static double s_LastX = 0.0;
     static double s_LastY = 0.0;
 
-    static bool Cursor = true;
+    static bool s_CursorEnabled = true;
 
     static void ScrollCallBack(GLFWwindow* window, double xOffset, double yOffset)
     {
@@ -26,12 +26,11 @@ namespace Input
 {
     void BeginPolling(GLFWwindow* window)
     {
-        assert(!(s_Window != nullptr) && "Input Manager Already Initialized!");
+        assert(!(s_Window != nullptr) && "Input Already Initialized!");
 
         s_Window = window;
 
         glfwSetScrollCallback(s_Window, ScrollCallBack);
-
     }
 
     const bool IsKeyReleased(int key)
@@ -75,6 +74,11 @@ namespace Input
         return s_Scrolled;
     }
 
+    const bool IsCursorEnabled()
+    {
+        return s_CursorEnabled;
+    }
+
     void SetScrolledToFalse()
     {
         s_Scrolled = false;
@@ -93,14 +97,14 @@ namespace Input
 
     void DisableCursor()
     {
-        glfwSetInputMode(s_Window, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
-        Cursor = true;
+       glfwSetInputMode(s_Window, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
+       s_CursorEnabled = false;
     }
 
     void EnableCursor()
     {
         glfwSetInputMode(s_Window, GLFW_CURSOR, GLFW_CURSOR_NORMAL);
-        Cursor = false;
+        s_CursorEnabled = true;
     }
 
 

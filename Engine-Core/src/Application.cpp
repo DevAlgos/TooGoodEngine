@@ -1,7 +1,9 @@
 
-#include <pch.h>
-#include <Application.h>
-#include <Audio/Audio.h>
+#include "pch.h"
+#include "Application.h"
+#include "Audio/Audio.h"
+
+#include "Utils/Log.h"
 
 namespace
 {
@@ -12,7 +14,6 @@ namespace
 	static float end = 0.0f;
 	static float start = 0.0f;
 	static float elapsedTime;
-	
 }
 
 namespace TooGoodEngine
@@ -20,7 +21,8 @@ namespace TooGoodEngine
 	Application::Application(const UserApplication& App)
 		: Manager()
 	{
-		Utils::Logger::Init(Utils::Logger::Platform::Windows);
+		Log::Init();
+
 		Audio::Init();
 		Scripting::PythonScriptingEngine::Init(App.GetDetails().PythonEnviromentPath);
 		
@@ -41,7 +43,6 @@ namespace TooGoodEngine
 		for (auto& layer : App.GetLayers())
 			Manager.PushLayer(layer);
 		
-		
 	}
 
 	Application::~Application()
@@ -49,21 +50,21 @@ namespace TooGoodEngine
 		Scripting::PythonScriptingEngine::Shutdown();
 		Audio::Shutdown();
 		Renderer2D::ShutDown();
-		Utils::Logger::ShutDown();
-
+		Raytracing2D::Shutdown();
 	}
 
 	void Application::Run()
 	{
 		ImVec4 clear_color = ImVec4(0.45f, 0.55f, 0.60f, 1.00f);
 		
-		Scripting::PythonScriptWrapper TestScript = 
-			Scripting::PythonScriptingEngine::LoadScript("Test");
-		TestScript.CreateScript();
+		//Scripting::PythonScriptWrapper TestScript = 
+		//	Scripting::PythonScriptingEngine::LoadScript("Test");
+		//TestScript.CreateScript();
 
 		while (!s_MainWindow.WindowClosed())
 		{
 			start = (float)ApplicationClock->TimeElapsed(Utils::TimeUnit::mili);
+			//TestScript.ScriptOnUpdate(deltaTime);
 			
 			s_MainWindow.SwapBuffers();
 			s_MainWindow.PollEvents();
@@ -94,7 +95,6 @@ namespace TooGoodEngine
 			deltaTime = end - start;
 		}
 
-		TestScript.ScriptOnDestroy();
 	}
 
 	Window& Application::GetMainWindow()

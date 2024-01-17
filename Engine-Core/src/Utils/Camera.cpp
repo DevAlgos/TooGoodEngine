@@ -128,27 +128,11 @@ void Camera::Update(float dt)
 	keyDPressed = Input::IsKeyDown(KEY_D);
 	keyQPressed = Input::IsKeyDown(KEY_Q);
 	keyEPressed = Input::IsKeyDown(KEY_E);
-	keyVPressed = Input::IsKeyPressed(KEY_V);
-
-	if (keyVPressed)
-	{
-		if (CursorEnabled)
-		{
-			Input::EnableCursor();
-			CursorEnabled = false;
-		}
-		else
-		{
-			Input::DisableCursor();
-			CursorEnabled = true;
-		}
-	}
-
-	if (!CursorEnabled)
-		return;
 
 
 	glm::vec3 movement(0.0f);
+
+	
 
 	if (keyWPressed)
 		movement += m_CameraData.CameraSpeed * m_CameraData.Up * dt;
@@ -169,8 +153,8 @@ void Camera::Update(float dt)
 
 	Input::GetMousePos(xPos, yPos);
 
-	float xOffset = (xPos - LastX) * m_CameraData.Sensitivity;
-	float yOffset = (LastY - yPos) * m_CameraData.Sensitivity;
+	float xOffset = (float)(xPos - LastX) * m_CameraData.Sensitivity;
+	float yOffset = (float)(LastY - yPos) * m_CameraData.Sensitivity;
 
 	LastX = xPos;
 	LastY = yPos;

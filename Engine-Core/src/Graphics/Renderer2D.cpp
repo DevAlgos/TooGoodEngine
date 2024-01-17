@@ -34,7 +34,8 @@ namespace TooGoodEngine
 		RenderData.BufferIndex = RenderData.Buffer;
 
 		glGetIntegerv(GL_MAX_TEXTURE_IMAGE_UNITS, &RenderData.MaxTextureSlots); //Queries the drivers for the maximum texture slot of the gpu
-		RenderData.MaxTextureSlots = 32;
+		TGE_LOG_INFO("Texture slots ", RenderData.MaxTextureSlots);
+
 
 		RenderData.AllMaterials.resize(RenderData.MaxMaterialSlots);
 
@@ -306,6 +307,8 @@ namespace TooGoodEngine
 
 		RenderData.IndexCount += 6;
 	}
+
+	//TODO: Use a font atlas generator library for better quality
 	void Renderer2D::PushUIText(const std::string_view& Text, uint32_t Font, const glm::vec3& Position, const glm::vec2& size, float Rotation, const glm::vec4& color)
 	{
 		const uint32_t TextureUnit = RenderData.UIManager.GetFont(Font).CharacterSheet.Get();
@@ -347,7 +350,7 @@ namespace TooGoodEngine
 			}
 
 			const Character& character = RenderData.UIManager.GetCharacter(Font, Text[i]);
-			glm::vec3 TempPosition = glm::vec3(CurrentPosition.x, CurrentPosition.y + (character.Bearing.y/PixelPerChar) * 2.0f, CurrentPosition.z);
+			glm::vec3 TempPosition = glm::vec3(CurrentPosition.x, (CurrentPosition.y + (character.Bearing.y*1.4f/PIXEL_PER_CHAR)), CurrentPosition.z);
 			
 			glm::mat4 ModelMatrix = glm::mat4(1.0f);
 			ModelMatrix = glm::translate(ModelMatrix, TempPosition)
@@ -355,7 +358,7 @@ namespace TooGoodEngine
 				* glm::scale(ModelMatrix, glm::vec3(size, 1.0f));
 
 			RenderData.UIBufferIndex = CreateUI(RenderData.UIBufferIndex, color, TextureIndex, character.Coordinate, ModelMatrix);
-			CurrentPosition.x += (character.Advance/FontMapWidth) / 2.0f;
+			CurrentPosition.x += (((float)(character.Advance/FONTMAP_WIDTH) / 2.0f)) * size.x;
 			RenderData.UIIndexCount += 6;
 
 			if (RenderData.UIIndexCount >= RenderData.MaxUIComponents * 6)
@@ -857,12 +860,14 @@ namespace TooGoodEngine
 		ImageData.Height =         s_RaytracingData.ImageHeight;
 		ImageData.Type   =		   TextureType::Texture2D;
 		ImageData.InternalFormat = TextureFormat::RGBA32F;
+		ImageData.MipmapLevels = 1;
+		ImageData.Level = 0;
 		ImageData.TextureParamaters =
 		{
 			{GL_TEXTURE_MIN_FILTER, GL_NEAREST},
 			{GL_TEXTURE_MAG_FILTER, GL_NEAREST},
-			{GL_TEXTURE_WRAP_S,		GL_CLAMP_TO_EDGE},
-			{GL_TEXTURE_WRAP_T,		GL_CLAMP_TO_EDGE}	
+			{GL_TEXTURE_WRAP_S,		GL_REPEAT},
+			{GL_TEXTURE_WRAP_T,		GL_REPEAT}
 		};
 
 		s_RaytracingData.Data = new glm::vec4[s_RaytracingData.ImageWidth * s_RaytracingData.ImageHeight];
@@ -1076,16 +1081,25 @@ namespace TooGoodEngine
 	void Raytracing2D::Trace()
 	{
 
-		//s_RaytracingData.OrthoCamera.Update(Application::GetCurrentDeltaSecond());
-		s_RaytracingData.LastPosition = s_RaytracingData.DebuggingCamera.GetPosition();
-		s_RaytracingData.LastFront = s_RaytracingData.DebuggingCamera.GetFront(); 
+		if (Input::IsKeyDown(KEY_V))
+			Input::EnableCursor();
 
-		s_RaytracingData.DebuggingCamera.Update(Application::GetCurrentDeltaSecond());
+		if (Input::IsKeyDown(KEY_B))
+			Input::DisableCursor();
 
-		if (s_RaytracingData.LastFront != s_RaytracingData.DebuggingCamera.GetFront() ||
-			s_RaytracingData.LastPosition != s_RaytracingData.DebuggingCamera.GetPosition())
+
+		if (!Input::IsCursorEnabled())
 		{
-			s_RaytracingData.FrameIndex = 1;
+			s_RaytracingData.LastPosition = s_RaytracingData.DebuggingCamera.GetPosition();
+			s_RaytracingData.LastFront = s_RaytracingData.DebuggingCamera.GetFront();
+
+			s_RaytracingData.DebuggingCamera.Update(Application::GetCurrentDeltaSecond());
+
+			if (s_RaytracingData.LastFront != s_RaytracingData.DebuggingCamera.GetFront() ||
+				s_RaytracingData.LastPosition != s_RaytracingData.DebuggingCamera.GetPosition())
+			{
+				s_RaytracingData.FrameIndex = 1;
+			}
 		}
 
 		DynamicData ShaderStorageData{};
@@ -1095,6 +1109,7 @@ namespace TooGoodEngine
 		ShaderStorageData.Offset = 0;
 		ShaderStorageData.VertexSize = s_RaytracingData.CircleData.size() * sizeof(Circle);
 
+		s_RaytracingData.ShaderStorage->Bind();
 		s_RaytracingData.ShaderStorage->PushData(ShaderStorageData);
 		s_RaytracingData.ComputeShaders->Use();
 
@@ -1120,7 +1135,6 @@ namespace TooGoodEngine
 	}
 	void Raytracing2D::Shutdown()
 	{
-		delete[] s_RaytracingData.Data;
 	}
 	std::shared_ptr<Texture> Raytracing2D::GetRenderImage()
 	{

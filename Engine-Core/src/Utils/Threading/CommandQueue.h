@@ -5,8 +5,6 @@
 #include <mutex>
 #include <queue>
 
-#include "PriorityQueue.h"
-
 
 namespace Utils
 {

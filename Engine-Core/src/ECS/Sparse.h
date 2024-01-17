@@ -1,12 +1,15 @@
 #pragma once
 
+#include "Entity.h"
+#include "Utils/Log.h"
+
 #include <typeindex>
 #include <vector>
 #include <cassert>
 
 #include <xhash>
 #include <unordered_map>
-#include <Utils/Logger.h>
+
 
 namespace Ecs
 {
@@ -42,7 +45,7 @@ namespace Ecs
 		}
 
 		template<class Type>
-		void ReAllocate(uint64_t Size)
+		void ReAllocate(uint64_t NewCapacity)
 		{
 			if (m_ComponentType == typeid(NullType))
 				m_ComponentType = typeid(Type);
@@ -50,26 +53,41 @@ namespace Ecs
 			if (m_ComponentType != typeid(Type))
 				return; //incorrect type
 
-			void* TempBlock = realloc(m_Block, sizeof(Type) * Size);
+			void* TempBlock = realloc(m_Block, sizeof(Type) * NewCapacity);
 
+			//if realloc fails attempts to find new block and moves all of the memory there
 			if (!TempBlock)
 			{
-				assert(false);
-				return;
+				TempBlock = calloc(NewCapacity, sizeof(Type));
+
+				if (!TempBlock)
+					__debugbreak();
+
+				Type* Current = static_cast<Type*>(m_Block);
+				Type* New = static_cast<Type*>(TempBlock);
+
+				for (size_t i = 0; i < m_Size; i++)
+					New[i] = std::move(Current[i]);
+				
+
+				if (m_Block)
+					free(m_Block);
+
+				m_Block = nullptr;
 			}
 
 
 			m_Block = TempBlock;
-			m_Capacity = Size;
+			m_Capacity = NewCapacity;
 		}
 
 		template<class Type, typename ... Args>
 		std::enable_if_t<std::is_constructible_v<Type, Args...>, void> Construct(uint64_t Index, Args&&... args)
 		{
 			if (Index >= m_Capacity)
-				ReAllocate<Type>((m_Capacity + (Index - m_Capacity)) * 2);
+				ReAllocate<Type>((m_Capacity + (Index - m_Capacity) + 1) * 2);
 
-			assert(m_ComponentType == typeid(Type));
+			TGE_ASSERT(m_ComponentType == typeid(Type), "invalid component type");
 
 			Type* ptr = static_cast<Type*>(m_Block) + Index;
 			*ptr = Type(std::forward<Args>(args)...);
@@ -79,7 +97,8 @@ namespace Ecs
 		template<class Type, typename ...Args>
 		std::enable_if_t<!std::is_constructible_v<Type, Args...>, void> Construct(uint64_t Index, Args&&... args)
 		{
-			printf("no suitable constructor!");
+			TGE_LOG_WARN("no suitable constructor!");
+			TGE_CLIENT_WARN("no suitable constructor!");
 		}
 
 		template<class Type>
@@ -90,7 +109,7 @@ namespace Ecs
 			if (ptr)
 				return *ptr;
 
-			assert(false);
+			TGE_HAULT();
 		}
 
 		template<class Type>
@@ -192,16 +211,15 @@ namespace Ecs
 		template<class Type>
 		Type& Get(uint64_t EntityID)
 		{
-			if (m_Sparse.size() <= EntityID)
-				__debugbreak();
-
-			if (m_Sparse[EntityID] == NoComponent)
-			{
-				LOG_CORE_ERROR("that component is invalid");
-				__debugbreak();
-			}
+			TGE_ASSERT(EntityID < m_Sparse.size() && m_Sparse[EntityID] != NoComponent, "invalid component");
 
 			return m_Dense.Get<Type>(m_Sparse[EntityID]);
+		}
+
+		template<class Type>
+		EntityID GetEntityFromComponent(uint64_t Index)
+		{
+			return m_IndexToEntityMap[Index];
 		}
 
 		template<class Type>
@@ -243,7 +261,7 @@ namespace Ecs
 			m_IndexToEntityMap.clear();
 		}
 
-		bool HasComponent(uint64_t EntityID) { return EntityID >= m_Sparse.size() || m_Sparse[EntityID] == NoComponent ? false : true; }
+		bool HasComponent(uint64_t EntityID) { return EntityID < m_Sparse.size() && m_Sparse[EntityID] != NoComponent; }
 
 		const uint64_t GetNoElements() const { return m_NoElements; }
 		const uint64_t GetSparseSize() const { return m_Sparse.size(); }
@@ -256,6 +274,6 @@ namespace Ecs
 		uint64_t m_CurrentTop = 0;
 		bool m_Allocated = false;
 
-		std::unordered_map<uint64_t, uint64_t> m_IndexToEntityMap;
+		std::unordered_map<uint64_t, EntityID> m_IndexToEntityMap;
 	};
 }

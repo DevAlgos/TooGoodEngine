@@ -41,7 +41,7 @@ namespace TooGoodEngine
 		{
 		case TextureFormat::RGBA16F: m_InternalFormat = GL_RGBA16F; break;
 		case TextureFormat::RGBA32F: m_InternalFormat = GL_RGBA32F; break;
-		default: LOGWARNING("Try using uint32_t instead of floats!"); break;
+		default: TGE_LOG_WARN("Try using uint32_t instead of floats!"); break;
 		}
 
 		switch (m_TextureData.Type)
@@ -62,7 +62,7 @@ namespace TooGoodEngine
 		{
 		case TextureFormat::RGBA8: m_InternalFormat = GL_RGBA8; break;
 		default:
-			LOGWARNING("texture format not supported, try using float instead of uint32_t");
+			TGE_LOG_WARN("texture format not supported, try using float instead of uint32_t");
 			break;
 		}
 
@@ -139,14 +139,14 @@ namespace TooGoodEngine
 	void Texture::SetData(float* Data)
 	{
 		glBindTexture(m_TextureType, m_Texture);
-		glTexSubImage2D(m_TextureType, m_TextureData.MipmapLevels, 0, 0, m_TextureData.Width, m_TextureData.Height,
+		glTexSubImage2D(m_TextureType, m_TextureData.Level, 0, 0, m_TextureData.Width, m_TextureData.Height,
 			m_FileFormat, GL_FLOAT, Data);
 	}
 
 	void Texture::SetData(uint32_t* Data)
 	{
 		glBindTexture(m_TextureType, m_Texture);
-		glTexSubImage2D(m_TextureType, m_TextureData.MipmapLevels, 0, 0, m_TextureData.Width, m_TextureData.Height,
+		glTexSubImage2D(m_TextureType, m_TextureData.Level, 0, 0, m_TextureData.Width, m_TextureData.Height,
 			m_FileFormat, GL_UNSIGNED_BYTE, Data);
 	}
 
@@ -164,7 +164,7 @@ namespace TooGoodEngine
 		const char* Failure = stbi_failure_reason();
 		if (Failure)
 		{
-			LOGERROR(std::string(Failure));
+			TGE_LOG_ERROR(std::string(Failure));
 			return;
 		}
 
@@ -183,7 +183,7 @@ namespace TooGoodEngine
 		else
 		{
 			glBindTexture(m_TextureType, m_Texture);
-			glTexSubImage2D(m_TextureType, m_TextureData.MipmapLevels, 0, 0, m_TextureData.Width, m_TextureData.Height,
+			glTexSubImage2D(m_TextureType, m_TextureData.Level, 0, 0, m_TextureData.Width, m_TextureData.Height,
 				m_FileFormat, GL_UNSIGNED_BYTE, image);
 		}
 
@@ -208,7 +208,7 @@ namespace TooGoodEngine
 
 		if (Failure)
 		{
-			LOGERROR(std::string(Failure));
+			TGE_LOG_ERROR(std::string(Failure));
 			return;
 		}
 		
@@ -247,8 +247,8 @@ namespace TooGoodEngine
 		switch (TextureType)
 		{
 		case GL_TEXTURE_2D:
-			glTextureStorage2D(m_Texture, 1, m_InternalFormat, m_TextureData.Width, m_TextureData.Height);
-			glTexSubImage2D(GL_TEXTURE_2D, m_TextureData.MipmapLevels, 0, 0, m_TextureData.Width, m_TextureData.Height, m_FileFormat,
+			glTextureStorage2D(m_Texture, m_TextureData.MipmapLevels, m_InternalFormat, m_TextureData.Width, m_TextureData.Height);
+			glTexSubImage2D(GL_TEXTURE_2D, m_TextureData.Level, 0, 0, m_TextureData.Width, m_TextureData.Height, m_FileFormat,
 				GL_UNSIGNED_BYTE, Data);
 			glGenerateTextureMipmap(m_Texture);
 			break;
@@ -262,8 +262,8 @@ namespace TooGoodEngine
 		switch (TextureType)
 		{
 		case GL_TEXTURE_2D:
-			glTextureStorage2D(m_Texture, 1, m_InternalFormat, m_TextureData.Width, m_TextureData.Height);
-			glTexSubImage2D(GL_TEXTURE_2D, m_TextureData.MipmapLevels, 0, 0, m_TextureData.Width, m_TextureData.Height, m_FileFormat,
+			glTextureStorage2D(m_Texture, m_TextureData.MipmapLevels, m_InternalFormat, m_TextureData.Width, m_TextureData.Height);
+			glTexSubImage2D(GL_TEXTURE_2D, m_TextureData.Level, 0, 0, m_TextureData.Width, m_TextureData.Height, m_FileFormat,
 				GL_FLOAT, Data);
 			glGenerateTextureMipmap(m_Texture);
 			break;
@@ -277,15 +277,15 @@ namespace TooGoodEngine
 		switch (TextureType)
 		{
 		case GL_TEXTURE_2D:
-			glTextureStorage2D(m_Texture, 1, m_InternalFormat, m_TextureData.Width, m_TextureData.Height);
-			glTexSubImage2D(GL_TEXTURE_2D, m_TextureData.MipmapLevels, 0, 0, m_TextureData.Width, m_TextureData.Height, m_FileFormat,
+			glTextureStorage2D(m_Texture, m_TextureData.MipmapLevels, m_InternalFormat, m_TextureData.Width, m_TextureData.Height);
+			glTexSubImage2D(GL_TEXTURE_2D, m_TextureData.Level, 0, 0, m_TextureData.Width, m_TextureData.Height, m_FileFormat,
 				GL_UNSIGNED_BYTE, Data);
 			glGenerateTextureMipmap(m_Texture);
 			break;
 		case GL_TEXTURE_2D_MULTISAMPLE:
 			glTextureStorage2DMultisample(m_Texture, m_TextureData.NumberOfSamples, m_InternalFormat, m_TextureData.Width, m_TextureData.Height, GL_TRUE);
-			glTexSubImage2D(GL_TEXTURE_2D_MULTISAMPLE, m_TextureData.MipmapLevels, 0, 0, m_TextureData.Width, m_TextureData.Height, m_FileFormat,
-				GL_UNSIGNED_BYTE, Data);
+			/*glTexSubImage2D(GL_TEXTURE_2D_MULTISAMPLE, m_TextureData.Level, 0, 0, m_TextureData.Width, m_TextureData.Height, m_FileFormat,
+				GL_UNSIGNED_BYTE, Data);*/
 			break;
 		default:
 			break;

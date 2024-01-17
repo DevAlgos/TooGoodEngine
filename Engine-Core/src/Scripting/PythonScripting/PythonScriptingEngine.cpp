@@ -14,14 +14,14 @@ namespace Scripting
 	{
 		if (fileLocation.extension() != ".py")
 		{
-			LOG_CORE_ERROR("not a valid python python");
+			TGE_CLIENT_ERROR("not a valid python python");
 			__debugbreak();
 		}
 
 		fopen_s(&m_File, fileLocation.string().c_str(), "r");
 		if (!m_File)
 		{
-			LOG_CORE_ERROR("not a valid python python");
+			TGE_CLIENT_ERROR("not a valid python python");
 			__debugbreak();
 		}
 	}
@@ -46,7 +46,7 @@ namespace Scripting
 	{
 		if (newPath.extension() != ".py")
 		{
-			LOG_CORE_ERROR("not a valid python python");
+			TGE_CLIENT_ERROR("not a valid python python");
 			__debugbreak();
 		}
 
@@ -60,7 +60,7 @@ namespace Scripting
 		fopen_s(&m_File, m_Location.string().c_str(), "r");
 		if (!m_File)
 		{
-			LOG_CORE_ERROR("not a valid python file");
+			TGE_CLIENT_ERROR("not a valid python file");
 			__debugbreak();
 		}
 	}
@@ -114,7 +114,7 @@ namespace Scripting
 			fclose(file);
 		}
 		else
-			LOG_CORE_WARNING("Python script failed to load at location: " + PythonFile.string());
+			TGE_LOG_WARN("Python script failed to load at location: ", PythonFile.string());
 		
 	}
 	void PythonScriptingEngine::Shutdown()
@@ -161,17 +161,18 @@ namespace Scripting
 
 		if (!onInitFunc || !onUpdateFunc)
 		{
-			LOG_CORE_ERROR("Those functions were not in script!");
+			TGE_CLIENT_ERROR("Those functions were not in script!");
 			__debugbreak();
 		}
 
 		return PythonScriptWrapper(onInitFunc, onUpdateFunc);
+
 	}
 	void PythonScriptingEngine::Reload(uint32_t Index)
 	{
 		if (Index >= s_Data.CurrentSize)
 		{
-			LOG_CORE_WARNING("Index out of range file not reloaded");
+			TGE_LOG_WARN("Index out of range file not reloaded");
 			return;
 		}
 
@@ -181,7 +182,7 @@ namespace Scripting
 	{
 		if (s_Data.CurrentSize >= PythonScriptingData::MaxFiles)
 		{
-			LOG_CORE_WARNING("Max files have been reached script not loaded");
+			TGE_LOG_WARN("Max files have been reached script not loaded");
 			return PythonScriptingData::NullFile;
 		}
 		s_Data.FilesToExecutePtr->Reload(PythonFile);
@@ -195,7 +196,7 @@ namespace Scripting
 			FILE* file = s_Data.FilesToExecute[i].Get();
 
 			if (!file)
-				__debugbreak();
+				TGE_HAULT();
 			
 			PyRun_AnyFile(file, s_Data.FilesToExecute[i].GetLocation().c_str());
 			fseek(file, 0, 0);

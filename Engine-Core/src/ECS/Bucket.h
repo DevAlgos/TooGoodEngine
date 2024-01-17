@@ -2,7 +2,7 @@
 
 #include "Entity.h"
 #include "Sparse.h"
-#include <Utils/Logger.h>
+#include "Utils/Log.h"
 
 namespace Ecs
 {
@@ -33,8 +33,21 @@ namespace Ecs
 				return m_ComponentsList.Get<Type>(Entity.GetID());
 			else 
 			{
-				LOG_CORE_ERROR("inavlid component");
+				TGE_CLIENT_ERROR("inavlid component");
 				assert(false);
+			}
+		}
+
+		template<class Type>
+		EntityID GetEntityFromComponent(uint64_t Index)
+		{
+			std::type_index typeIndex = typeid(Type);
+			if (typeIndex == m_BucketType)
+				return m_ComponentsList.GetEntityFromComponent<Type>(Index);
+			else
+			{
+				TGE_CLIENT_ERROR("inavlid component");
+				TGE_HAULT();
 			}
 		}
 
@@ -56,7 +69,7 @@ namespace Ecs
 		{
 			if (typeid(Type) != m_BucketType)
 			{
-				LOG_CORE_WARNING("This bucket is not of that type");
+				TGE_LOG_WARN("This bucket is not of that type");
 				return;
 			}
 

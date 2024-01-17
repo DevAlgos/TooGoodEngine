@@ -1,12 +1,13 @@
-#include <pch.h>
-#include "EditorLayer.h"
-#include <Graphics/Texture.h>
-#include <Graphics/Buffers.h>
-#include <UI/UIManager.h>
+#include "pch.h"
 
 #include <filesystem>
 
-#include <SceneSystem/Scene.h>
+#include "EditorLayer.h"
+#include "Graphics/Texture.h"
+#include "Graphics/Buffers.h"
+#include "UI/UIManager.h"
+#include "SceneSystem/Scene.h"
+#include "Utils/Log.h"
 
 namespace 
 {
@@ -77,10 +78,18 @@ namespace Utils
 
 		
 		ImGuiStyle& style = ImGui::GetStyle();
-		
+		//1, 0.761, 0.8
+
+		style.Colors[ImGuiCol_FrameBg] = ImVec4(0.1f, 0.1f, 0.2f, 1.0f);
+		style.Colors[ImGuiCol_SliderGrab] = ImVec4(0.4f, 0.4f, 0.45f, 1.0f); 
+		style.Colors[ImGuiCol_SliderGrabActive] = ImVec4(0.6f, 0.3f, 0.1f, 1.0f); 
+
+		style.GrabRounding = 3.0f;
+		style.GrabMinSize = 20.0f;
+
 		style.Colors[ImGuiCol_TitleBgActive]		= ImVec4(0.3f, 0.3f, 0.3f, 1.0f);
 		style.Colors[ImGuiCol_TitleBg]				= ImVec4(0.2f, 0.2f, 0.2f, 1.0f);
-		style.Colors[ImGuiCol_WindowBg]				= ImVec4(0.1f, 0.1f, 0.1f, 1.0f);
+		style.Colors[ImGuiCol_WindowBg]				= ImVec4(0.05f, 0.05f, 0.05f, 1.0f);
 		style.Colors[ImGuiCol_Text]					= ImVec4(0.8f, 0.8f, 0.8f, 1.0f);
 		style.Colors[ImGuiCol_Button]			    = ImVec4(0.3f, 0.3f, 0.3f, 1.0f);
 		style.Colors[ImGuiCol_ButtonActive]			= ImVec4(0.4f, 0.4f, 0.4f, 1.0f);
@@ -94,13 +103,13 @@ namespace Utils
 	}
 	void EditorLayer::OnUpdate()
 	{
-		TooGoodEngine::CurrentScene->SceneUpdate();
+		/*TooGoodEngine::CurrentScene->SceneUpdate();
 
 		DisplayFramebuffer->Bind();
 
 		TooGoodEngine::CurrentScene->SceneDisplay();
 
-		DisplayFramebuffer->UnBind();
+		DisplayFramebuffer->UnBind();*/
 		
 	}
 	void EditorLayer::OnGUIUpdate()
@@ -123,13 +132,14 @@ namespace Utils
 
 		if (opt_fullscreen)
 		{
-			/*ImGui::Image((void*)(intptr_t)TooGoodEngine::Raytracing2D::GetRenderImage()->Get(), {ImGui::GetContentRegionAvail().x,
-			ImGui::GetContentRegionAvail().y },
-				{ 0,1 }, { 1,0 });*/
-		
-			ImGui::Image((void*)(intptr_t)DisplayColorAttachment->Get(), {ImGui::GetContentRegionAvail().x,
+			ImGui::Image((void*)(intptr_t)TooGoodEngine::Raytracing2D::GetRenderImage()->Get(), {ImGui::GetContentRegionAvail().x,
 			ImGui::GetContentRegionAvail().y },
 				{ 0,1 }, { 1,0 });
+		
+			/*ImGui::Image((void*)(intptr_t)DisplayColorAttachment->Get(), {ImGui::GetContentRegionAvail().x,
+			ImGui::GetContentRegionAvail().y },
+				{ 0,1 }, { 1,0 });*/
+
 
 
 			TooGoodEngine::Raytracing2D::SetImageResolution(ImGui::GetWindowWidth(), 
@@ -179,7 +189,7 @@ namespace Utils
 				AudioFileMap.insert({ Entry, NewSource });
 			}
 
-			ImGui::PushID(index);
+			ImGui::PushID((int)index);
 
 			bool Pressed = ImGui::ImageButton((void*)(intptr_t)AudioIconImage->Get(), { 80.0f,
 																						80.0f },
@@ -218,8 +228,8 @@ namespace Utils
 		index = 0;
 		for (auto& Src : Sources)
 		{
-			ImGui::PushID(index);
-			ImGui::SetColumnWidth(index, 200.0f);
+			ImGui::PushID((int)index);
+			ImGui::SetColumnWidth((int)index, 200.0f);
 
 			if (ImGui::Button("Play"))
 				TooGoodEngine::Audio::Play(Src);
@@ -266,57 +276,6 @@ namespace Utils
 	}
 	void EditorLayer::DisplayLog()
 	{
-		ImGui::Begin("Debug Output", &p_open, ImGuiWindowFlags_MenuBar | ImGuiWindowFlags_NoTitleBar);
-
-		while (!Logger::LogEmpty())
-		{
-			LogData Front = Logger::GetFront();
-			MessagesToDraw.push_back(Front);
-		}
-
-		if (ImGui::BeginMenuBar())
-		{
-			if (ImGui::BeginMenu("Log Options"))
-			{
-				ImGui::MenuItem("Scroll To Bottom", nullptr, &ScrollToBottomCheckBox);
-				ImGui::ColorEdit3("Log Color",		&CoreColor.x);
-				ImGui::ColorEdit3("Warn Color",		&WarnColor.x);
-				ImGui::ColorEdit3("Error Color",	&ErrorColor.x);
-				
-				if (ImGui::Button("Clear Log"))
-					MessagesToDraw.clear();
-				
-
-				ImGui::EndMenu();
-			}
-
-			ImGui::EndMenuBar();
-		}
-
-		ImGui::PushStyleVar(ImGuiStyleVar_ItemSpacing, ImVec2(10, 3));
-
-		for (LogData& Message : MessagesToDraw)
-		{
-			switch (Message.MessageColor)
-			{
-			case LogColor::Core:	ImGui::PushStyleColor(ImGuiCol_Text, CoreColor);	break;
-			case LogColor::Error:	ImGui::PushStyleColor(ImGuiCol_Text, ErrorColor);	break;
-			case LogColor::Warn:	ImGui::PushStyleColor(ImGuiCol_Text, WarnColor);	break;
-			default:				ImGui::PushStyleColor(ImGuiCol_Text, { 1.0f, 1.0f, 1.0f, 1.0f });
-				break;
-			}
-
-			ImGui::TextUnformatted(Message.LogMessage.c_str());
-			ImGui::PopStyleColor();
-		}
-
-		if ((ScrollToBottom || ImGui::GetScrollY() >= ImGui::GetScrollMaxY()) && ScrollToBottomCheckBox)
-			ImGui::SetScrollHereY(1.0f);
-		
-		ScrollToBottom = false;
-
-		ImGui::PopStyleVar();
-
-		ImGui::End();
+		TooGoodEngine::Log::GetEngineLogger()->DisplayLogToImGui();
 	}
 }

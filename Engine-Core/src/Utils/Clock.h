@@ -1,8 +1,10 @@
 #pragma once
 
+#include "Log.h"
+
 #include <chrono>
 #include <iostream>
-#include "Logger.h"
+
 
 namespace Utils
 {

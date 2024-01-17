@@ -12,17 +12,17 @@ static void OpenGLDebugCallback(GLenum source, GLenum type, GLuint id, GLenum se
 	switch (severity)
 	{
 	case GL_DEBUG_SEVERITY_LOW:
-		LOG(message);
-		LOG_CORE(message);
+		TGE_LOG_INFO(message);
+		TGE_CLIENT_LOG(message);
 		break;
 	case GL_DEBUG_SEVERITY_MEDIUM:
-		LOGWARNING(message);
-		LOG_CORE_WARNING(message);
+		TGE_LOG_WARN(message);
+		TGE_CLIENT_WARN(message);
 
 		break;
 	case GL_DEBUG_SEVERITY_HIGH:
-		LOGERROR(message);
-		LOG_CORE_ERROR(message);
+		TGE_LOG_ERROR(message);
+		TGE_CLIENT_ERROR(message);
 		break;
 	default:
 		break;
@@ -31,9 +31,8 @@ static void OpenGLDebugCallback(GLenum source, GLenum type, GLuint id, GLenum se
 
 static void GLFWErrorCallBack(int error_code, const char* description)
 {
-	std::string msg = std::to_string(error_code) + " " + description;
-	LOGERROR(msg);
-	LOG_CORE_ERROR(msg);
+	TGE_LOG_ERROR(error_code, " ", description);
+	TGE_CLIENT_ERROR(error_code, " ", description);
 }
 
 namespace TooGoodEngine {
@@ -62,14 +61,10 @@ namespace TooGoodEngine {
 
 	void Window::Init()
 	{
-		LOG("Window is initalizing");
-		LOG_CORE("Window is initalizing");
+		TGE_LOG_INFO("Window is initalizing");
+		TGE_CLIENT_LOG("Window is initalizing");
 
-		if (!glfwInit())
-		{
-			LOGERROR("glfw Failed To Initalize");
-			LOG_CORE_ERROR("glfw Failed To Initalize");
-		}
+		TGE_FORCE_ASSERT(glfwInit(), "glfw failed to initalize");
 
 		glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 4);
 		glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 6);
@@ -95,7 +90,7 @@ namespace TooGoodEngine {
 
 
 		if (!m_Window)
-			LOG_CORE_ERROR("window Failed To Create");
+			TGE_CLIENT_ERROR("window Failed To Create");
 
 		glfwSetWindowUserPointer(m_Window, this);
 
@@ -117,9 +112,9 @@ namespace TooGoodEngine {
 		glDebugMessageCallback(OpenGLDebugCallback, nullptr);
 		
 		const char* version = (const char*)glGetString(GL_VERSION);
-		std::string msg = "OpenGL Version: " + std::string(version);
-		LOG_CORE(msg);
-		LOG(msg);
+
+		TGE_LOG_INFO("OpenGL Version ",   version);
+		TGE_CLIENT_LOG("OpenGL Version ", version);
 
 		Input::BeginPolling(m_Window);
 	}

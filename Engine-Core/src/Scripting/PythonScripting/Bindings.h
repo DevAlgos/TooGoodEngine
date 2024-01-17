@@ -7,9 +7,6 @@
 #include <ECS/Entity.h>
 
 namespace Bindings {
-
-	
-
 #pragma region Entity Bindings
 	static void CleanUpEntity(PyObject* capsule)
 	{
@@ -61,12 +58,52 @@ namespace Bindings {
 	}
 #pragma endregion Entity Bindings
 
+#pragma region Logging
+	static PyObject* LogMsg(PyObject* self, PyObject* args)
+	{
+		const char* val;
+		if (!PyArg_ParseTuple(args, "s", &val))
+			return nullptr;
+
+
+		TGE_LOG_INFO(val);
+		return PyLong_FromUnsignedLongLong(1);
+	}
+
+	static PyObject* LogWarn(PyObject* self, PyObject* args)
+	{
+		const char* val;
+		if (!PyArg_ParseTuple(args, "s", &val))
+			return nullptr;
+
+
+		TGE_LOG_WARN(val);
+		return PyLong_FromUnsignedLongLong(1);
+	}
+
+	static PyObject* LogError(PyObject* self, PyObject* args)
+	{
+		const char* val;
+		if (!PyArg_ParseTuple(args, "s", &val))
+			return nullptr;
+
+
+		TGE_CLIENT_ERROR(std::string(val));
+		return PyLong_FromUnsignedLongLong(1);
+	}
+
+
+#pragma endregion Logging
+
 	static PyMethodDef TooGoodEngineMethods[] =
 	{
-		{"PyCreateEntity",     PyCreateEntity, METH_VARARGS, "Create instance of an entity."},
-		{"PyEntityGetName",    PyEntityGetName, METH_VARARGS, "Get name from entity instance."},
-		{"PyEntityGetID",	   PyEntityGetID,  METH_VARARGS, "Get an ID from an entity instance"},
+		{"PyCreateEntity",     PyCreateEntity,		METH_VARARGS, "Create instance of an entity."},
+		{"PyEntityGetName",    PyEntityGetName,		METH_VARARGS, "Get name from entity instance."},
+		{"PyEntityGetID",	   PyEntityGetID,		METH_VARARGS, "Get an ID from an entity instance"},
 
+		{"Log",						LogMsg,			METH_VARARGS, "Logs message"},
+		{"LogWarn",					LogWarn,		METH_VARARGS, "Logs warning"},
+		{"LogError",			    LogError,		METH_VARARGS, "Logs error"},
 
 		{NULL, NULL, 0, NULL}
 	};

@@ -1,7 +1,8 @@
 import TooGoodEngine
 
+
 class Entity:
-    def __init__(self, name):
+    def __init__(self, name: str):
         self._Entity = TooGoodEngine.PyCreateEntity(name)
     
     def GetName(self):
@@ -11,3 +12,5 @@ class Entity:
     def GetID(self):
         id = TooGoodEngine.PyEntityGetID(self._Entity)
         return id
+   
+

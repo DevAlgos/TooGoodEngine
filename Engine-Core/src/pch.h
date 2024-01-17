@@ -50,13 +50,12 @@
 #include <Utils/Layers/LayerManager.h>
 #include <Utils/Layers/EditorLayer.h>
 
-#include <Utils/Threading/PriorityQueue.h>
 #include <Utils/Threading/CommandQueue.h>
 
 #include <Utils/Utils.h>
 #include <Utils/Input.h>
 #include <Utils/Camera.h>
-#include <Utils/Logger.h>
+#include <Utils/Log.h>
 #include <Window.h>
 
 #include <Graphics/Shader.h>

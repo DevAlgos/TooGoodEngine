@@ -132,8 +132,9 @@ private:
 	bool keyQPressed = false;
 	bool keyEPressed = false;
 	bool keyVPressed = false;
+	bool keyBPressed = false;
 
-	bool CursorEnabled = true;
+	bool InputEnabled = false;
 
 	double LastX = 0.0;
 	double LastY = 0.0;

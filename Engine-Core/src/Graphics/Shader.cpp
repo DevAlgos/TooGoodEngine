@@ -49,91 +49,58 @@ namespace TooGoodEngine {
 		GLint location = glGetUniformLocation(m_Program, name.c_str());
 		if (location != -1)
 			glUniform1i(location, value);
-		else {
-			std::string msg = name;
-			std::string msg1 = "Unform Location Failed At: " + msg;
-
-			LOGWARNING(msg1);
-
-		}
+		else 
+			TGE_LOG_ERROR("Uniform Location Failed At: ", name);
 	}
 	void Shader::SetUniformIntV(const std::string& name, int value[], int numb)
 	{
 		GLint location = glGetUniformLocation(m_Program, name.c_str());
 		if (location != -1)
 			glUniform1iv(location, numb, value);
-		else {
-			std::string msg = name;
-			std::string msg1 = "Unform Location Failed At: " + msg;
-
-			LOGWARNING(msg1);
-
-		}
+		else 
+			TGE_LOG_ERROR("Uniform Location Failed At: ", name);
 	}
 	void Shader::SetUniformFloat(const std::string& name, float value)
 	{
 		GLint location = glGetUniformLocation(m_Program, name.c_str());
 		if (location != -1)
 			glUniform1f(location, value);
-		else {
-			std::string msg = name;
-			std::string msg1 = "Unform Location Failed At: " + msg;
+		else
+			TGE_LOG_ERROR("Uniform Location Failed At: ", name);
 
-			LOGWARNING(msg1);
-
-		}
 	}
 	void Shader::SetUniformFloat2(const std::string& name, float v0, float v1)
 	{
 		GLint location = glGetUniformLocation(m_Program, name.c_str());
 		if (location != -1)
 			glUniform2f(location, v0, v1);
-		else {
-			std::string msg = name;
-			std::string msg1 = "Unform Location Failed At: " + msg;
+		else
+			TGE_LOG_ERROR("Uniform Location Failed At: ", name);
 
-			LOGWARNING(msg1);
-
-		}
 	}
 	void Shader::SetUniformFloat3(const std::string& name, float v0, float v1, float v2)
 	{
 		GLint location = glGetUniformLocation(m_Program, name.c_str());
 		if (location != -1)
 			glUniform3f(location, v0, v1, v2);
-		else {
-			std::string msg = name;
-			std::string msg1 = "Unform Location Failed At: " + msg;
-
-			LOGWARNING(msg1);
-
-		}
+		else
+			TGE_LOG_ERROR("Uniform Location Failed At: ", name);
 	}
 	void Shader::SetUniformFloat4(const std::string& name, float v0, float v1, float v2, float v3)
 	{
 		GLint location = glGetUniformLocation(m_Program, name.c_str());
 		if (location != -1)
 			glUniform4f(location, v0, v1, v2, v3);
-		else {
-			std::string msg = name;
-			std::string msg1 = "Unform Location Failed At: " + msg;
-
-			LOGWARNING(msg1);
-
-		}
+		else
+			TGE_LOG_ERROR("Uniform Location Failed At: ", name);
 	}
 	void Shader::SetUniformFloat3V(const std::string& name, glm::vec3 floats, int numb)
 	{
 		GLint location = glGetUniformLocation(m_Program, name.c_str());
 		if (location != -1)
 			glUniform3fv(location, numb, glm::value_ptr(floats));
-		else {
-			std::string msg = name;
-			std::string msg1 = "Unform Location Failed At: " + msg;
-
-			LOGWARNING(msg1);
-
-		}
+		else
+			TGE_LOG_ERROR("Uniform Location Failed At: ", name);
 	}
 	void Shader::setUniformMat4(const std::string& name, const glm::mat4& matrix)
 	{
@@ -141,13 +108,8 @@ namespace TooGoodEngine {
 		GLint location = glGetUniformLocation(m_Program, name.c_str());
 		if (location != -1)
 			glUniformMatrix4fv(location, 1, GL_FALSE, glm::value_ptr(matrix));
-		else {
-			std::string msg = name;
-			std::string msg1 = "Unform Location Failed At: " + msg;
-
-			LOGWARNING(msg1);
-
-		}
+		else
+			TGE_LOG_ERROR("Uniform Location Failed At: ", name);
 	}
 	Shader& Shader::operator=(const Shader& shader)
 	{
@@ -162,7 +124,7 @@ namespace TooGoodEngine {
 			char infoLog[512];
 			glGetProgramInfoLog(m_Program, 512, nullptr, infoLog);
 
-			LOGERROR(infoLog);
+			TGE_LOG_ERROR(infoLog);
 		}
 	}
 	void Shader::CheckShaderError(GLenum status, uint32_t shader)
@@ -173,7 +135,7 @@ namespace TooGoodEngine {
 			char infoLog[512];
 			glGetShaderInfoLog(shader, 512, nullptr, infoLog);
 
-			LOGERROR(infoLog);
+			TGE_LOG_ERROR(infoLog);
 		}
 	}
 	std::string Shader::LoadShaderFromFile(const char* fileLocation)
@@ -183,7 +145,7 @@ namespace TooGoodEngine {
 
 		if (!File)
 		{
-			LOG_CORE_ERROR("File couldn't open");
+			TGE_CLIENT_ERROR("File couldn't open");
 			return "no shader";
 		}
 

@@ -9,5 +9,7 @@
 [submodule "Libs/freetype"]
     path = Libs/freetype
     url = https://github.com/DevAlgos/freetype.git
-
-
+    
+[submodule "Libs/json-nlohmann"]
+	path = Libs/json-nlohmann
+	url = https://github.com/DevAlgos/json.git

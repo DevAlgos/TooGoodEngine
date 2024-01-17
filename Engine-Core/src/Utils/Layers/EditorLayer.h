@@ -41,7 +41,6 @@ namespace Utils
 
 	    std::vector<TooGoodEngine::Source> Sources;
 
-		std::vector<Utils::LogData> MessagesToDraw;
 		bool ScrollToBottom = false;
 		bool ScrollToBottomCheckBox = true;
 
