@@ -27,7 +27,7 @@ namespace Utils
     {
         CurrentSeed = PCGHash(CurrentSeed);
 
-        return min + (CurrentSeed / UIntMax) * (max - min);
+        return min + ((uint32_t)CurrentSeed / (uint32_t)UIntMax * (max - min));
     }
 
     int GenInt(int min, int max)
@@ -62,7 +62,7 @@ namespace Utils
     {
         CurrentSeed = PCGHash(CurrentSeed);
 
-        return min + ((char)CurrentSeed / (char)UIntMax * (max-min));
+        return min + ((char)CurrentSeed / (char)UIntMax * (max - min));
     }
 
 }

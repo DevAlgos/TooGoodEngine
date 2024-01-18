@@ -4,6 +4,7 @@
 #include "Audio/Audio.h"
 
 #include "Utils/Log.h"
+#include "Utils/UUID.h"
 
 namespace
 {
@@ -42,7 +43,6 @@ namespace TooGoodEngine
 		Manager.PushLayer(std::make_shared<Utils::EditorLayer>());
 		for (auto& layer : App.GetLayers())
 			Manager.PushLayer(layer);
-		
 	}
 
 	Application::~Application()
