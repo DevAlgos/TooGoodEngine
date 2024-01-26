@@ -1,8 +1,8 @@
 #pragma once
-
 #include <memory>
 
 #include "EngineLogger.h"
+
 
 namespace TooGoodEngine {
 	class Log
@@ -25,17 +25,19 @@ namespace TooGoodEngine {
 #define TGE_CLIENT_ERROR(...) TooGoodEngine::Log::GetEngineLogger()->ClientLog(TooGoodEngine::LogColor::Error, "[Client-Error] ",   __VA_ARGS__)
 
 #ifdef _WIN32
-	#define TGE_HAULT() __debugbreak()
+	#define TGE_HALT() __debugbreak()
 #else
-	#define TGE_HAULT()
+	#define TGE_HALT()
 #endif
 
+/*debug with python is here because i havent been able to find debug binaries for python*/
+
+//TODO: remove _DEBUG_WITH_PYTHON build option
+
 #ifdef _DEBUG 
-	#define TGE_ASSERT(condition, ...) if(!(condition)) {TGE_LOG_ERROR(__VA_ARGS__); TGE_HAULT();}
-#elif _DEBUG_WITH_PYTHON
-	#define TGE_ASSERT(condition, ...) if(!(condition)) {TGE_LOG_ERROR(__VA_ARGS__); TGE_HAULT();}
+	#define TGE_ASSERT(condition, ...) if(!(condition)) {TGE_LOG_ERROR(__VA_ARGS__); TGE_HALT();}
 #else
 	#define TGE_ASSERT(condition, ...) 
 #endif
 
-#define TGE_FORCE_ASSERT(condition, ...) if(!(condition)) {TGE_LOG_ERROR(__VA_ARGS__); TGE_HAULT();}
+#define TGE_FORCE_ASSERT(condition, ...) if(!(condition)) {TGE_LOG_ERROR(__VA_ARGS__); TGE_HALT();}

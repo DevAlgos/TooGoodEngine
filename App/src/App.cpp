@@ -50,17 +50,16 @@ public:
 	};
 	virtual void OnUpdate() override
 	{
-		Raytracing2D::ChangeSampleRate(SampleRate);
+		/*Raytracing2D::ChangeSampleRate(SampleRate);
 		
 		for (const Circle& circle : Copy)
 			Raytracing2D::PushCircle(circle);
 		
-		Raytracing2D::Trace();
+		Raytracing2D::Trace();*/
 	};
 	virtual void OnGUIUpdate() override
 	{
-		ImGui::Begin("User Editing");
-
+		/*ImGui::Begin("User Editing");
 		ImGui::Columns(Copy.size() - 1);
 		ImGui::SliderInt("Samples: ",&SampleRate,  1, 100);
 
@@ -78,7 +77,7 @@ public:
 			i++;
 		}
 
-		ImGui::End();
+		ImGui::End();*/
 	};
 	virtual void OnShutdown() override {};
 private:

@@ -29,26 +29,20 @@ namespace Ecs
 		Type& Get(Ecs::Entity Entity)
 		{
 			std::type_index typeIndex = typeid(Type);
-			if (typeIndex == m_BucketType)
-				return m_ComponentsList.Get<Type>(Entity.GetID());
-			else 
-			{
-				TGE_CLIENT_ERROR("inavlid component");
-				assert(false);
-			}
+
+			TGE_ASSERT(typeIndex == m_BucketType, "inavlid component");
+
+			return m_ComponentsList.Get<Type>(Entity.GetID());
 		}
 
 		template<class Type>
 		EntityID GetEntityFromComponent(uint64_t Index)
 		{
 			std::type_index typeIndex = typeid(Type);
-			if (typeIndex == m_BucketType)
-				return m_ComponentsList.GetEntityFromComponent<Type>(Index);
-			else
-			{
-				TGE_CLIENT_ERROR("inavlid component");
-				TGE_HAULT();
-			}
+
+			TGE_ASSERT(typeIndex == m_BucketType, "inavlid component");
+
+			return m_ComponentsList.GetEntityFromComponent<Type>(Index);
 		}
 
 		template<class Type>
@@ -77,7 +71,6 @@ namespace Ecs
 		}
 
 	private:
-		//std::vector<Component> m_ComponentsList;
 		SparseSet m_ComponentsList;
 		std::type_index m_BucketType;
 	};

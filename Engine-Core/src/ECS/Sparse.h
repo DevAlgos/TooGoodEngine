@@ -61,7 +61,7 @@ namespace Ecs
 				TempBlock = calloc(NewCapacity, sizeof(Type));
 
 				if (!TempBlock)
-					__debugbreak();
+					TGE_HALT();
 
 				Type* Current = static_cast<Type*>(m_Block);
 				Type* New = static_cast<Type*>(TempBlock);
@@ -109,7 +109,7 @@ namespace Ecs
 			if (ptr)
 				return *ptr;
 
-			TGE_HAULT();
+			TGE_HALT();
 		}
 
 		template<class Type>
@@ -203,7 +203,7 @@ namespace Ecs
 		Type& GetDirect(uint64_t Index)
 		{
 			if (m_Dense.GetCapacity() <= Index)
-				__debugbreak();
+				TGE_HALT();
 
 			return m_Dense.Get<Type>(Index);
 		}

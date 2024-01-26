@@ -9,12 +9,13 @@ namespace TooGoodEngine {
 	enum class TextureType 
 	{   // Will add more when needed
 		Texture2D = 0, 
-		Texture2DMultisample
+		Texture2DMultisample,
+		DepthTexture
 	};
 
 	enum class TextureFormat
 	{
-		RGBA16F = 0, RGBA32F, RGBA8, RGBA
+		RGBA16F = 0, RGBA32F, RGBA8, RGBA, DEPTH_32F
 	};
 
 	enum class Format
@@ -57,7 +58,7 @@ namespace TooGoodEngine {
 		
 		void ResizeImage(float* Data, int Width, int Height);
 		void ResizeImage(uint32_t* Data, int Width, int Height);
-
+		
 
 		void SetData(float* Data);
 		void SetData(uint32_t* Data);
@@ -66,6 +67,8 @@ namespace TooGoodEngine {
 		inline void Bind(int Unit) { glBindTextureUnit(Unit, m_Texture); }
 		inline void BindImage(int Unit) { glBindImageTexture(Unit, m_Texture, m_TextureData.Level, GL_FALSE, 0, GL_WRITE_ONLY, m_InternalFormat); };
 		inline const uint32_t Get() const { return m_Texture; }
+
+		inline const GLuint64 GetGPUHandle() const { return m_GPUHandle; }
 
 	private:
 		void CreateTexture(GLenum TextureType, const std::string_view& FileLocation);
@@ -80,6 +83,7 @@ namespace TooGoodEngine {
 
 	private:
 		uint32_t m_Texture;
+		GLuint64 m_GPUHandle;
 		TextureData m_TextureData;
 		
 		GLenum m_InternalFormat;

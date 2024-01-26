@@ -56,7 +56,8 @@ project "Engine-Core"
         IncludeDir["freetype"],
         IncludeDir["OpenAl"],
         IncludeDir["libsndfile"],
-        IncludeDir["json"]
+        IncludeDir["json"],
+        IncludeDir["Optick"]
     }
 
     links 
@@ -76,7 +77,8 @@ project "Engine-Core"
         "../Libs/imgui/bin/"        .. outputdir ..  "/ImGui",
         "../Libs/glfw/bin/"         .. outputdir ..  "/GLFW",
         "../Libs/glad/bin/"         .. outputdir ..  "/GLAD",
-        "../Libs/freetype/bin/"     .. outputdir ..  "/FreeType"
+        "../Libs/freetype/bin/"     .. outputdir ..  "/FreeType",
+        "../Libs/Optick/bin/"       .. _ACTION .. "/"
     } 
 
     targetdir ("../bin/" .. outputdir .. "/%{prj.name}")
@@ -100,21 +102,7 @@ project "Engine-Core"
         {
             "../Libs/libsndfile-windows-build/Release-Bin",
             "../Libs/openal-soft-windows-build/Release-Bin"
-        }
-    
-    filter "configurations:DebugWithPython"
-        defines { "DEBUG" }
-        defines { "_DEBUG_WITH_PYTHON" }
-        runtime "Release"
-        symbols "On"
-
-        libdirs
-        {
-            "../Libs/libsndfile-windows-build/Release-Bin",
-            "../Libs/openal-soft-windows-build/Release-Bin"
-        }
-
-        
+        }        
 
     group "Engine-Dependencies"
         include "../Libs/glfw"

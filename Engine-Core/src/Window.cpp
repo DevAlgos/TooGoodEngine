@@ -18,11 +18,12 @@ static void OpenGLDebugCallback(GLenum source, GLenum type, GLuint id, GLenum se
 	case GL_DEBUG_SEVERITY_MEDIUM:
 		TGE_LOG_WARN(message);
 		TGE_CLIENT_WARN(message);
-
+		//TGE_HALT();
 		break;
 	case GL_DEBUG_SEVERITY_HIGH:
 		TGE_LOG_ERROR(message);
 		TGE_CLIENT_ERROR(message);
+		TGE_HALT();
 		break;
 	default:
 		break;
@@ -45,7 +46,8 @@ namespace TooGoodEngine {
 
 	Window::~Window()
 	{
-		glfwDestroyWindow(m_Window);
+		GLFWwindow* curr = glfwGetCurrentContext();
+
 		glfwTerminate();
 	}
 

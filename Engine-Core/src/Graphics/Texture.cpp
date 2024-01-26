@@ -8,6 +8,7 @@ namespace TooGoodEngine
 		: m_Texture(0), m_TextureData(textureData), m_InternalFormat(GL_RGBA8), m_FileFormat(0)
 		
 	{
+		
 		switch (format)
 		{
 		case Format::RGB:
@@ -41,6 +42,7 @@ namespace TooGoodEngine
 		{
 		case TextureFormat::RGBA16F: m_InternalFormat = GL_RGBA16F; break;
 		case TextureFormat::RGBA32F: m_InternalFormat = GL_RGBA32F; break;
+		case TextureFormat::DEPTH_32F: m_InternalFormat = GL_DEPTH_COMPONENT32F; m_FileFormat = GL_DEPTH_COMPONENT;  break;
 		default: TGE_LOG_WARN("Try using uint32_t instead of floats!"); break;
 		}
 
@@ -49,6 +51,10 @@ namespace TooGoodEngine
 		case TooGoodEngine::TextureType::Texture2D: 
 			m_TextureType = GL_TEXTURE_2D;
 			CreateTexture(GL_TEXTURE_2D, Data);
+			break;
+		case TooGoodEngine::TextureType::DepthTexture:
+			m_TextureType = GL_TEXTURE_2D;
+			CreateTexture(GL_DEPTH_COMPONENT32F, Data);
 			break;
 		default:
 			break;
@@ -255,6 +261,9 @@ namespace TooGoodEngine
 		default:
 			break;
 		}
+
+
+		m_GPUHandle = glGetTextureHandleARB(m_Texture);
 	}
 
 	void Texture::UploadTexture(GLenum TextureType, float* Data)
@@ -263,13 +272,19 @@ namespace TooGoodEngine
 		{
 		case GL_TEXTURE_2D:
 			glTextureStorage2D(m_Texture, m_TextureData.MipmapLevels, m_InternalFormat, m_TextureData.Width, m_TextureData.Height);
-			glTexSubImage2D(GL_TEXTURE_2D, m_TextureData.Level, 0, 0, m_TextureData.Width, m_TextureData.Height, m_FileFormat,
-				GL_FLOAT, Data);
+			if (Data)
+			{
+				glTexSubImage2D(GL_TEXTURE_2D, m_TextureData.Level, 0, 0, m_TextureData.Width, m_TextureData.Height, m_FileFormat,
+					GL_FLOAT, Data);
+			}
+			
 			glGenerateTextureMipmap(m_Texture);
 			break;
 		default:
 			break;
 		}
+
+		m_GPUHandle = glGetTextureHandleARB(m_Texture);
 	}
 
 	void Texture::UploadTexture(GLenum TextureType, uint32_t* Data)
@@ -290,6 +305,9 @@ namespace TooGoodEngine
 		default:
 			break;
 		}
+
+
+		m_GPUHandle = glGetTextureHandleARB(m_Texture);
 	}
 	
 }

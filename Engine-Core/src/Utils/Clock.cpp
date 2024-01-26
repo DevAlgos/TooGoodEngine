@@ -57,4 +57,16 @@ namespace Utils
 
 		return end - start;
 	}	
+
+	TimedScope::TimedScope(const std::string_view& name)
+		: m_Name(name), m_StartTimePoint(high_resolution_clock::now())
+	{
+	}
+	TimedScope::~TimedScope()
+	{
+		m_EndTimePoint = high_resolution_clock::now();
+
+		auto ScopeTime = std::chrono::duration_cast<milliseconds>(m_EndTimePoint - m_StartTimePoint);
+		EditorLayer::AddStatistsic(m_Name, ScopeTime.count());
+	}
 }

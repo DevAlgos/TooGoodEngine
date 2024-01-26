@@ -1,7 +1,8 @@
 #pragma once
 
 #include <filesystem>
-#include <Python.h>
+
+#include "PythonBase.h"
 
 namespace Scripting {
 

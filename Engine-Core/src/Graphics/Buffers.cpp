@@ -19,20 +19,37 @@ namespace
 namespace TooGoodEngine 
 {
 
+
+
 	OpenGLBuffer::OpenGLBuffer(const BufferType& Type, const BufferData& BufferData)
 		: m_Data(BufferData), m_Buffer(std::numeric_limits<uint32_t>::max())
 	{
 		switch (Type)
 		{
-		case TooGoodEngine::BufferType::VertexBuffer:        m_Type = GL_ARRAY_BUFFER; break;	
+		case TooGoodEngine::BufferType::VertexBuffer:          m_Type = GL_ARRAY_BUFFER; break;	
 		case TooGoodEngine::BufferType::IndexBuffer:		   m_Type = GL_ELEMENT_ARRAY_BUFFER; break;
-		case TooGoodEngine::BufferType::UniformBuffer:	   m_Type = GL_UNIFORM_BUFFER; break;
-		case TooGoodEngine::BufferType::ShaderStorageBuffer: m_Type = GL_SHADER_STORAGE_BUFFER; break;
-		default:								   m_Type = GL_ARRAY_BUFFER; break;
+		case TooGoodEngine::BufferType::UniformBuffer:	       m_Type = GL_UNIFORM_BUFFER; break;
+		case TooGoodEngine::BufferType::ShaderStorageBuffer:   m_Type = GL_SHADER_STORAGE_BUFFER; break;
+		default:								               m_Type = GL_ARRAY_BUFFER; break;
 		}
 
+		m_Size = m_Data.VertexSize;
+
 		glCreateBuffers(1, &m_Buffer);
-		glNamedBufferData(m_Buffer, m_Data.VertexSize, m_Data.data, m_Data.DrawType);
+		//glNamedBufferData(m_Buffer, m_Data.VertexSize, m_Data.data, m_Data.DrawType);
+		glNamedBufferStorage(m_Buffer, m_Data.VertexSize, m_Data.data, masks);
+	}
+	void* OpenGLBuffer::Map()
+	{
+		return glMapNamedBuffer(m_Buffer, GL_WRITE_ONLY);
+	}
+	void OpenGLBuffer::UnMap()
+	{
+		glUnmapNamedBuffer(m_Buffer);
+	}
+	void* OpenGLBuffer::MapBufferRange()
+	{
+		return glMapNamedBufferRange(m_Buffer, 0, m_Size, GL_MAP_WRITE_BIT | GL_MAP_UNSYNCHRONIZED_BIT | GL_MAP_INVALIDATE_BUFFER_BIT);
 	}
 	std::unique_ptr<OpenGLBuffer> OpenGLBuffer::Generate(const BufferType& t, const BufferData& BufferData)
 	{
@@ -41,6 +58,19 @@ namespace TooGoodEngine
 	std::shared_ptr<OpenGLBuffer> OpenGLBuffer::GenerateShared(const BufferType& t, const BufferData& BufferData)
 	{
 		return std::make_shared<OpenGLBuffer>(t, BufferData);
+	}
+	void OpenGLBuffer::Resize(uint32_t size)
+	{
+		uint32_t NewBuffer;
+
+		glCreateBuffers(1, &NewBuffer);
+		glNamedBufferStorage(NewBuffer, size, nullptr, masks);  // Allocate memory, but don't copy data yet
+		glCopyNamedBufferSubData(m_Buffer, NewBuffer, 0, 0, (GLsizeiptr)std::min((size_t)size, m_Size));
+
+		glDeleteBuffers(1, &m_Buffer);
+
+		m_Size = size;
+		m_Buffer = NewBuffer;
 	}
 	OpenGLBuffer::~OpenGLBuffer()
 	{
@@ -112,7 +142,7 @@ namespace TooGoodEngine
 		: m_FramebufferHandle(std::numeric_limits<uint32_t>::max())
 	{
 		glCreateFramebuffers(1, &m_FramebufferHandle);
-		//glBindFramebuffer(GL_FRAMEBUFFER, m_FramebufferHandle);
+		glBindFramebuffer(GL_FRAMEBUFFER, m_FramebufferHandle);
 
 		uint32_t ColorIndex = 0;
 
@@ -135,17 +165,19 @@ namespace TooGoodEngine
 			if (std::holds_alternative<std::shared_ptr<Texture>>(Medium))
 			{
 				auto& TextureMedium = std::get<std::shared_ptr<Texture>>(Medium);
-				//glFramebufferTexture(GL_FRAMEBUFFER, GLAttachType, TextureMedium->Get(), 0);
 				glNamedFramebufferTexture(m_FramebufferHandle, GLAttachType, TextureMedium->Get(), 0);
 			}
 			else
 			{
 				auto& RenderBufferMedium = std::get<std::shared_ptr<RenderBuffer>>(Medium);
-				//glFramebufferRenderbuffer(GL_FRAMEBUFFER, GLAttachType, GL_RENDERBUFFER,
-					//RenderBufferMedium->Get());
 				glNamedFramebufferRenderbuffer(m_FramebufferHandle, GLAttachType, GL_RENDERBUFFER,
 					RenderBufferMedium->Get());
 			}
+		}
+
+		GLenum status = glCheckFramebufferStatus(GL_FRAMEBUFFER);
+		if (status != GL_FRAMEBUFFER_COMPLETE) {
+			TGE_HALT();
 		}
 	}
 

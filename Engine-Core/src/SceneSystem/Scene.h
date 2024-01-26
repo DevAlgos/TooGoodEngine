@@ -1,15 +1,36 @@
 #pragma once
 
+#include "ECS/Registry.h"
+
 #include <string>
-#include <ECS/Registry.h>
+
+
 
 namespace TooGoodEngine
 {
+	enum class ComponentType 
+	{
+		Transform = 0, Material, Quad
+	};
+
+	struct ComponentDiscription
+	{
+		ComponentType ComponentType;
+		Ecs::EntityID EntityID; //will change to UUID in the future
+	};
+
+	struct SceneData
+	{
+		std::string_view SceneName;
+		std::vector<Ecs::Entity> SceneEntities;
+		std::vector<ComponentDiscription> ComponentsList;
+	};
+
 	class Scene
 	{
 	public:
 		Scene();
-		Scene(std::string_view Name);
+		Scene(const std::string_view& Name);
 		~Scene();
 
 		//TODO: will include updating physics and other systems

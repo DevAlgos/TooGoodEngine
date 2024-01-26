@@ -25,6 +25,7 @@ end
 
 project "App"
    kind "ConsoleApp"
+   location "."
    language "C++"
    cppdialect "C++20"
    targetdir "bin/%{cfg.buildcfg}"
@@ -72,8 +73,3 @@ project "App"
        runtime "Release"
        optimize "On"
        symbols "On"
-      
-   filter "configurations:DebugWithPython"
-      defines { "DEBUG" }
-      runtime "Release"
-      symbols "On"

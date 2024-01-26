@@ -87,15 +87,15 @@ namespace TooGoodEngine
 
 			
 
-			for (uint32_t y = 0; y < PIXEL_PER_CHAR; ++y)
+			for (uint32_t y = 0; y < PIXEL_PER_CHAR; y++)
 			{
-				for (uint32_t x = 0; x < PIXEL_PER_CHAR; ++x)
+				for (uint32_t x = 0; x < PIXEL_PER_CHAR; x++)
 				{
 					uint8_t val = 0;
 					if (x < bitmap->width && y < bitmap->rows)
 						val = bitmap->buffer[x + y * bitmap->width];
-				
-					Buffer[(PIXEL_PER_CHAR - y) + x * PIXEL_PER_CHAR] = ConvertToRGBA(val, val, val, val);
+					//TODO: Investigate (PIXEL_PER_CHAR - y)
+					Buffer[y + x * PIXEL_PER_CHAR] = ConvertToRGBA(val, val, val, val);
 				}
 			}
 
@@ -114,9 +114,9 @@ namespace TooGoodEngine
 			}
 
 			// Place the character's pixel data
-			for (uint32_t x = PixelXCoord + BORDER_SIZE; x < PixelXCoord + PIXEL_PER_CHAR + BORDER_SIZE && x < FONTMAP_WIDTH; ++x) {
-				for (uint32_t y = PixelYCoord + BORDER_SIZE; y < PixelYCoord + PIXEL_PER_CHAR + BORDER_SIZE && y < FONTMAP_HEIGHT; ++y) {
-					TextureBuffer[x + y * FONTMAP_WIDTH] = Buffer[i++];
+			for (uint32_t x = PixelXCoord + BORDER_SIZE, bufferX = 0; x < PixelXCoord + PIXEL_PER_CHAR + BORDER_SIZE && x < FONTMAP_WIDTH; x++, bufferX++) {
+				for (uint32_t y = PixelYCoord + BORDER_SIZE, bufferY = 0; y < PixelYCoord + PIXEL_PER_CHAR + BORDER_SIZE && y < FONTMAP_HEIGHT; y++, bufferY++) {
+					TextureBuffer[x + y * FONTMAP_WIDTH] = Buffer[bufferX + bufferY * PIXEL_PER_CHAR];
 				}
 			}
 

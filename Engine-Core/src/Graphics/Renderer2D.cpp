@@ -373,7 +373,7 @@ namespace TooGoodEngine
 			FlushScene();
 		}
 
-		RenderData.BufferIndex = CreateQuad(RenderData.BufferIndex, Mat.s_Albedo, 0.0f, Transform.s_Transform);
+		RenderData.BufferIndex = CreateQuad(RenderData.BufferIndex, Mat.Albedo, 0.0f, Transform.Transform);
 		RenderData.IndexCount += 6;
 	}
 	
@@ -860,7 +860,6 @@ namespace TooGoodEngine
 		ImageData.Height =         s_RaytracingData.ImageHeight;
 		ImageData.Type   =		   TextureType::Texture2D;
 		ImageData.InternalFormat = TextureFormat::RGBA32F;
-		ImageData.MipmapLevels = 1;
 		ImageData.Level = 0;
 		ImageData.TextureParamaters =
 		{
@@ -881,7 +880,7 @@ namespace TooGoodEngine
 			BufferData ShaderStorageData{};
 			ShaderStorageData.data = nullptr;
 			ShaderStorageData.DrawType = GL_DYNAMIC_DRAW;
-			ShaderStorageData.VertexSize = sizeof(Circle) * 100;
+			ShaderStorageData.VertexSize = sizeof(Circle) * 500;
 
 			s_RaytracingData.ShaderStorage = OpenGLBuffer::Generate(BufferType::ShaderStorageBuffer, ShaderStorageData);
 			s_RaytracingData.ShaderStorage->BindBase(1);

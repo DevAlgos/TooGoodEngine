@@ -1,14 +1,20 @@
 #pragma once
 
-#include <glad/glad.h>
 #include "Shader.h"
-#include "VertexArray.h"
+
+#include <glad/glad.h>
 #include <map>
 #include <variant>
 
 namespace TooGoodEngine
 {
 	static int s_GlobalID = 0;
+
+	template<class Type>
+	constexpr size_t FindSize(Type* data)
+	{
+		return sizeof(data) / sizeof(data[0]);
+	}
 
 	struct BufferData
 	{
@@ -33,18 +39,31 @@ namespace TooGoodEngine
 	public:
 		OpenGLBuffer(const BufferType& t, const BufferData& BufferData);
 
+		void* Map();
+		void  UnMap();
+
+		void* MapBufferRange();
+
 		static std::unique_ptr<OpenGLBuffer> Generate(const BufferType& t, const BufferData& BufferData);
 		static std::shared_ptr<OpenGLBuffer> GenerateShared(const BufferType& t, const BufferData& BufferData);
+
+		void Resize(uint32_t size);
 
 		void Bind();
 		void PushData(const DynamicData& data);
 		void BindRange(const DynamicData& data);
 		void BindBase(GLuint index);
 
+		inline const uint32_t Get() const { return m_Buffer; }
+
 		~OpenGLBuffer();
 
 	private:
 		uint32_t m_Buffer;
+		size_t m_Size = 0;
+
+		GLbitfield masks = GL_DYNAMIC_STORAGE_BIT | GL_MAP_WRITE_BIT | GL_MAP_COHERENT_BIT | GL_MAP_PERSISTENT_BIT; //TODO: will make it changable later
+
 
 		GLenum m_Type;
 		BufferData m_Data;

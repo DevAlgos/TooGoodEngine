@@ -8,6 +8,7 @@
 #include "UI/UIManager.h"
 #include "SceneSystem/Scene.h"
 #include "Utils/Log.h"
+#include "Graphics/Renderer.h"
 
 namespace 
 {
@@ -17,6 +18,8 @@ namespace
 
 namespace Utils
 {
+	std::unordered_map<std::string_view, int64_t> EditorLayer::s_StatsticsToRender;
+
 	EditorLayer::EditorLayer()
 	{
 	}
@@ -110,6 +113,9 @@ namespace Utils
 		TooGoodEngine::CurrentScene->SceneDisplay();
 
 		DisplayFramebuffer->UnBind();*/
+		Utils::TimedScope a("Scene update and render");
+		TooGoodEngine::CurrentScene->SceneUpdate();
+		TooGoodEngine::CurrentScene->SceneDisplay();
 		
 	}
 	void EditorLayer::OnGUIUpdate()
@@ -132,14 +138,17 @@ namespace Utils
 
 		if (opt_fullscreen)
 		{
-			ImGui::Image((void*)(intptr_t)TooGoodEngine::Raytracing2D::GetRenderImage()->Get(), {ImGui::GetContentRegionAvail().x,
+			/*ImGui::Image((void*)(intptr_t)TooGoodEngine::Raytracing2D::GetRenderImage()->Get(), {ImGui::GetContentRegionAvail().x,
 			ImGui::GetContentRegionAvail().y },
-				{ 0,1 }, { 1,0 });
+				{ 0,1 }, { 1,0 });*/
 		
 			/*ImGui::Image((void*)(intptr_t)DisplayColorAttachment->Get(), {ImGui::GetContentRegionAvail().x,
 			ImGui::GetContentRegionAvail().y },
 				{ 0,1 }, { 1,0 });*/
 
+			ImGui::Image((void*)(intptr_t)TooGoodEngine::Renderer::GetColorBuffer()->Get(), { ImGui::GetContentRegionAvail().x,
+			ImGui::GetContentRegionAvail().y },
+				{ 0,1 }, { 1,0 });
 
 
 			TooGoodEngine::Raytracing2D::SetImageResolution(ImGui::GetWindowWidth(), 
@@ -272,10 +281,20 @@ namespace Utils
 		ImGui::Begin("Debug Window");
 		ImGui::Text("FPS: %.1f", ImGui::GetIO().Framerate);
 		ImGui::Text("MS per frame: %.1f", TooGoodEngine::Application::GetCurrentDelta());
+
+		for (auto& [name, time] : s_StatsticsToRender)
+			ImGui::Text("%s took: %lld milliseconds", name.data(), time);
+
 		ImGui::End();
 	}
 	void EditorLayer::DisplayLog()
 	{
 		TooGoodEngine::Log::GetEngineLogger()->DisplayLogToImGui();
 	}
+
+	void EditorLayer::AddStatistsic(const std::string_view& name, int64_t time)
+	{
+		s_StatsticsToRender[name] = time;
+	}
+
 }

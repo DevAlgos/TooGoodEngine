@@ -13,3 +13,6 @@
 [submodule "Libs/json-nlohmann"]
 	path = Libs/json-nlohmann
 	url = https://github.com/DevAlgos/json.git
+[submodule "Libs/Optick"]
+	path = Libs/Optick
+	url = https://github.com/bombomby/optick.git

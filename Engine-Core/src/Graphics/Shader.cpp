@@ -145,7 +145,7 @@ namespace TooGoodEngine {
 
 		if (!File)
 		{
-			TGE_CLIENT_ERROR("File couldn't open");
+			TGE_CLIENT_ERROR("File couldn't open ", fileLocation);
 			return "no shader";
 		}
 

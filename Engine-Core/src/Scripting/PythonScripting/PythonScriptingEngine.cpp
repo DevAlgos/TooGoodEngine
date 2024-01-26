@@ -1,4 +1,4 @@
-#include <pch.h>
+#include "pch.h"
 #include "PythonScriptingEngine.h"
 
 #include "Bindings.h"
@@ -12,18 +12,10 @@ namespace Scripting
 	PythonFileInfo::PythonFileInfo(const std::filesystem::path& fileLocation)
 		: m_File(nullptr), m_Location(fileLocation)
 	{
-		if (fileLocation.extension() != ".py")
-		{
-			TGE_CLIENT_ERROR("not a valid python python");
-			__debugbreak();
-		}
+		TGE_ASSERT(fileLocation.extension() == ".py", "not a valid python file");
 
 		fopen_s(&m_File, fileLocation.string().c_str(), "r");
-		if (!m_File)
-		{
-			TGE_CLIENT_ERROR("not a valid python python");
-			__debugbreak();
-		}
+		TGE_ASSERT(m_File, "not a valid file");
 	}
 
 	PythonFileInfo::PythonFileInfo()
@@ -39,16 +31,12 @@ namespace Scripting
 		m_File = nullptr;
 
 		fopen_s(&m_File, m_Location.string().c_str(), "r");
-		assert(m_File != nullptr && "File could not be opened or does not exist");
+		TGE_ASSERT(m_File, "File could not be opened or does not exist");
 	}
 
 	void PythonFileInfo::Reload(const std::filesystem::path& newPath)
 	{
-		if (newPath.extension() != ".py")
-		{
-			TGE_CLIENT_ERROR("not a valid python python");
-			__debugbreak();
-		}
+		TGE_ASSERT(newPath.extension() == ".py", "not a valid python file");
 
 		m_Location = newPath;
 
@@ -58,11 +46,7 @@ namespace Scripting
 		m_File = nullptr;
 
 		fopen_s(&m_File, m_Location.string().c_str(), "r");
-		if (!m_File)
-		{
-			TGE_CLIENT_ERROR("not a valid python file");
-			__debugbreak();
-		}
+		TGE_ASSERT(m_File, "not a valid file");
 	}
 
 	PythonFileInfo::~PythonFileInfo()
@@ -196,7 +180,7 @@ namespace Scripting
 			FILE* file = s_Data.FilesToExecute[i].Get();
 
 			if (!file)
-				TGE_HAULT();
+				TGE_HALT();
 			
 			PyRun_AnyFile(file, s_Data.FilesToExecute[i].GetLocation().c_str());
 			fseek(file, 0, 0);

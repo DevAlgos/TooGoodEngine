@@ -13,15 +13,15 @@
 namespace TooGoodEngine {
 
 	namespace TextColor {
-		static constexpr std::string RESET = "\033[0m";
-		static constexpr std::string BLACK = "\033[0;30m";
-		static constexpr std::string RED = "\033[0;31m";
-		static constexpr std::string GREEN = "\033[0;32m";
-		static constexpr std::string YELLOW = "\033[0;33m";
-		static constexpr std::string BLUE = "\033[0;34m";
-		static constexpr std::string MAGENTA = "\033[0;35m";
-		static constexpr std::string CYAN = "\033[0;36m";
-		static constexpr std::string WHITE = "\033[0;37m";
+		static const std::string RESET = "\033[0m";
+		static const std::string BLACK = "\033[0;30m";
+		static const std::string RED = "\033[0;31m";
+		static const std::string GREEN = "\033[0;32m";
+		static const std::string YELLOW = "\033[0;33m";
+		static const std::string BLUE = "\033[0;34m";
+		static const std::string MAGENTA = "\033[0;35m";
+		static const std::string CYAN = "\033[0;36m";
+		static const std::string WHITE = "\033[0;37m";
 	}
 
 	class EditorLayer;

@@ -1,10 +1,10 @@
 #pragma once
 
+#include "ECS/Entity.h"
+#include "PythonBase.h"
+
 #include <string>
 
-#include <Python.h>
-
-#include <ECS/Entity.h>
 
 namespace Bindings {
 #pragma region Entity Bindings

@@ -1,7 +1,5 @@
 #pragma once
 
-#include <Python.h>
-
 #define AL_LIBTYPE_STATIC 
 #include <AL/al.h>
 #include <AL/alext.h>
@@ -52,7 +50,6 @@
 
 #include <Utils/Threading/CommandQueue.h>
 
-#include <Utils/Utils.h>
 #include <Utils/Input.h>
 #include <Utils/Camera.h>
 #include <Utils/Log.h>

@@ -29,7 +29,11 @@ namespace Utils
 		void DisplayDebugStats();
 		void DisplayLog();
 
+		static void AddStatistsic(const std::string_view& name, int64_t time);
+
 	private:
+		static std::unordered_map<std::string_view, int64_t> s_StatsticsToRender;
+
 		std::shared_ptr<TooGoodEngine::Framebuffer>  DisplayFramebuffer;
 		std::shared_ptr<TooGoodEngine::Texture>		 DisplayColorAttachment;
 		std::shared_ptr<TooGoodEngine::RenderBuffer> DisplayRenderBuffer;

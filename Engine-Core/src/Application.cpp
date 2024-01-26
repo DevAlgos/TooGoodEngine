@@ -5,6 +5,7 @@
 
 #include "Utils/Log.h"
 #include "Utils/UUID.h"
+#include "Graphics/Renderer.h"
 
 namespace
 {
@@ -36,6 +37,7 @@ namespace TooGoodEngine
 
 		Renderer2D::Init();
 		Raytracing2D::Init();
+		Renderer::Init();
 
 		glEnable(GL_BLEND);
 		glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
@@ -47,6 +49,7 @@ namespace TooGoodEngine
 
 	Application::~Application()
 	{
+		Renderer::Shutdown();
 		Scripting::PythonScriptingEngine::Shutdown();
 		Audio::Shutdown();
 		Renderer2D::ShutDown();
@@ -63,36 +66,49 @@ namespace TooGoodEngine
 
 		while (!s_MainWindow.WindowClosed())
 		{
-			start = (float)ApplicationClock->TimeElapsed(Utils::TimeUnit::mili);
-			//TestScript.ScriptOnUpdate(deltaTime);
-			
-			s_MainWindow.SwapBuffers();
-			s_MainWindow.PollEvents();
-
-			Manager.UpdateLayers();
-
-
-			ImGui_ImplOpenGL3_NewFrame();
-			ImGui_ImplGlfw_NewFrame();
-			ImGui::NewFrame();
-
-			Manager.UpdateGUI();
-			
-			ImGui::GetIO().DisplaySize = ImVec2((float)s_MainWindow.GetWidth(), (float)s_MainWindow.GetHeight());
-
-			ImGui::Render();
-			ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
-
-			if (ImGui::GetIO().ConfigFlags & ImGuiConfigFlags_ViewportsEnable)
 			{
-				GLFWwindow* backupContext = glfwGetCurrentContext();
-				ImGui::UpdatePlatformWindows();
-				ImGui::RenderPlatformWindowsDefault();
-				glfwMakeContextCurrent(backupContext);
-			}
+				start = (float)ApplicationClock->TimeElapsed(Utils::TimeUnit::mili);
+				//TestScript.ScriptOnUpdate(deltaTime);
 
-			end = (float)ApplicationClock->TimeElapsed(Utils::TimeUnit::mili);
-			deltaTime = end - start;
+				{
+					Utils::TimedScope s("Update GUI");
+					s_MainWindow.SwapBuffers();
+					s_MainWindow.PollEvents();
+
+					if (s_MainWindow.WindowClosed())
+						break;
+				}
+
+				{
+					Utils::TimedScope layerScope("Update Layers");
+					Manager.UpdateLayers();
+				}
+			
+				ImGui_ImplOpenGL3_NewFrame();
+				ImGui_ImplGlfw_NewFrame();
+				ImGui::NewFrame();
+
+				
+				Manager.UpdateGUI();
+
+				ImGui::GetIO().DisplaySize = ImVec2((float)s_MainWindow.GetWidth(), (float)s_MainWindow.GetHeight());
+
+				ImGui::Render();
+				ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
+
+				if (ImGui::GetIO().ConfigFlags & ImGuiConfigFlags_ViewportsEnable)
+				{
+					GLFWwindow* backupContext = glfwGetCurrentContext();
+					ImGui::UpdatePlatformWindows();
+					ImGui::RenderPlatformWindowsDefault();
+					glfwMakeContextCurrent(backupContext);
+				}
+				
+
+				end = (float)ApplicationClock->TimeElapsed(Utils::TimeUnit::mili);
+				deltaTime = end - start;
+			}
+			
 		}
 
 	}

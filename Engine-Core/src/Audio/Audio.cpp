@@ -363,7 +363,7 @@ namespace TooGoodEngine
 					TGE_LOG_ERROR("Failed to open device");
 					TGE_CLIENT_ERROR("Failed to open device");
 
-					TGE_HAULT();
+					TGE_HALT();
 				}
 				
 				s_AudioData.Context = alcCreateContext(s_AudioData.CurrentDevice, nullptr);
@@ -376,7 +376,7 @@ namespace TooGoodEngine
 					TGE_LOG_ERROR("Could not set context!");
 					TGE_CLIENT_ERROR("Could not set context!");
 
-					TGE_HAULT();
+					TGE_HALT();
 				}
 
 				const char* name = NULL;
@@ -541,7 +541,7 @@ namespace TooGoodEngine
 
 
 		s_AudioData.AudioQueue->Wait();
-		s_AudioData.AudioQueue.release();
+		s_AudioData.AudioQueue.reset();
 
 		
 	}
