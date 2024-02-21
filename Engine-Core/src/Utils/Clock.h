@@ -17,8 +17,6 @@ namespace Utils
 	using milliseconds = std::chrono::milliseconds;
 	using seconds = std::chrono::seconds;
 
-
-
 	class Clock 
 	{
 	public:

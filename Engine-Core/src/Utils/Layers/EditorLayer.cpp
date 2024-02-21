@@ -14,6 +14,7 @@ namespace
 {
 	static bool opt_fullscreen = true;
 	static bool p_open = true;
+	static int CurrentScale = 2;
 }
 
 namespace Utils
@@ -128,6 +129,23 @@ namespace Utils
 			if (ImGui::BeginMenu("Options"))
 			{
 				ImGui::MenuItem("Show Rendering", nullptr, &opt_fullscreen);
+
+				ImGui::Text("Renderer down scaling factor");
+				ImGui::SameLine();
+				int Previous = CurrentScale;
+				ImGui::SliderInt("##ScaleSlider", &CurrentScale, 1, 10);
+
+				if (Previous != CurrentScale)
+					TooGoodEngine::Renderer::ChangeScaledResolution((float)CurrentScale);
+
+				if (ImGui::Button("Median Split"))
+					TooGoodEngine::Renderer::ChangeBVHBuildType(TooGoodEngine::BuildType::MedianSplit);
+
+				if (ImGui::Button("SAH Split"))
+					TooGoodEngine::Renderer::ChangeBVHBuildType(TooGoodEngine::BuildType::SAHSplit);
+
+				if (ImGui::Button("Morton Split"))
+					TooGoodEngine::Renderer::ChangeBVHBuildType(TooGoodEngine::BuildType::HLSplit);
 
 				ImGui::EndMenu();
 			}

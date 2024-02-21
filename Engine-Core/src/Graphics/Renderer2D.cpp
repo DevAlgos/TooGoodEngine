@@ -247,18 +247,18 @@ namespace TooGoodEngine
 		float CamZ = Camera.GetPosition().z;
 
 		RenderData.DefaultShader->Use();
-		RenderData.DefaultShader->setUniformMat4("view", Camera.GetView());
-		RenderData.DefaultShader->setUniformMat4("projection", Camera.GetProjection());
+		RenderData.DefaultShader->SetUniformMat4("view", Camera.GetView());
+		RenderData.DefaultShader->SetUniformMat4("projection", Camera.GetProjection());
 		RenderData.DefaultShader->SetUniformFloat3("CameraPosition",CamX, CamY, CamZ);
 
 		RenderData.CircleShader->Use();
-		RenderData.CircleShader->setUniformMat4("view", Camera.GetView());
-		RenderData.CircleShader->setUniformMat4("projection", Camera.GetProjection());
+		RenderData.CircleShader->SetUniformMat4("view", Camera.GetView());
+		RenderData.CircleShader->SetUniformMat4("projection", Camera.GetProjection());
 		RenderData.CircleShader->SetUniformFloat3("CameraPosition", CamX, CamY, CamZ);
 
 		RenderData.UIShaders->Use();
-		RenderData.UIShaders->setUniformMat4("view", Camera.GetView());
-		RenderData.UIShaders->setUniformMat4("projection", Camera.GetProjection());
+		RenderData.UIShaders->SetUniformMat4("view", Camera.GetView());
+		RenderData.UIShaders->SetUniformMat4("projection", Camera.GetProjection());
 
 	}
 	void Renderer2D::BeginScene()
@@ -1117,8 +1117,8 @@ namespace TooGoodEngine
 		s_RaytracingData.ComputeShaders->SetUniformInt("NumberOfObjects", s_RaytracingData.CircleData.size());
 		//s_RaytracingData.ComputeShaders->SetUniformInt("SampleRate", static_cast<int>(s_RaytracingData.SampleRate));
 		s_RaytracingData.ComputeShaders->SetUniformFloat3("CameraPosition", Pos.x, Pos.y, Pos.z);
-		s_RaytracingData.ComputeShaders->setUniformMat4("InverseView", s_RaytracingData.DebuggingCamera.GetInverseView());
-		s_RaytracingData.ComputeShaders->setUniformMat4("InverseProjection", s_RaytracingData.DebuggingCamera.GetInverseProjection());
+		s_RaytracingData.ComputeShaders->SetUniformMat4("InverseView", s_RaytracingData.DebuggingCamera.GetInverseView());
+		s_RaytracingData.ComputeShaders->SetUniformMat4("InverseProjection", s_RaytracingData.DebuggingCamera.GetInverseProjection());
 		s_RaytracingData.ComputeShaders->SetUniformInt("FrameIndex", static_cast<int>(s_RaytracingData.FrameIndex));
 
 		s_RaytracingData.ComputeShaders->SetUniformFloat("ImageWidth", (float)(s_RaytracingData.ImageWidth));

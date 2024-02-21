@@ -20,19 +20,8 @@ namespace TooGoodEngine
 	{
 		return std::make_shared<OpenGLVertexArray>();
 	}
-	void OpenGLVertexArray::AttachBuffer(OpenGLBuffer* gBuffer)
-	{
-		glBindVertexArray(m_VertexArrayHandle);
-		gBuffer->Bind();
-	}
-	void OpenGLVertexArray::AttachBuffers(const std::vector<OpenGLBuffer*>& buffers)
-	{
-		glBindVertexArray(m_VertexArrayHandle);
-		for (auto buffer : buffers)
-			buffer->Bind();
-	}
 	void OpenGLVertexArray::AttribPointer(GLuint index, GLint size, GLenum type, GLboolean normalised, GLsizei stride, const void* start)
-	{
+	{ //depricated TODO need to remove
 		glBindVertexArray(m_VertexArrayHandle);
 
 		glEnableVertexAttribArray(index);
@@ -180,14 +169,11 @@ namespace TooGoodEngine
 
 					for (size_t i = 0; i < 4; i++)
 					{
-						// Use DSA functions to set up vertex attributes
 						glVertexArrayAttribFormat(m_VertexArrayHandle, (GLuint)index, GLsize, GLtype, GL_FALSE, (GLuint)CurrentStartingPosition);
 
-						// Enable the vertex attribute and associate it with the VBO binding point
 						glEnableVertexArrayAttrib(m_VertexArrayHandle, (GLuint)index);
 						glVertexArrayAttribBinding(m_VertexArrayHandle, (GLuint)index, (GLuint)CurrentBufferIndex);
 
-						// Specify the VBO binding point and stride
 						glVertexArrayVertexBuffer(m_VertexArrayHandle, (GLuint)CurrentBufferIndex, Buffers[CurrentBufferIndex], (GLintptr)Offsets[CurrentBufferIndex], (GLsizei)Strides[CurrentBufferIndex]);
 
 						if (BufferAttribs.Instanced)
@@ -199,14 +185,11 @@ namespace TooGoodEngine
 				}
 				else
 				{
-					// Use DSA functions to set up vertex attributes
 					glVertexArrayAttribFormat(m_VertexArrayHandle, (GLuint)index, GLsize, GLtype, GL_FALSE, (GLuint)CurrentStartingPosition);
 
-					// Enable the vertex attribute and associate it with the VBO binding point
 					glEnableVertexArrayAttrib(m_VertexArrayHandle, (GLuint)index);
 					glVertexArrayAttribBinding(m_VertexArrayHandle, (GLuint)index, (GLuint)CurrentBufferIndex);
 
-					// Specify the VBO binding point and stride
 					glVertexArrayVertexBuffer(m_VertexArrayHandle, (GLuint)CurrentBufferIndex, Buffers[CurrentBufferIndex], (GLintptr)Offsets[CurrentBufferIndex], (GLsizei)Strides[CurrentBufferIndex]);
 
 					if (BufferAttribs.Instanced)

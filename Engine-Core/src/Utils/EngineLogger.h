@@ -13,6 +13,7 @@
 namespace TooGoodEngine {
 
 	namespace TextColor {
+		
 		static const std::string RESET = "\033[0m";
 		static const std::string BLACK = "\033[0;30m";
 		static const std::string RED = "\033[0;31m";

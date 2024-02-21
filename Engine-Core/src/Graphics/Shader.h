@@ -1,5 +1,10 @@
 #pragma once
 
+#include <map>
+#include <glad/glad.h>
+#include <string_view>
+#include <memory>
+
 namespace TooGoodEngine {
 
 	class Shader
@@ -30,7 +35,9 @@ namespace TooGoodEngine {
 		void SetUniformFloat3(const std::string& name, float v0, float v1, float v2);
 		void SetUniformFloat3V(const std::string& name, glm::vec3 floats, int numb);
 		void SetUniformFloat4(const std::string& name, float v0, float v1, float v2, float v3);
-		void setUniformMat4(const std::string& name, const glm::mat4& matrix);
+		void SetUniformMat4(const std::string& name, const glm::mat4& matrix);
+
+		void SetUniformVec3(const std::string& name, const glm::vec3& Data, int Numb);
 
 		Shader& operator=(const Shader& shader);
 

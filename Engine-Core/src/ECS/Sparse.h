@@ -128,14 +128,6 @@ namespace Ecs
 			{
 				ptr->~Type();
 
-				/*Type* Next = ptr + 1;
-				for (uint64_t i = Index + 1; i < m_Capacity; i++)
-				{
-					*ptr = std::move(*Next);
-					ptr++;
-					Next++;
-				}*/
-
 				Type* Last = static_cast<Type*>(m_Block) + m_Size - 1;
 
 				if (ptr != Last) 
@@ -192,7 +184,7 @@ namespace Ecs
 			m_Dense.Construct<Type>(m_CurrentTop, std::forward<Args>(args)...);
 			m_Sparse[EntityID] = m_CurrentTop;
 
-			m_IndexToEntityMap[m_CurrentTop] = EntityID;
+			m_IndexToEntityMap.push_back(EntityID);
 
 			m_CurrentTop++;
 			m_NoElements++;
@@ -249,6 +241,7 @@ namespace Ecs
 				m_Sparse[CurrentIndex]--;*/
 
 			//decrement number of elemetns and the current top
+			m_IndexToEntityMap.pop_back();
 			m_NoElements--;
 			m_CurrentTop--;
 		}
@@ -274,6 +267,6 @@ namespace Ecs
 		uint64_t m_CurrentTop = 0;
 		bool m_Allocated = false;
 
-		std::unordered_map<uint64_t, EntityID> m_IndexToEntityMap;
+		std::vector<EntityID> m_IndexToEntityMap;
 	};
 }

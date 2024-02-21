@@ -35,7 +35,7 @@ namespace Ecs
 						 float Roughness, const std::shared_ptr<TooGoodEngine::Texture>& TextureRef)
 			: Albedo(Albedo), Reflectivity(Reflectivity), 
 			  EmissionColor(EmissionColor), EmissionPower(EmissionPower),
-			  Roughness(Roughness), MaterialTexture(TextureRef)
+			  Roughness(Roughness), MaterialTexture(TextureRef), Metallic(0.0)
 		{
 		}
 

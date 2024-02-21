@@ -59,13 +59,14 @@ namespace TooGoodEngine {
 		void ResizeImage(float* Data, int Width, int Height);
 		void ResizeImage(uint32_t* Data, int Width, int Height);
 		
+		void Clear(const glm::vec4& Color);
 
 		void SetData(float* Data);
 		void SetData(uint32_t* Data);
 		void SetData(const std::string_view& NewImageLocation);
 
 		inline void Bind(int Unit) { glBindTextureUnit(Unit, m_Texture); }
-		inline void BindImage(int Unit) { glBindImageTexture(Unit, m_Texture, m_TextureData.Level, GL_FALSE, 0, GL_WRITE_ONLY, m_InternalFormat); };
+		inline void BindImage(int Unit) { glBindImageTexture(Unit, m_Texture, m_TextureData.Level, GL_FALSE, 0, GL_READ_WRITE, m_InternalFormat); };
 		inline const uint32_t Get() const { return m_Texture; }
 
 		inline const GLuint64 GetGPUHandle() const { return m_GPUHandle; }

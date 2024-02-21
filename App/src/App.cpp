@@ -5,6 +5,8 @@
 #include <glm/matrix.hpp>
 #include <filesystem>
 
+#include <Graphics/ModeImporting/AssimpImporter.h>
+
 using namespace TooGoodEngine;
 
 class Example : public Utils::BaseLayer
@@ -101,7 +103,7 @@ int main()
 	Details AppDetails;
 	AppDetails.ApplicationName = "TooGoodEngine";
 	AppDetails.Width = 1600;
-	AppDetails.Height = 900;
+	AppDetails.Height = 800;
 	AppDetails.PythonEnviromentPath = "../Resources/Scripts/";
 
 	UserApplication NewApp(AppDetails);
@@ -109,68 +111,24 @@ int main()
 
 	return TooGoodEngine::Main(NewApp);
 
-	//TODO: delete testing for ecs when finished
+	/*Ecs::TransformComponent TestInstanceTransform({ 0.0f, 30.0f, 5.0f },
+		{ 10.0f, 10.0f, 10.0f }, { 0.0f, 1.0f, 0.0f }, 0.0f);
+
+	TooGoodEngine::AssimpImporter importer;
+
+	TooGoodEngine::Model TestModel = importer.ImportModel("mrmadman.obj");
+
+	test::TestBVHBuilder builder;
+
+	builder.AddModel(TestModel, TestInstanceTransform.Transform);
+
+	TestInstanceTransform = Ecs::TransformComponent({ 0.0f, 50.0f, 5.0f },
+		{ 10.0f, 10.0f, 10.0f }, { 0.0f, 1.0f, 0.0f }, 0.0f);
+
+	builder.AddModel(TestModel, TestInstanceTransform.Transform);
+
+	builder.BuildAndDispatch();*/
+
 	
-#pragma region Entity Component System Testing
-
-
-	//Ecs::Registry registry;
-
-
-	//Ecs::Entity entity1 = registry.CreateEntity("entity");
-	//Ecs::Entity entity2 = registry.CreateEntity("entity1");
-	//Ecs::Entity entity3 = registry.CreateEntity("entity2");
-	//Ecs::Entity entity4 = registry.CreateEntity("entity3");
-	//Ecs::Entity entity5 = registry.CreateEntity("entity4");
-
-
-
-
-	//registry.Insert<ExampleType>(entity1, 1.0f, 2.0f);
-	//registry.Insert<ExampleType>(entity2, 6.0f, 2.0f);
-	//registry.Insert<ExampleType>(entity3, 5.0f, 2.0f);
-	//registry.Insert<ExampleType>(entity4, 3.0f, 2.0f);
-	//registry.Insert<ExampleType>(entity5, 2.0f, 2.0f);
-
-	//{
-	//	auto& component = registry.Get<ExampleType>(entity1);
-
-	//	std::cout << component.a << " " << component.b << std::endl;
-	//}
-
-	//{
-	//	registry.Delete<ExampleType>(entity3);
-
-	//	auto& component = registry.Get<ExampleType>(entity5);
-	//	std::cout << component.a << " " << component.b << std::endl;
-	//}
-
-	//{
-	//	std::cout << registry.HasComponent<ExampleType>(entity3) << std::endl;
-	//}
-
-	//std::cout << "--------------" << std::endl;
-
-	//{
-	//	registry.View<ExampleType>([](auto& ComponentRef) 
-	//		{
-	//			std::cout << ComponentRef.a << " " << ComponentRef.b << std::endl;
-	//		});
-	//}
-
-	//std::cout << "--------------" << std::endl;
-
-
-	//{
-	//	auto it = registry.Begin<ExampleType>();
-
-	//	do
-	//	{
-	//		std::cout << it->a << " " << it->b << " " << std::endl;
-	//		it++;
-	//	} while (it != registry.End<ExampleType>());
-	//}
-
-#pragma endregion Entity Component System Testing
 
 }

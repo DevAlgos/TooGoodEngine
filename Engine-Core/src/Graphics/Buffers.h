@@ -38,6 +38,8 @@ namespace TooGoodEngine
 	{
 	public:
 		OpenGLBuffer(const BufferType& t, const BufferData& BufferData);
+		~OpenGLBuffer();
+
 
 		void* Map();
 		void  UnMap();
@@ -56,14 +58,12 @@ namespace TooGoodEngine
 
 		inline const uint32_t Get() const { return m_Buffer; }
 
-		~OpenGLBuffer();
 
 	private:
-		uint32_t m_Buffer;
+		uint32_t m_Buffer = 0;
 		size_t m_Size = 0;
 
 		GLbitfield masks = GL_DYNAMIC_STORAGE_BIT | GL_MAP_WRITE_BIT | GL_MAP_COHERENT_BIT | GL_MAP_PERSISTENT_BIT; //TODO: will make it changable later
-
 
 		GLenum m_Type;
 		BufferData m_Data;

@@ -1,14 +1,39 @@
 #include "pch.h"
 #include "Scene.h"
 
+#include "Graphics/ModeImporting/AssimpImporter.h"
 #include "Graphics/Renderer.h"
 
 namespace TooGoodEngine
 {
-	static glm::vec2 TestScale = {1.0f, 1.0f};
-	static std::vector<glm::mat4> SceneTransforms;
-	static std::vector<Ecs::MaterialComponent> SceneMaterials;
+	static glm::vec2 TestScale = { 1.0f, 1.0f };
+
+	static Ecs::TransformComponent TestInstanceTransform({ 0.0f, -2.0f, 0.0f },
+		{ 1.0f, 1.0f, 1.0f }, { 0.0f, 1.0f, 0.0f }, 0.0f);
+	static Ecs::MaterialComponent TestInstanceMaterial({ 0.0f, 0.7f, 0.4f, 0.5f }, { 0.0f, 0.0f, 0.0f },
+		{ 0.0f, 0.0f, 0.0f }, 0.0f, 0.0f, nullptr);
+
+
+	static Ecs::TransformComponent Test2InstanceTransform({ 1.0f, 2.0f, 0.0f },
+		{ 10.0f, 10.0f, 10.0f }, { 0.0f, 1.0f, 0.0f }, 0.0f);
+
+	static Ecs::MaterialComponent Test2InstanceMaterial({ 0.0f, 0.7f, 0.4f, 0.5f }, { 0.0f, 0.0f, 0.0f },
+		{ 0.0f, 0.0f, 0.0f }, 0.0f, 0.0f, nullptr);
+
+	static Ecs::TransformComponent Test3InstanceTransform({ 30.0f, 0.0f, 0.0f },
+		{ 0.1f, 0.1f, 0.1f }, { 0.0f, 1.0f, 0.0f }, 0.0f);
+
+	static Ecs::MaterialComponent Test3InstanceMaterial({ 0.0f, 0.7f, 0.4f, 0.5f }, { 0.0f, 0.0f, 0.0f },
+		{ 0.0f, 0.0f, 0.0f }, 0.0f, 0.0f, nullptr);
+
 	static std::shared_ptr<Texture> TestTexture;
+	static std::shared_ptr<Texture> TestTexture2;
+	static std::shared_ptr<Texture> TestTexture3;
+
+
+	static InstanceID TestInstance;
+	static InstanceID MrOscarMan;
+	static InstanceID ModelInstance;
 
 	Scene::Scene()
 		: m_DebugName("unamed scene"), m_SceneRegistry()
@@ -22,15 +47,16 @@ namespace TooGoodEngine
 	{
 		CameraData CamData;
 		CamData.Sensitivity = 0.05f;
+		CamData.CameraSpeed = 10.0f;
 		m_SceneCamera.SetCam(CamData);
 
-		glm::vec3 Pos = { 0.0f, 0.0f, -1.0f };
+		glm::vec3 Pos = { 0.0f, 0.0f, 0.0f };
 		glm::vec3 Scale = { 1.0f, 1.0f, 0.0f };
 		glm::vec3 RotationAxis = { 0.0f, 0.0f, 1.0f };
 
 		/*
 			const glm::vec4& Albedo, const glm::vec3& Reflectivity,
-						 const glm::vec3& EmissionColor, float EmissionPower, 
+						 const glm::vec3& EmissionColor, float EmissionPower,
 						 float Roughness, std::shared_ptr<TooGoodEngine::Texture> TextureRef
 		*/
 
@@ -43,40 +69,32 @@ namespace TooGoodEngine
 
 		m_SceneEntites.push_back(testentity);
 
+		TooGoodEngine::TextureData TextureData;
+		TextureData.InternalFormat = TooGoodEngine::TextureFormat::RGBA32F;
+		TestTexture = std::make_shared<Texture>("Background.png", TextureData, Format::RGBA);
+
 		Renderer2D::LoadInFont("../Resources/fonts/JetBrainsMono-Italic.ttf");
 
-		TextureData d;
-		d.Width = 1;
-		d.Height = 1;
-		d.InternalFormat = TooGoodEngine::TextureFormat::RGBA32F;
+		TestInstanceMaterial = Ecs::MaterialComponent({ 1.0f, 1.0f, 1.0f, 1.0f }, { 0.0f, 0.0f, 0.0f },
+			{ 0.0f, 0.0f, 0.0f }, 0.0f, 0.0f, TestTexture);
 
+		AssimpImporter importer;
 
-		/*uint32_t* TestTextureData = new uint32_t[100];
-		for (int i = 0; i < 100; i++)
-			TestTextureData[i] = 0;
+		Model TestModel = importer.ImportModel("block.obj");
 
-		TestTexture = std::make_shared<Texture>((float*)TestTextureData, d);
+		TestInstance = Renderer::AddUniqueModel(TestModel);
 
-		delete[] TestTextureData;*/
+		TestTexture2 = std::make_shared<Texture>("BenIcon.png", TextureData, Format::RGBA);
+		Test2InstanceMaterial = Ecs::MaterialComponent({ 1.0f, 1.0f, 1.0f, 1.0f }, { 0.0f, 0.0f, 0.0f },
+			{ 0.0f, 0.0f, 0.0f }, 0.0f, 0.0f, nullptr);
 
-		SceneTransforms.reserve((size_t)500 * 1000);
-		SceneMaterials.reserve((size_t)500 * 1000);
+		Model CatModel = importer.ImportModel("bunny.obj");
+		MrOscarMan = Renderer::AddUniqueModel(CatModel);
 
-		for (float i = 0.0f; i < 0.5f; i+=0.001f)
-		{
-			for (float j = 0.0f; j < 1.0f; j+=0.001f)
-			{	
-				glm::mat4 Transform = glm::identity<glm::mat4>();
-				Transform = glm::translate(Transform, {i, j, 0.0f})
-					* glm::rotate(Transform, glm::radians(45.0f), glm::vec3(0.0f, 0.0f, 1.0f))
-					* glm::scale(Transform, glm::vec3(0.001f, 0.001f, .0001f));
+		TestTexture3 = std::make_shared<Texture>("BenIcon.png", TextureData, Format::RGBA);
 
-				SceneTransforms.push_back(Transform);
-				SceneMaterials.emplace_back(glm::vec4(0.0f, 0.0f, 0.0f, 0.0f), 
-											glm::vec3(1.0f, 1.0f, 1.0f), glm::vec3(1.0f, 1.0f, 1.0f), 2.0f, 0.0f, nullptr);
-			}
-		}
-
+		Test3InstanceMaterial = Ecs::MaterialComponent({ 0.0f, 0.4f, 0.5f, 1.0f }, { 0.0f, 0.0f, 0.0f },
+			{ 0.0f, 0.0f, 0.0f }, 0.0f, 0.0f, TestTexture3);
 	}
 	Scene::~Scene()
 	{
@@ -85,12 +103,12 @@ namespace TooGoodEngine
 	{
 		if (Input::IsKeyDown(KEY_V))
 			Input::EnableCursor();
-		
+
 		if (Input::IsKeyDown(KEY_B))
 			Input::DisableCursor();
 
 
-		if(!Input::IsCursorEnabled())
+		if (!Input::IsCursorEnabled())
 			m_SceneCamera.Update(Application::GetCurrentDeltaSecond());
 	}
 	void Scene::SceneDisplay()
@@ -123,16 +141,27 @@ namespace TooGoodEngine
 		/*Renderer2D::EndScene();*/
 
 		Renderer::Begin(m_SceneCamera);
-
-		for (size_t i = 0; i < SceneTransforms.size(); i++)
-			Renderer::DrawPrimitiveQuad(SceneTransforms[i], SceneMaterials[i]);
-
+		Renderer::DrawModelInstance(TestInstance, TestInstanceTransform.Transform, TestInstanceMaterial);
+		Renderer::DrawModelInstance(MrOscarMan, Test2InstanceTransform.Transform, Test2InstanceMaterial);
+		//Renderer::DrawPrimitiveQuad(TestInstanceTransform.Transform, TestInstanceMaterial);
 		Renderer::End();
 	}
 	void Scene::DisplayEntites()
 	{
 		ImGui::Begin("Entities");
 		ImGui::SliderFloat2("Scale", &TestScale.x, 0.0f, 3.0f);
+
+		ImGui::SliderFloat4("TestAlbedo",   &Test2InstanceMaterial.Albedo.x, 0.0, 1.0);
+		ImGui::SliderFloat3("TestEmission", &Test2InstanceMaterial.EmissionColor.x, 0.0, 1.0);
+		ImGui::SliderFloat("TestEmissionPower", &Test2InstanceMaterial.EmissionPower, 0.0, 1.0);
+		ImGui::SliderFloat("TestMetallic",   &Test2InstanceMaterial.Metallic, 0.0, 1.0);
+		ImGui::SliderFloat("TestRoughness",   &Test2InstanceMaterial.Roughness, 0.0, 1.0);
+
+		ImGui::SliderFloat4("TestAlbedo2", &TestInstanceMaterial.Albedo.x, 0.0, 1.0);
+		ImGui::SliderFloat3("TestEmission2", &TestInstanceMaterial.EmissionColor.x, 0.0, 1.0);
+		ImGui::SliderFloat("TestEmissionPower2", &TestInstanceMaterial.EmissionPower, 0.0, 1.0);
+		ImGui::SliderFloat("TestMetallic2", &TestInstanceMaterial.Metallic, 0.0, 1.0);
+		ImGui::SliderFloat("TestRoughness2", &TestInstanceMaterial.Roughness, 0.0, 1.0);
 
 		ImGui::PushID(0604502);
 

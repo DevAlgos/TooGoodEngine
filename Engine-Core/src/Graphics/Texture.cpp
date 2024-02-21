@@ -56,6 +56,10 @@ namespace TooGoodEngine
 			m_TextureType = GL_TEXTURE_2D;
 			CreateTexture(GL_DEPTH_COMPONENT32F, Data);
 			break;
+		case TooGoodEngine::TextureType::Texture2DMultisample:
+			m_TextureType = GL_TEXTURE_2D_MULTISAMPLE;
+			CreateTexture(GL_TEXTURE_2D_MULTISAMPLE, Data);
+			break;
 		default:
 			break;
 		}
@@ -140,6 +144,11 @@ namespace TooGoodEngine
 		glDeleteTextures(1, &m_Texture);
 
 		CreateTexture(m_TextureType, Data);
+	}
+
+	void Texture::Clear(const glm::vec4& Color)
+	{
+		glClearTexImage(m_Texture, m_TextureData.Level, m_FileFormat, GL_FLOAT, glm::value_ptr(Color));
 	}
 
 	void Texture::SetData(float* Data)
@@ -280,6 +289,9 @@ namespace TooGoodEngine
 			
 			glGenerateTextureMipmap(m_Texture);
 			break;
+		case GL_TEXTURE_2D_MULTISAMPLE:
+			glTextureStorage2DMultisample(m_Texture, m_TextureData.NumberOfSamples, m_InternalFormat, m_TextureData.Width, m_TextureData.Height, GL_TRUE);
+			break;
 		default:
 			break;
 		}
@@ -299,8 +311,6 @@ namespace TooGoodEngine
 			break;
 		case GL_TEXTURE_2D_MULTISAMPLE:
 			glTextureStorage2DMultisample(m_Texture, m_TextureData.NumberOfSamples, m_InternalFormat, m_TextureData.Width, m_TextureData.Height, GL_TRUE);
-			/*glTexSubImage2D(GL_TEXTURE_2D_MULTISAMPLE, m_TextureData.Level, 0, 0, m_TextureData.Width, m_TextureData.Height, m_FileFormat,
-				GL_UNSIGNED_BYTE, Data);*/
 			break;
 		default:
 			break;

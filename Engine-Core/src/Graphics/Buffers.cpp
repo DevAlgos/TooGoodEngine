@@ -18,11 +18,8 @@ namespace
 
 namespace TooGoodEngine 
 {
-
-
-
 	OpenGLBuffer::OpenGLBuffer(const BufferType& Type, const BufferData& BufferData)
-		: m_Data(BufferData), m_Buffer(std::numeric_limits<uint32_t>::max())
+		: m_Data(BufferData), m_Buffer(0)
 	{
 		switch (Type)
 		{
@@ -36,7 +33,6 @@ namespace TooGoodEngine
 		m_Size = m_Data.VertexSize;
 
 		glCreateBuffers(1, &m_Buffer);
-		//glNamedBufferData(m_Buffer, m_Data.VertexSize, m_Data.data, m_Data.DrawType);
 		glNamedBufferStorage(m_Buffer, m_Data.VertexSize, m_Data.data, masks);
 	}
 	void* OpenGLBuffer::Map()
@@ -175,10 +171,11 @@ namespace TooGoodEngine
 			}
 		}
 
-		GLenum status = glCheckFramebufferStatus(GL_FRAMEBUFFER);
-		if (status != GL_FRAMEBUFFER_COMPLETE) {
-			TGE_HALT();
-		}
+		GLenum status = glCheckNamedFramebufferStatus(m_FramebufferHandle, GL_FRAMEBUFFER);
+		TGE_ASSERT(status == GL_FRAMEBUFFER_COMPLETE, "framebuffer incomplete with code ", status);
+		
+
+		glBindFramebuffer(GL_FRAMEBUFFER, 0);
 	}
 
 	Framebuffer::~Framebuffer()

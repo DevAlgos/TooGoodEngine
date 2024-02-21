@@ -8,17 +8,18 @@ IncludeDir["freetype"] = "../Libs/freetype/include"
 IncludeDir["OpenAl"]="../Libs/openal-soft-windows-build/include"
 IncludeDir["libsndfile"] = "../Libs/libsndfile-windows-build/include"
 IncludeDir["json"] = "../Libs/json-nlohmann/single_include"
+IncludeDir["assimp"] = "../Libs/assimp/include"
 
 function findPython()
     local pythonDir = os.getenv("PYTHONHOME") or os.getenv("PYTHONPATH")
     
     if pythonDir then
         includedirs { pythonDir .. "/include" }
-        libdirs { pythonDir .. "/libs" } -- Change this according to your Python installation structure
-        links { "python3" } -- Adjust the Python library name as needed
+        libdirs { pythonDir .. "/libs" }
+        links { "python3" } 
         links { "python310" }
     else
-        -- Handle the case when Python directory is not found
+ 
         print("Python directory not found in environment variables.")
     end
 end
@@ -57,7 +58,7 @@ project "Engine-Core"
         IncludeDir["OpenAl"],
         IncludeDir["libsndfile"],
         IncludeDir["json"],
-        IncludeDir["Optick"]
+        IncludeDir["assimp"]
     }
 
     links 
@@ -77,8 +78,7 @@ project "Engine-Core"
         "../Libs/imgui/bin/"        .. outputdir ..  "/ImGui",
         "../Libs/glfw/bin/"         .. outputdir ..  "/GLFW",
         "../Libs/glad/bin/"         .. outputdir ..  "/GLAD",
-        "../Libs/freetype/bin/"     .. outputdir ..  "/FreeType",
-        "../Libs/Optick/bin/"       .. _ACTION .. "/"
+        "../Libs/freetype/bin/"     .. outputdir ..  "/FreeType"
     } 
 
     targetdir ("../bin/" .. outputdir .. "/%{prj.name}")
@@ -91,8 +91,12 @@ project "Engine-Core"
         libdirs
         {
             "../Libs/libsndfile-windows-build/Debug-Bin",
-            "../Libs/openal-soft-windows-build/Debug-Bin"
+            "../Libs/openal-soft-windows-build/Debug-Bin",
+            "../Libs/assimp/contrib/zlib/Debug",
+            "../Libs/assimp/lib/Debug"
         }
+
+        links { "zlibstaticd", "assimp-vc143-mtd" }
 
     filter "configurations:Release"
         defines { "NDEBUG" }
@@ -101,8 +105,12 @@ project "Engine-Core"
         libdirs
         {
             "../Libs/libsndfile-windows-build/Release-Bin",
-            "../Libs/openal-soft-windows-build/Release-Bin"
+            "../Libs/openal-soft-windows-build/Release-Bin",
+            "../Libs/assimp/contrib/zlib/Release",
+            "../Libs/assimp/lib/Release"
         }        
+        
+        links { "zlibstatic", "assimp-vc143-mt" }
 
     group "Engine-Dependencies"
         include "../Libs/glfw"

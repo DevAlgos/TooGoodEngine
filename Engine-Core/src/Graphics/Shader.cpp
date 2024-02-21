@@ -102,12 +102,20 @@ namespace TooGoodEngine {
 		else
 			TGE_LOG_ERROR("Uniform Location Failed At: ", name);
 	}
-	void Shader::setUniformMat4(const std::string& name, const glm::mat4& matrix)
+	void Shader::SetUniformMat4(const std::string& name, const glm::mat4& matrix)
 	{
 
 		GLint location = glGetUniformLocation(m_Program, name.c_str());
 		if (location != -1)
 			glUniformMatrix4fv(location, 1, GL_FALSE, glm::value_ptr(matrix));
+		else
+			TGE_LOG_ERROR("Uniform Location Failed At: ", name);
+	}
+	void Shader::SetUniformVec3(const std::string& name, const glm::vec3& Data, int Numb)
+	{
+		GLint location = glGetUniformLocation(m_Program, name.c_str());
+		if (location != -1)
+			glUniform3fv(location, Numb, glm::value_ptr(Data));
 		else
 			TGE_LOG_ERROR("Uniform Location Failed At: ", name);
 	}

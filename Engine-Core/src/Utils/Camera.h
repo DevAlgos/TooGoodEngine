@@ -16,6 +16,10 @@ public:
 
 	virtual glm::mat4 GetInverseProjection() = 0;
 	virtual glm::mat4 GetInverseView() = 0;
+
+	virtual float GetNearPlane() { return 0.0f; };
+	virtual float GetFarPlane() { return 0.0f; };
+
 };
 
 #pragma region ortho
@@ -115,6 +119,9 @@ public:
 
 	virtual glm::mat4 GetInverseProjection() override { return m_InverseProjection; }
 	virtual glm::mat4 GetInverseView() override { return m_InverseView; }
+
+	virtual float GetNearPlane() override { return m_CameraData.Near; };
+	virtual float GetFarPlane()  override { return m_CameraData.Far; };
 
 private:
 	CameraData m_CameraData;

@@ -36,9 +36,6 @@ namespace TooGoodEngine
 
 		static std::unique_ptr<OpenGLVertexArray> Generate();
 		static std::shared_ptr<OpenGLVertexArray> GenerateShared();
-		
-		void AttachBuffer(OpenGLBuffer* gBuffer);
-		void AttachBuffers(const std::vector<OpenGLBuffer*>& buffers);
 
 		inline void Bind() { glBindVertexArray(m_VertexArrayHandle); }
 		inline void Unbind() { glBindVertexArray(0); }

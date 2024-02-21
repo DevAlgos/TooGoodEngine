@@ -7,6 +7,7 @@ IncludeDir["stb_image"] = "../Libs/STB"
 IncludeDir["freetype"] = "../Libs/freetype/include"
 IncludeDir["OpenAl"]="../Libs/openal-soft-windows-build/include"
 IncludeDir["libsndfile"] = "../Libs/libsndfile-windows-build/include"
+IncludeDir["assimp"] = "../Libs/assimp/include"
 
 
 function findPython()
@@ -50,7 +51,8 @@ project "App"
       IncludeDir["stb_image"],
       IncludeDir["freetype"],
       IncludeDir["OpenAl"],
-      IncludeDir["libsndfile"]
+      IncludeDir["libsndfile"],
+      IncludeDir["assimp"]
    }
 
    findPython()
