@@ -47,9 +47,6 @@ namespace TooGoodEngine {
 		 -0.5f, 0.5f, 0.0f,		0.0f, 0.0f, 1.0f,   0.0f, 1.0f
 	};
 
-	/*positions							normals		Texture Coordinates
-	* data = { 0.0f, 0.0f, 0.0f,	1.0f, 0.0f, 0.0f,    1.0f, 1.0f }*/
-
 	MeshInstanceBuffer::MeshInstanceBuffer(const Mesh& data)
 		: m_InstanceVAO(),
 		m_InstanceVertexBuffer(BufferType::VertexBuffer, { data.Vertices.data(),  data.Vertices.size() * sizeof(GLfloat), GL_STATIC_DRAW}),
@@ -587,7 +584,6 @@ namespace TooGoodEngine {
 
 			m_RenderData.GroupedMeshInstances.emplace_back(InstanceData);
 		}
-		 
 	}
 	void Renderer::Begin(BaseCamera& RefCamera)
 	{
@@ -660,10 +656,6 @@ namespace TooGoodEngine {
 		m_RenderData.RenderFramebuffer->UnBind();
 
 		m_RenderData.BoundingVolumeHierarchy->Build(m_RenderData.BoundingBuildType);
-
-		m_RenderData.ShadowPass->Use();
-
-
 		//msaa -> plain
 
 		glNamedFramebufferReadBuffer(m_RenderData.RenderFramebuffer->Get(), GL_COLOR_ATTACHMENT0);
@@ -765,17 +757,21 @@ namespace TooGoodEngine {
 			0, 0, m_RenderData.FramebufferWidth / m_RenderData.Scale, m_RenderData.FramebufferHeight / m_RenderData.Scale,
 			GL_DEPTH_BUFFER_BIT, GL_NEAREST);
 
+
+		m_RenderData.ShadowPass->Use();
+
 		m_RenderData.ShadowPass->SetUniformMat4("InverseProjection", m_RenderData.ReferenceCamera->GetInverseProjection());
 		m_RenderData.ShadowPass->SetUniformMat4("InverseView", m_RenderData.ReferenceCamera->GetInverseView());
 
 		m_RenderData.DownSampledColorbuffer->BindImage(0);
 		m_RenderData.DownSampledDepthBuffer->Bind(1);
 		m_RenderData.ShadowMap->BindImage(2);
+		m_RenderData.DownSampledNormal->BindImage(3);
 
 		m_RenderData.BoundingVolumeHierarchy->Dispatch(3, 4);
 
 		m_RenderData.ShadowPass->Compute((m_RenderData.FramebufferWidth/m_RenderData.Scale) / 8, 
-			(m_RenderData.FramebufferHeight/m_RenderData.Scale) / 4, 1);
+			(m_RenderData.FramebufferHeight/m_RenderData.Scale) / 8, 1);
 
 		m_RenderData.DirectLightingPass->Use();
 
@@ -791,7 +787,7 @@ namespace TooGoodEngine {
 		m_RenderData.ShadowMap->BindImage(5);
 
 		m_RenderData.DirectLightingPass->Compute((m_RenderData.FramebufferWidth / m_RenderData.Scale) / 8,
-			(m_RenderData.FramebufferHeight / m_RenderData.Scale) / 4, 1);
+			(m_RenderData.FramebufferHeight / m_RenderData.Scale) / 8, 1);
 
 		glNamedFramebufferReadBuffer(m_RenderData.DownSampledFramebuffer->Get(), GL_COLOR_ATTACHMENT0);
 		glNamedFramebufferDrawBuffer(m_RenderData.FinalFramebuffer->Get(), GL_COLOR_ATTACHMENT0 );

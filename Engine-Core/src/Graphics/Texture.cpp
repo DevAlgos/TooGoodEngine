@@ -296,6 +296,7 @@ namespace TooGoodEngine
 			break;
 		}
 
+
 		m_GPUHandle = glGetTextureHandleARB(m_Texture);
 	}
 

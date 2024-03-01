@@ -34,6 +34,8 @@ namespace TooGoodEngine
 
 		glCreateBuffers(1, &m_Buffer);
 		glNamedBufferStorage(m_Buffer, m_Data.VertexSize, m_Data.data, masks);
+
+		
 	}
 	void* OpenGLBuffer::Map()
 	{
@@ -162,6 +164,7 @@ namespace TooGoodEngine
 			{
 				auto& TextureMedium = std::get<std::shared_ptr<Texture>>(Medium);
 				glNamedFramebufferTexture(m_FramebufferHandle, GLAttachType, TextureMedium->Get(), 0);
+			
 			}
 			else
 			{

@@ -6,6 +6,11 @@
 
 static void framebuffer_size_callback(GLFWwindow* window, int width, int height);
 
+extern "C" 
+{
+	__declspec(dllexport) uint32_t NvOptimusEnablement = 1;
+	__declspec(dllexport) int AmdPowerXpressRequestHighPerformance = 1;
+}
 
 static void OpenGLDebugCallback(GLenum source, GLenum type, GLuint id, GLenum severity, GLsizei length, const GLchar* message, const void* userParam)
 {

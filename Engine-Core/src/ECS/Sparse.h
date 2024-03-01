@@ -15,7 +15,6 @@ namespace Ecs
 {
 	struct NullType
 	{
-		void* type = nullptr;
 	};
 
 
@@ -118,7 +117,6 @@ namespace Ecs
 		template<class Type>
 		Type* End() { return static_cast<Type*>(m_Block) + m_Size; }
 
-		//TODO: change from shifting elements to swapping this 
 		template<class Type>
 		void Delete(uint64_t Index)
 		{

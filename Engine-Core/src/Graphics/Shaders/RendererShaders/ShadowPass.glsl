@@ -1,17 +1,19 @@
 #version 460 core
 
-layout(local_size_x = 8, local_size_y = 4, local_size_z = 1) in;
+layout(local_size_x = 8, local_size_y = 8, local_size_z = 1) in;
 
 layout(rgba32f, binding = 0) uniform image2D ColorBuffer;
 layout (binding = 1) uniform sampler2D DepthBuffer;
 
 layout(rgba8, binding = 2) writeonly uniform image2D ShadowBuffer;
+layout(rgba32f, binding = 3) uniform image2D NormalBuffer;
 
 
-#define EPSILON 1.192092896e-07F
-#define FLOAT_MAX 3.402823466e+38F
+#define EPSILON 1.192092896e-07f
+#define FLOAT_MAX 3.402823466e+38f
 
 #define MAX_STACK_SIZE 1000
+#define SHADOW_BIAS 0.05
 
 uniform mat4 InverseProjection;
 uniform mat4 InverseView;
@@ -36,7 +38,7 @@ struct BVHNode
 	int RightNode;
     int NumberOfPrims;
     bool IsLeaf;
-    int Primitive[36];
+    int Primitive[100];
 };
 
 readonly layout(std430, binding = 3) buffer TriangleData
@@ -64,59 +66,19 @@ struct RayPayload
 
 float IntersectAABB(in RayPayload Payload, in AABB box)
 {
-    float Distance = FLOAT_MAX;
-    float tmin = (box.MinValue.x - Payload.Origin.x) / Payload.Direction.x; 
-    float tmax = (box.MaxValue.x - Payload.Origin.x) / Payload.Direction.x; 
+    vec3 tMin = (box.MinValue.xyz - Payload.Origin.xyz) / Payload.Direction.xyz;
+    vec3 tMax = (box.MaxValue.xyz - Payload.Origin.xyz) / Payload.Direction.xyz;
 
-    if (tmin > tmax) 
-    {
-        float temp = tmin;
-        tmin = tmax;
-        tmax = temp;
-    }
+    vec3 tMinOrder = min(tMin, tMax);
+    vec3 tMaxOrder = max(tMin, tMax);
 
-    float tymin = (box.MinValue.y - Payload.Origin.y) / Payload.Direction.y; 
-    float tymax = (box.MaxValue.y - Payload.Origin.y) / Payload.Direction.y; 
+    float t0 = max(max(tMinOrder.x, tMinOrder.y), tMinOrder.z);
+    float t1 = min(min(tMaxOrder.x, tMaxOrder.y), tMaxOrder.z);
 
-    if(tymin > tymax)
-    {
-        float temp = tymin;
-        tymin = tymax;
-        tymax = temp;
-    }
+    float Distance = (t0 <= t1) ? t0 : FLOAT_MAX;
 
-    if ((tmin > tymax) || (tymin > tmax)) 
-        return Distance; 
- 
-    if (tymin > tmin) 
-        tmin = tymin; 
- 
-    if (tymax < tmax) 
-        tmax = tymax; 
-
-    float tzmin = (box.MinValue.z - Payload.Origin.z) / Payload.Direction.z; 
-    float tzmax = (box.MaxValue.z - Payload.Origin.z) / Payload.Direction.z; 
-
-    if(tzmin > tzmax)
-    {
-        float temp = tzmin;
-        tzmin = tzmax;
-        tzmax = temp;
-    }
-
-    if ((tmin > tzmax) || (tzmin > tmax)) 
-        return Distance; 
- 
-    if (tzmin > tmin) 
-        tmin = tzmin; 
- 
-    if (tzmax < tmax) 
-        tmax = tzmax; 
- 
-    Distance = tmin;
-    return Distance; 
+    return Distance;
 }
-
 
 bool FastTriangleIntersect(in RayPayload Payload, int TriangleIndex)
 {
@@ -145,7 +107,7 @@ bool FastTriangleIntersect(in RayPayload Payload, int TriangleIndex)
     vec3 h = cross(Payload.Direction, e2);
     float a = dot(e1, h);
    
-    if (abs(a) < EPSILON)
+    if (abs(a) <= EPSILON)
        return false;
    
     vec3 s = Ray - Vertex1;
@@ -289,25 +251,24 @@ RayPayload DispatchShadowRay(in ivec2 Coordinate, in vec3 LightDirection)
 
     vec2 ImageSize = imageSize(ColorBuffer);
 
-    vec2 NormalizedCoord = (vec2(Coordinate) + vec2(0.5)) / ImageSize;
-    float DepthValue = texture(DepthBuffer, NormalizedCoord).r;
+    vec2 NormalizedCoord = (vec2(Coordinate)) / ImageSize;
+    float DepthValue = texelFetch(DepthBuffer, Coordinate, 0).r;
 
-    if(DepthValue >= 1.0)
+    if(DepthValue == 1.0)
         return Payload;
         
-    vec4 ViewSpace = InverseProjection * vec4(NormalizedCoord * 2.0 - 1.0, 
-                                              DepthValue * 2.0 - 1.0, 1.0);
+    vec4 WorldSpace = InverseView * InverseProjection * vec4(NormalizedCoord * 2.0 - 1.0, 
+                                                             DepthValue * 2.0 - 1.0, 1.0);
     
 
-    ViewSpace /= ViewSpace.w;
+    WorldSpace /= WorldSpace.w;
 
-    vec4 WorldSpace = InverseView * ViewSpace;
 
-	Payload.Origin = WorldSpace.xyz;
+    vec3 Normal = imageLoad(NormalBuffer, Coordinate).rgb;
+
+	Payload.Origin = WorldSpace.xyz + Normal * SHADOW_BIAS;
 
     Payload.Direction = normalize(-LightDirection);
-
-    Payload.Origin += Payload.Direction * 0.2;
 
 	TraceRay(Payload);
 
@@ -318,7 +279,7 @@ void main()
 {
 	ivec2 Coordinate = ivec2(gl_GlobalInvocationID.xy);
 
-	vec3 LightDirection = vec3(0.0, -1.0, 0.0);
+	vec3 LightDirection = vec3(0.0, -1.0, -1.0);
 
 	RayPayload Payload = DispatchShadowRay(Coordinate, LightDirection);
 

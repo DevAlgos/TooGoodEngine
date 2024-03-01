@@ -56,4 +56,23 @@ namespace Ecs
 	{
 		QuadComponent() = default;
 	};
+
+
+	struct MeshComponent
+	{
+		MeshComponent() = default;
+		MeshComponent(size_t ID, std::string SourceFile) : InstanceID(ID), MeshSourceFile(SourceFile) {};
+
+		size_t InstanceID;
+		std::string MeshSourceFile;
+	};
+
+	struct ModelComponent
+	{
+		ModelComponent() = default;
+		ModelComponent(size_t ID, std::string SourceFile) : InstanceID(ID), ModelSourceFile(SourceFile) {};
+
+		size_t InstanceID;
+		std::string ModelSourceFile;
+	};
 }

@@ -18,7 +18,9 @@ namespace TooGoodEngine {
 
 		ProcessNode(scene->mRootNode, scene);
 
-		return { ModelMeshs };
+		std::vector<Mesh> Data(ModelMeshs.begin(), ModelMeshs.end());
+
+		return { Data };
 	}
 
 	void AssimpImporter::ProcessNode(const aiNode* node, const aiScene* scene)
@@ -26,8 +28,11 @@ namespace TooGoodEngine {
 		for (size_t i = 0; i < node->mNumChildren; i++)
 			ProcessNode(node->mChildren[i], scene);
 
-		for (size_t i = 0; i < node->mNumMeshes; i++)
-			ProcessMesh(scene->mMeshes[node->mMeshes[i]], scene);
+		concurrency::parallel_for(0u, (uint32_t)node->mNumMeshes, 1u, 
+			[&](uint32_t i) 
+			{
+				ProcessMesh(scene->mMeshes[node->mMeshes[i]], scene);
+			});
 		
 	}
 	void AssimpImporter::ProcessMesh(const aiMesh* mesh, const aiScene* scene)
@@ -122,10 +127,16 @@ namespace TooGoodEngine {
 		texData.Level = 1;
 
 		aiString TexturePath;
+
+		ModelMesh.Material.Texture = nullptr;
+
 		if (aiMat->GetTexture(aiTextureType_BASE_COLOR, 0, &TexturePath) == AI_SUCCESS)
-			ModelMesh.Material.Texture = std::make_shared<Texture>(std::string_view(TexturePath.C_Str()), texData, Format::RGBA);
-		else
-			ModelMesh.Material.Texture = nullptr;
+		{
+			std::filesystem::path p = TexturePath.C_Str();
+			std::filesystem::path Ext = p.extension();
+			if (Ext == ".png")
+				ModelMesh.Material.Texture = std::make_shared<Texture>(std::string_view(TexturePath.C_Str()), texData, Format::RGBA);
+		}
 
 		ModelMeshs.push_back(ModelMesh);
 	}

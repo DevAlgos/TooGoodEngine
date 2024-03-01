@@ -1,6 +1,6 @@
 #version 460 core
 
-layout(local_size_x = 8, local_size_y = 4, local_size_z = 1) in;
+layout(local_size_x = 8, local_size_y = 8, local_size_z = 1) in;
 
 layout(rgba32f, binding = 0) uniform image2D ColorBuffer;
 layout(rgba32f, binding = 1) uniform image2D ReflectAndMetallicBuffer;
@@ -16,7 +16,7 @@ uniform vec3 CameraPosition;
 uniform mat4 InverseProjection;
 uniform mat4 InverseView;
 
-#define Pi 3.14159265359
+#define Pi 3.14159265359f
 #define EPSILON 1.192092896e-07f
 
 /*
@@ -128,13 +128,13 @@ void main()
 {
 	ivec2 Coordinate = ivec2(gl_GlobalInvocationID.xy);
 
-	vec3 LightDirection = vec3(0.0, -1.0, 0.0); //TODO Turn into Shader Storage Buffer for multiple Directional Lights
+	vec3 LightDirection = vec3(0.0, -1.0, -1.0); //TODO Turn into Shader Storage Buffer for multiple Directional Lights
 	
-	vec2 NormalizedCoord = (vec2(Coordinate) + vec2(0.5)) / imageSize(ColorBuffer);
+	vec2 NormalizedCoord = (vec2(Coordinate)) / imageSize(ColorBuffer);
 
-	float DepthValue = texture(DepthBuffer, NormalizedCoord).r;
+	float DepthValue = texelFetch(DepthBuffer, Coordinate, 0).r;
 
-	if(DepthValue >= 1.0)
+	if(DepthValue == 1.0)
 		return; //background	
 
     vec4 ViewSpace = InverseProjection * vec4(NormalizedCoord * 2.0 - 1.0, 

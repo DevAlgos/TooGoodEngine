@@ -1,8 +1,11 @@
 #pragma once
 
 #include "ECS/Registry.h"
+#include "Graphics/Renderer.h"
+#include "Graphics/ModeImporting/AssimpImporter.h"
 
 #include <string>
+#include <unordered_map>
 
 
 
@@ -53,10 +56,14 @@ namespace TooGoodEngine
 			Impl_DisplayComponent::Call<Type>(entity, this);
 		}
 	private:
+		AssimpImporter m_SourceImporter;
+		std::unordered_map<std::filesystem::path, InstanceID> m_AddedModels;
+
 		char m_EntityNameBuffer[30]{};
+		char m_SourceFileBuffer[100]{};
 
 		const float labelWidth = 100.0f;
-		const float labelOffset = -40.0f;
+		const float labelOffset = -10.0f;
 
 		std::string_view m_DebugName;
 		Ecs::Registry m_SceneRegistry;
@@ -64,6 +71,12 @@ namespace TooGoodEngine
 		std::vector<Ecs::Entity> m_SceneEntites;
 		Camera m_SceneCamera;
 		bool click = false;
+		
+		bool m_ShowModelPopup = false;
+		Ecs::Entity m_CurrentPopupEntity;
+
+		bool m_ShowChangeEntityNamePopup = false;
+		Ecs::Entity m_CurrentChangePopupEntity;
 
 		friend class Impl_DisplayComponent;
 	};

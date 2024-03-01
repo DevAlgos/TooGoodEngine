@@ -6,6 +6,9 @@
 
 #include "Importer.h"
 
+#include <concurrent_vector.h>
+#include <ppl.h>
+
 namespace TooGoodEngine {
 
 	class AssimpImporter : public ModelImporter
@@ -17,7 +20,7 @@ namespace TooGoodEngine {
 		virtual ModelData Read(const std::filesystem::path& path) override { return {}; }
 		virtual Model	  ImportModel(const std::filesystem::path& path) override;
 	private:
-		std::vector<Mesh> ModelMeshs;
+		concurrency::concurrent_vector<Mesh> ModelMeshs;
 
 		void ProcessNode(const aiNode* node, const aiScene* scene);
 		void ProcessMesh(const aiMesh* mesh, const aiScene* scene);

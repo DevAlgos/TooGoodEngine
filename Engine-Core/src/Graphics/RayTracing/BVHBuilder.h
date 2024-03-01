@@ -83,9 +83,12 @@ namespace TooGoodEngine {
 		int RightNode = -1;
 		int NumberOfPrims = 0;
 		int IsLeaf = false;
-		int Primitive[36] = { -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, //multiple of 4 here for std430 alignment in glsl
-						      -1, -1, -1, -1, -1, -1, -1, -1, -1, -1,
-							  -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 };
+		int Primitive[100];
+
+		BVHNode()
+		{
+			memset(Primitive, -1, 100);
+		}
 	};
 
 	struct BVHTreeletNode

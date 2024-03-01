@@ -297,8 +297,7 @@ namespace Utils
 	void EditorLayer::DisplayDebugStats()
 	{
 		ImGui::Begin("Debug Window");
-		ImGui::Text("FPS: %.1f", ImGui::GetIO().Framerate);
-		ImGui::Text("MS per frame: %.1f", TooGoodEngine::Application::GetCurrentDelta());
+		ImGui::Text("time per frame: %.1f ms", TooGoodEngine::Application::GetCurrentDelta());
 
 		for (auto& [name, time] : s_StatsticsToRender)
 			ImGui::Text("%s took: %lld milliseconds", name.data(), time);

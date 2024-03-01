@@ -28,7 +28,7 @@ namespace TooGoodEngine {
 
 		size_t LastIndex = std::min(m_CachedIndicesIndex.size(), mesh.Indicies.size() / 3);
 
-		auto ProcessMesh = [&](size_t i) 
+		auto ProcessTriangle = [&](size_t i) 
 			{
 				uint32_t Index1 = mesh.Indicies[i];
 				uint32_t Index2 = mesh.Indicies[i + 1];
@@ -63,7 +63,7 @@ namespace TooGoodEngine {
 		concurrency::parallel_for_each(
 			m_CachedIndicesIndex.begin(),
 			m_CachedIndicesIndex.begin() + LastIndex,
-			ProcessMesh);
+			ProcessTriangle);
 	}
 
 	void BVHBuilder::AddModel(const Model& model, const glm::mat4& Transform)
@@ -74,8 +74,6 @@ namespace TooGoodEngine {
 
 	void BVHBuilder::Build(BuildType Type)
 	{
-		
-
 		if (m_TriangleData.size() == 0)
 			return;
 
@@ -83,31 +81,28 @@ namespace TooGoodEngine {
 
 		{
 			Utils::TimedScope BuildSAH("Building BVH time");
+
 			switch (Type)
 			{
-			case BuildType::MedianSplit:
-				
-				Root.BoundingBox = ComputeBounds(0, m_TriangleData.size() - 1);
-
-				m_Nodes.push_back(Root);
-
-				BuildBVH(0, 0, m_TriangleData.size() - 1);
-
-				break;
-
 			case BuildType::SAHSplit:
 				
 				Root.BoundingBox = ComputeBounds(0, m_TriangleData.size() - 1);
 
 				m_Nodes.push_back(Root);
 
-				BuildSAHBVH(0, 0, m_TriangleData.size() - 1);
+				BuildSAHBVH(0, 0, m_TriangleData.size());
 
 				break;
 			case BuildType::HLSplit:
 				BuildHLBVH();
 				break;
+			case BuildType::MedianSplit:
 			default:
+				Root.BoundingBox = ComputeBounds(0, m_TriangleData.size() - 1);
+
+				m_Nodes.push_back(Root);
+
+				BuildBVH(0, 0, m_TriangleData.size());
 				break;
 			}
 
@@ -247,13 +242,19 @@ namespace TooGoodEngine {
 	{
 		int nPrimitives = max - min;
 
-		if (nPrimitives <= 36)
+		constexpr int MaxPrimsInNode = 100;
+		constexpr int DesiredPrimsInNode = 36;
+
+		if (nPrimitives <= DesiredPrimsInNode)
 		{
+			int SplitPrims = nPrimitives / 2;
+			int RemainingPrims = nPrimitives - SplitPrims;
+
 			BVHNode leafNode;
 			leafNode.BoundingBox = ComputeBounds(min, max);
 
 			size_t k = 0;
-			for (int i = min; i < max; i++)
+			for (int i = min; i < max - RemainingPrims; i++)
 			{
 				leafNode.Primitive[k++] = i;
 				leafNode.NumberOfPrims++;
@@ -263,11 +264,25 @@ namespace TooGoodEngine {
 			m_Nodes.push_back(leafNode);
 			m_Nodes[NodeIndex].RightNode = m_Nodes.size() - 1;
 
+			BVHNode leftleafNode;
+			leftleafNode.BoundingBox = ComputeBounds(min, max);
+
+			k = 0;
+			for (int i = max - RemainingPrims; i < max; i++)
+			{
+				leftleafNode.Primitive[k++] = i;
+				leftleafNode.NumberOfPrims++;
+			}
+
+			leftleafNode.IsLeaf = true;
+			m_Nodes.push_back(leftleafNode);
+			m_Nodes[NodeIndex].LeftNode = m_Nodes.size() - 1;
+
 			return;
 		}
 
-		//AABB Bounds{};
-		//Bounds = ComputeBounds(min, max);
+		AABB Bounds{};
+		Bounds = ComputeBounds(min, max);
 		
 		AABB CentroidBounds{};
 		for (int i = min; i < max; i++)
@@ -327,7 +342,7 @@ namespace TooGoodEngine {
 				count1 += Buckets[j].count;
 			}
 			Cost[i] = .125f + (count0 * b0.Area() +
-				count1 * b1.Area()) / CentroidBounds.Area();
+				count1 * b1.Area()) / Bounds.Area();
 		}
 
 		float MinCost = Cost[0];
@@ -343,7 +358,7 @@ namespace TooGoodEngine {
 		}
 		
 
-		auto pMid = std::partition(std::execution::par_unseq, m_TriangleData.begin() + min, m_TriangleData.begin() + max,
+		auto pMid = std::partition(std::execution::par, m_TriangleData.begin() + min, m_TriangleData.begin() + max,
 			[&](const Triangle& Other) 
 			{
 				int b = nBuckets * CentroidBounds.Offset(Other.Centroid)[Dim];
@@ -491,12 +506,6 @@ namespace TooGoodEngine {
 
 				for (size_t i = StartIndex; i < m_Nodes.size(); i++)
 				{
-					#if 0
-					TGE_LOG_INFO(m_Nodes[i].RightNode, " ", m_Nodes[i].RightNode + StartIndex);
-					TGE_LOG_INFO(LocalNodes[m_Nodes[i].RightNode].BoundingBox.MinValue.x, " ", 
-						m_Nodes[m_Nodes[i].RightNode + StartIndex].BoundingBox.MinValue.x);
-					#endif
-
 					if (m_Nodes[i].RightNode != -1)
 						m_Nodes[i].RightNode += StartIndex;
 
@@ -557,9 +566,9 @@ namespace TooGoodEngine {
 			float Centroid = Nodes[i].Node.BoundingBox.MinValue[Dim] + Nodes[i].Node.BoundingBox.MaxValue[Dim] * 0.5f;
 
 			int b = nBuckets * ((Centroid - CentroidBounds.MinValue[Dim]) / 
-				(CentroidBounds.MaxValue[Dim] - CentroidBounds.MinValue[Dim]));
+				glm::max((CentroidBounds.MaxValue[Dim] - CentroidBounds.MinValue[Dim]), FLT_EPSILON));
 
-			if (b == nBuckets)
+			if (b >= nBuckets)
 				b = nBuckets - 1;
 
 			Buckets[b].count++;
@@ -596,7 +605,6 @@ namespace TooGoodEngine {
 				MinCostBucket = i;
 			}
 		}
-
 
 		auto pMid = std::partition(Nodes.begin() + min, Nodes.begin() + max,
 			[&](const BVHTreeletNode& Other)
@@ -647,19 +655,21 @@ namespace TooGoodEngine {
 		const ConcurrentVector<MortonPrimitive>& Prims,
 		int Start, int End, int nPrimitives, int BitIndex, int NodeIndex)
 	{
-		constexpr int MaxPrimInNode = 36;
+		constexpr int MaxPrimInNode = 100;
 
-		constexpr int DesiredPrimsInNode = 4;
+		constexpr int DesiredPrimsInNode = 1;
 
 		if (BitIndex == -1 || nPrimitives <= DesiredPrimsInNode)
 		{
+			//TGE_FORCE_ASSERT(nPrimitives < (MaxPrimInNode * 2.0), "stop");
+
 			if (nPrimitives >= MaxPrimInNode)
 			{
-				int Remaining = nPrimitives - MaxPrimInNode;
+				int Remaining = std::min(nPrimitives - MaxPrimInNode, MaxPrimInNode);
 
 				BVHNode LeftLeafNode;
 				LeftLeafNode.IsLeaf = true;
-				LeftLeafNode.NumberOfPrims = MaxPrimInNode; // Use MaxPrimInNode instead of nPrimitives / 2
+				LeftLeafNode.NumberOfPrims = MaxPrimInNode; 
 
 				for (size_t i = 0; i < MaxPrimInNode; i++)
 				{

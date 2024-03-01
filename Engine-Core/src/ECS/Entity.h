@@ -17,6 +17,16 @@ namespace Ecs
 		Entity(const Entity& other);
 		Entity();
 
+		bool operator==(const Ecs::Entity& Other) const 
+		{
+			return Other.m_EntityID == m_EntityID;
+		}
+
+		bool operator!=(const Ecs::Entity& Other) const
+		{
+			return Other.m_EntityID != m_EntityID;
+		}
+
 		virtual ~Entity();
 
 		void SetName(const std::string_view& Name) { m_EntityName = Name; }

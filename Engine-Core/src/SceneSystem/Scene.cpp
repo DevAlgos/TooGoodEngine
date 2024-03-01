@@ -2,20 +2,20 @@
 #include "Scene.h"
 
 #include "Graphics/ModeImporting/AssimpImporter.h"
-#include "Graphics/Renderer.h"
+
 
 namespace TooGoodEngine
 {
 	static glm::vec2 TestScale = { 1.0f, 1.0f };
 
 	static Ecs::TransformComponent TestInstanceTransform({ 0.0f, -2.0f, 0.0f },
-		{ 1.0f, 1.0f, 1.0f }, { 0.0f, 1.0f, 0.0f }, 0.0f);
+		{ 4.0f, 1.0f, 8.0f }, { 0.0f, 1.0f, 0.0f }, 0.0f);
 	static Ecs::MaterialComponent TestInstanceMaterial({ 0.0f, 0.7f, 0.4f, 0.5f }, { 0.0f, 0.0f, 0.0f },
 		{ 0.0f, 0.0f, 0.0f }, 0.0f, 0.0f, nullptr);
 
 
 	static Ecs::TransformComponent Test2InstanceTransform({ 1.0f, 2.0f, 0.0f },
-		{ 10.0f, 10.0f, 10.0f }, { 0.0f, 1.0f, 0.0f }, 0.0f);
+		{ 0.05f, 0.05f, 0.05f }, { 0.0f, 1.0f, 0.0f }, 0.0f);
 
 	static Ecs::MaterialComponent Test2InstanceMaterial({ 0.0f, 0.7f, 0.4f, 0.5f }, { 0.0f, 0.0f, 0.0f },
 		{ 0.0f, 0.0f, 0.0f }, 0.0f, 0.0f, nullptr);
@@ -88,7 +88,7 @@ namespace TooGoodEngine
 		Test2InstanceMaterial = Ecs::MaterialComponent({ 1.0f, 1.0f, 1.0f, 1.0f }, { 0.0f, 0.0f, 0.0f },
 			{ 0.0f, 0.0f, 0.0f }, 0.0f, 0.0f, nullptr);
 
-		Model CatModel = importer.ImportModel("bunny.obj");
+		Model CatModel = importer.ImportModel("cat.obj");
 		MrOscarMan = Renderer::AddUniqueModel(CatModel);
 
 		TestTexture3 = std::make_shared<Texture>("BenIcon.png", TextureData, Format::RGBA);
@@ -101,10 +101,10 @@ namespace TooGoodEngine
 	}
 	void Scene::SceneUpdate()
 	{
-		if (Input::IsKeyDown(KEY_V))
+		if (Input::IsKeyDown(KEY_V) && !ImGui::IsAnyItemActive())
 			Input::EnableCursor();
 
-		if (Input::IsKeyDown(KEY_B))
+		if (Input::IsKeyDown(KEY_B) && !ImGui::IsAnyItemActive())
 			Input::DisableCursor();
 
 
@@ -113,56 +113,34 @@ namespace TooGoodEngine
 	}
 	void Scene::SceneDisplay()
 	{
-		//Renderer2D::BeginScene(m_SceneCamera);
-		//Renderer2D::ClearColor({ 0.2f, 0.4f, 0.5f});
-
-
-		//Renderer2D::PushUIText("some testing", 0, { 1.0f, 0.0f, 0.0f }, TestScale, 0.0f, { 1.0f, 0.0f, 1.0f, 1.0f });
-
-		//{
-		//	uint64_t Index = 0;
-		//	m_SceneRegistry.View<Ecs::QuadComponent>([&](auto& Component)
-		//		{
-		//			Ecs::Entity CurrentEntity("loop entity", m_SceneRegistry.GetEntityFromComponent<Ecs::QuadComponent>(Index));
-
-		//			if (!m_SceneRegistry.HasComponent<Ecs::MaterialComponent>(CurrentEntity) ||
-		//				!m_SceneRegistry.HasComponent<Ecs::QuadComponent>(CurrentEntity))
-		//				return; //Needs both to render
-
-		//			auto& MaterialComponent = m_SceneRegistry.Get<Ecs::MaterialComponent>(CurrentEntity);
-		//			auto& TransformComponent = m_SceneRegistry.Get<Ecs::TransformComponent>(CurrentEntity);
-
-		//			Renderer2D::PushQuad(TransformComponent, MaterialComponent);
-
-		//			Index++;
-		//		});
-		//
-		//}
-		/*Renderer2D::EndScene();*/
-
 		Renderer::Begin(m_SceneCamera);
-		Renderer::DrawModelInstance(TestInstance, TestInstanceTransform.Transform, TestInstanceMaterial);
-		Renderer::DrawModelInstance(MrOscarMan, Test2InstanceTransform.Transform, Test2InstanceMaterial);
-		//Renderer::DrawPrimitiveQuad(TestInstanceTransform.Transform, TestInstanceMaterial);
+
+		uint64_t Index = 0;
+		m_SceneRegistry.View<Ecs::ModelComponent>([&](Ecs::ModelComponent& Component)
+			{
+				Ecs::Entity CurrentEntity("loop entity", 
+				m_SceneRegistry.GetEntityFromComponent<Ecs::ModelComponent>(Index));
+
+				if (!m_SceneRegistry.HasComponent<Ecs::MaterialComponent>(CurrentEntity) ||
+					!m_SceneRegistry.HasComponent<Ecs::TransformComponent>(CurrentEntity))
+				{
+					return;
+				}
+
+				auto& MaterialComponent = m_SceneRegistry.Get<Ecs::MaterialComponent>(CurrentEntity);
+				auto& TransformComponent = m_SceneRegistry.Get<Ecs::TransformComponent>(CurrentEntity);
+
+				Renderer::DrawModelInstance(Component.InstanceID, TransformComponent.Transform, MaterialComponent);
+
+				Index++;
+
+			});
+
 		Renderer::End();
 	}
 	void Scene::DisplayEntites()
 	{
 		ImGui::Begin("Entities");
-		ImGui::SliderFloat2("Scale", &TestScale.x, 0.0f, 3.0f);
-
-		ImGui::SliderFloat4("TestAlbedo",   &Test2InstanceMaterial.Albedo.x, 0.0, 1.0);
-		ImGui::SliderFloat3("TestEmission", &Test2InstanceMaterial.EmissionColor.x, 0.0, 1.0);
-		ImGui::SliderFloat("TestEmissionPower", &Test2InstanceMaterial.EmissionPower, 0.0, 1.0);
-		ImGui::SliderFloat("TestMetallic",   &Test2InstanceMaterial.Metallic, 0.0, 1.0);
-		ImGui::SliderFloat("TestRoughness",   &Test2InstanceMaterial.Roughness, 0.0, 1.0);
-
-		ImGui::SliderFloat4("TestAlbedo2", &TestInstanceMaterial.Albedo.x, 0.0, 1.0);
-		ImGui::SliderFloat3("TestEmission2", &TestInstanceMaterial.EmissionColor.x, 0.0, 1.0);
-		ImGui::SliderFloat("TestEmissionPower2", &TestInstanceMaterial.EmissionPower, 0.0, 1.0);
-		ImGui::SliderFloat("TestMetallic2", &TestInstanceMaterial.Metallic, 0.0, 1.0);
-		ImGui::SliderFloat("TestRoughness2", &TestInstanceMaterial.Roughness, 0.0, 1.0);
-
 		ImGui::PushID(0604502);
 
 		if (ImGui::BeginPopupContextWindow())
@@ -176,6 +154,66 @@ namespace TooGoodEngine
 			ImGui::EndPopup();
 		}
 
+		if (m_ShowChangeEntityNamePopup)
+		{
+			if (ImGui::Begin("Change entity name"))
+			{
+				ImGui::Text("Entity name: ");
+				ImGui::SameLine();
+				ImGui::InputText("##EntityNameTag", m_EntityNameBuffer, 100);
+
+				if (ImGui::Button("Enter"))
+				{
+					auto it = std::find(m_SceneEntites.begin(), m_SceneEntites.end(), m_CurrentChangePopupEntity);
+					size_t Index = std::distance(m_SceneEntites.begin(), it);
+					m_SceneEntites[Index].SetName(std::string_view(m_EntityNameBuffer));
+					m_ShowChangeEntityNamePopup = false;
+
+				}
+
+				
+
+				ImGui::End();
+			}
+		}
+
+		if (m_ShowModelPopup)
+		{
+			if (ImGui::Begin("Model source"))
+			{
+				ImGui::Text("Source input: ");
+				ImGui::SameLine();
+				ImGui::InputText("##SourceInputTag", m_SourceFileBuffer, 100);
+
+				if (ImGui::Button("Enter"))
+				{
+					std::filesystem::path SourcePath = m_SourceFileBuffer;
+
+					if (m_AddedModels.contains(SourcePath))
+					{
+						m_SceneRegistry.Insert<Ecs::ModelComponent>(m_CurrentPopupEntity, 
+																	m_AddedModels[SourcePath], 
+																	SourcePath.string());
+					}
+					else
+					{
+						Model base = m_SourceImporter.ImportModel(SourcePath);
+						InstanceID id = Renderer::AddUniqueModel(base);
+
+						m_AddedModels[SourcePath] = id;
+
+						m_SceneRegistry.Insert<Ecs::ModelComponent>(m_CurrentPopupEntity, id, SourcePath.string());
+					}
+
+					
+					m_ShowModelPopup = false;
+				}
+
+				ImGui::End();
+			}
+		}
+		
+
 		for (Ecs::Entity& entity : m_SceneEntites)
 		{
 			ImGui::PushID((int)entity.GetID());
@@ -188,6 +226,12 @@ namespace TooGoodEngine
 			{
 				if (ImGui::BeginPopupContextWindow())
 				{
+					if (ImGui::MenuItem("Change Name"))
+					{
+						m_ShowChangeEntityNamePopup = true;
+						m_CurrentChangePopupEntity = entity;
+					}
+
 					if (ImGui::MenuItem("Add Quad Component"))
 					{
 						if (!m_SceneRegistry.HasComponent<Ecs::QuadComponent>(entity))
@@ -218,28 +262,39 @@ namespace TooGoodEngine
 						}
 					}
 
+					if (ImGui::MenuItem("Add Model Component"))
+					{
+						m_ShowModelPopup = true;
+						m_CurrentPopupEntity = entity;
+					}
+
 					ImGui::EndPopup();
 				}
 
 				
-				ImGui::SetCursorPosX(ImGui::GetCursorPosX() - 10.0f);
+				//ImGui::SetCursorPosX(ImGui::GetCursorPosX());
 
 				ImGui::PushID(23432423);
 				DisplayComponent<Ecs::QuadComponent>(entity);
 				ImGui::PopID();
 
-				ImGui::SetCursorPosX(ImGui::GetCursorPosX() - 10.0f);
+				//ImGui::SetCursorPosX(ImGui::GetCursorPosX() + 5.0f);
 
 				ImGui::PushID(20540121);
 				DisplayComponent<Ecs::TransformComponent>(entity);
 				ImGui::PopID();
 
-				ImGui::SetCursorPosX(ImGui::GetCursorPosX() - 10.0f);
+				//ImGui::SetCursorPosX(ImGui::GetCursorPosX() + 5.0f);
 				
 				ImGui::PushID(14013);
 				DisplayComponent<Ecs::MaterialComponent>(entity);
 				ImGui::PopID();
 				
+				//ImGui::SetCursorPosX(ImGui::GetCursorPosX() + 5.0f);
+
+				ImGui::PushID(1053245);
+				DisplayComponent<Ecs::ModelComponent>(entity);
+				ImGui::PopID();
 
 				ImGui::TreePop();
 			}
@@ -404,6 +459,14 @@ namespace TooGoodEngine
 				ImGui::SameLine(CursorPosX + self->labelWidth);
 				ImGui::SliderFloat("##RoughnessSlider", &Material.Roughness, 0, 1.0f, "%.3f", 1.0f);
 
+				ImGui::SetCursorPosY(ImGui::GetCursorPosY() + 10.0f);
+				ImGui::SetCursorPosX(ImGui::GetCursorPosX() + self->labelOffset);
+
+				ImGui::Text("Metalic");
+				CursorPosX = ImGui::GetCursorPosX();
+				ImGui::SameLine(CursorPosX + self->labelWidth);
+				ImGui::SliderFloat("##MetalicSlider", &Material.Metallic, 0, 1.0f, "%.3f", 1.0f);
+
 				
 				//TODO: Add image of texture here
 				
@@ -437,6 +500,80 @@ namespace TooGoodEngine
 					ImGui::EndPopup();
 
 				}
+				ImGui::TreePop();
+			}
+		}
+	}
+
+	template<>
+	static void Impl_DisplayComponent::Call<Ecs::MeshComponent>(Ecs::Entity entity, Scene* self)
+	{
+		if (self->m_SceneRegistry.HasComponent<Ecs::MeshComponent>(entity))
+		{
+			if (ImGui::TreeNodeEx("Mesh Component"))
+			{
+				if (ImGui::BeginPopupContextWindow())
+				{
+					if (ImGui::MenuItem("Remove"))
+					{
+						self->m_SceneRegistry.Delete<Ecs::MeshComponent>(entity);
+						ImGui::EndPopup();
+						ImGui::TreePop();
+						return;
+					}
+
+					ImGui::EndPopup();
+				}
+
+				Ecs::MeshComponent& Component = self->m_SceneRegistry.Get<Ecs::MeshComponent>(entity);
+
+				ImGui::SetCursorPosY(ImGui::GetCursorPosY() + 10.0f);
+				ImGui::SetCursorPosX(ImGui::GetCursorPosX() + self->labelOffset);
+
+				ImGui::Text("Mesh ID %i", Component.InstanceID);
+
+				ImGui::SetCursorPosY(ImGui::GetCursorPosY() + 10.0f);
+				ImGui::SetCursorPosX(ImGui::GetCursorPosX() + self->labelOffset);
+
+				ImGui::Text("Mesh source file %s", Component.MeshSourceFile.c_str());
+
+				ImGui::TreePop();
+			}
+		}
+	}
+
+	template<>
+	static void Impl_DisplayComponent::Call<Ecs::ModelComponent>(Ecs::Entity entity, Scene* self)
+	{
+		if (self->m_SceneRegistry.HasComponent<Ecs::ModelComponent>(entity))
+		{
+			if (ImGui::TreeNodeEx("Model Component"))
+			{
+				if (ImGui::BeginPopupContextWindow())
+				{
+					if (ImGui::MenuItem("Remove"))
+					{
+						self->m_SceneRegistry.Delete<Ecs::ModelComponent>(entity);
+						ImGui::EndPopup();
+						ImGui::TreePop();
+						return;
+					}
+
+					ImGui::EndPopup();
+				}
+
+				Ecs::ModelComponent& Component = self->m_SceneRegistry.Get<Ecs::ModelComponent>(entity);
+
+				ImGui::SetCursorPosY(ImGui::GetCursorPosY() + 10.0f);
+				ImGui::SetCursorPosX(ImGui::GetCursorPosX() + self->labelOffset);
+
+				ImGui::Text("Model ID %i", Component.InstanceID);
+				
+				ImGui::SetCursorPosY(ImGui::GetCursorPosY() + 10.0f);
+				ImGui::SetCursorPosX(ImGui::GetCursorPosX() + self->labelOffset);
+
+				ImGui::Text("Model source file %s", Component.ModelSourceFile.c_str());
+
 				ImGui::TreePop();
 			}
 		}
