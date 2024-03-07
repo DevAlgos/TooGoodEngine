@@ -7,8 +7,6 @@
 #include <string>
 #include <unordered_map>
 
-
-
 namespace TooGoodEngine
 {
 	enum class ComponentType 
@@ -91,11 +89,6 @@ namespace TooGoodEngine
 			TGE_LOG_WARN("Not a valid component");
 		}
 	};
-
-
-	
-		
-
 
 	static std::shared_ptr<Scene> CurrentScene;
 	

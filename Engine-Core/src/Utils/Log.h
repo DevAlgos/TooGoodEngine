@@ -30,8 +30,6 @@ namespace TooGoodEngine {
 	#define TGE_HALT()
 #endif
 
-/*debug with python is here because i havent been able to find debug binaries for python*/
-
 //TODO: remove _DEBUG_WITH_PYTHON build option
 
 #ifdef _DEBUG 

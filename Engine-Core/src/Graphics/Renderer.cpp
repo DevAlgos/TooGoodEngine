@@ -344,11 +344,22 @@ namespace TooGoodEngine {
 	{
 		m_RenderData.BoundingVolumeHierarchy = std::make_unique<BVHBuilder>();
 
+		BufferData BfData{};
+		BfData.data = nullptr;
+		BfData.DrawType = GL_DYNAMIC_DRAW;
+		BfData.VertexSize = sizeof(DirectionalLightSource) * 10;
+
+		m_RenderData.DirectionalLightBuffer = std::make_unique<OpenGLBuffer>(BufferType::ShaderStorageBuffer, BfData);
+
+
 		float Width = Application::GetMainWindow().GetWidth();
 		float Height = Application::GetMainWindow().GetHeight();
 
 		m_RenderData.FramebufferWidth = Width;
 		m_RenderData.FramebufferHeight = Height;
+		
+		m_RenderData.DownScaledWidth = Width / m_RenderData.Scale;
+		m_RenderData.DownScaledHeight = Height / m_RenderData.Scale;
 
 		glEnable(GL_CULL_FACE);
 		glCullFace(GL_BACK);
@@ -440,12 +451,13 @@ namespace TooGoodEngine {
 		{
 			TooGoodEngine::TextureData TextureData2;
 			TextureData2.InternalFormat = TooGoodEngine::TextureFormat::RGBA32F;
-			TextureData2.Width = Width / m_RenderData.Scale;
-			TextureData2.Height = Height / m_RenderData.Scale;
+			TextureData2.Width = m_RenderData.DownScaledWidth;
+			TextureData2.Height = m_RenderData.DownScaledHeight;
 
-			glm::vec4* TempData = new glm::vec4[(m_RenderData.FramebufferWidth / m_RenderData.Scale) * (m_RenderData.FramebufferHeight / m_RenderData.Scale)];
-			memset(TempData, 0, (m_RenderData.FramebufferWidth / m_RenderData.Scale) * (m_RenderData.FramebufferHeight / m_RenderData.Scale));
+			glm::vec4* TempData = new glm::vec4[m_RenderData.DownScaledWidth * m_RenderData.DownScaledHeight];
+			memset(TempData, 0, m_RenderData.DownScaledWidth * m_RenderData.DownScaledHeight);
 
+			m_RenderData.AccumulationBuffer = Texture::GenerateShared(glm::value_ptr(*TempData), TextureData2);
 			m_RenderData.DownSampledColorbuffer = Texture::GenerateShared(glm::value_ptr(*TempData), TextureData2);
 			m_RenderData.DownSampledEmissionAndRoughness = Texture::GenerateShared(glm::value_ptr(*TempData), TextureData2);
 			m_RenderData.DownSampledNormal = Texture::GenerateShared(glm::value_ptr(*TempData), TextureData2);
@@ -462,11 +474,11 @@ namespace TooGoodEngine {
 		{
 			TooGoodEngine::TextureData TextureData2;
 			TextureData2.InternalFormat = TooGoodEngine::TextureFormat::RGBA8;
-			TextureData2.Width = Width / m_RenderData.Scale;
-			TextureData2.Height = Height / m_RenderData.Scale;
+			TextureData2.Width = m_RenderData.DownScaledWidth;
+			TextureData2.Height = m_RenderData.DownScaledHeight;
 
-			uint32_t* TempData = new uint32_t[(m_RenderData.FramebufferWidth / m_RenderData.Scale) * (m_RenderData.FramebufferHeight / m_RenderData.Scale)];
-			memset(TempData, 0, (m_RenderData.FramebufferWidth / m_RenderData.Scale)* (m_RenderData.FramebufferHeight / m_RenderData.Scale));
+			uint32_t* TempData = new uint32_t[m_RenderData.DownScaledWidth * m_RenderData.DownScaledHeight];
+			memset(TempData, 0, m_RenderData.DownScaledWidth * m_RenderData.DownScaledHeight);
 
 			m_RenderData.ShadowMap = Texture::GenerateShared(TempData, TextureData2);
 
@@ -557,6 +569,13 @@ namespace TooGoodEngine {
 			m_RenderData.DirectLightingPass = Shader::Generate(ShaderList);
 		}
 
+		{
+			std::map<GLenum, std::string_view> ShaderList;
+			ShaderList[GL_COMPUTE_SHADER] = "../Engine-Core/src/Graphics/Shaders/RendererShaders/Gi.glsl";
+
+			m_RenderData.GlobalIlluminationPass = Shader::Generate(ShaderList);
+		}
+
 		/*
 		* Instance ID 0 will correspond to a primitive quad instance
 		*/
@@ -588,6 +607,16 @@ namespace TooGoodEngine {
 	void Renderer::Begin(BaseCamera& RefCamera)
 	{
 		m_RenderData.ReferenceCamera = &RefCamera;
+
+		if (m_RenderData.CurrentPosition != m_RenderData.ReferenceCamera->GetPosition() ||
+			m_RenderData.CurrentFront != m_RenderData.ReferenceCamera->GetFront())
+		{
+			m_RenderData.FrameIndex = 1;
+
+			m_RenderData.CurrentPosition = m_RenderData.ReferenceCamera->GetPosition();
+			m_RenderData.CurrentFront = m_RenderData.ReferenceCamera->GetFront();
+		}
+
 	}
 	void Renderer::End()
 	{
@@ -656,6 +685,12 @@ namespace TooGoodEngine {
 		m_RenderData.RenderFramebuffer->UnBind();
 
 		m_RenderData.BoundingVolumeHierarchy->Build(m_RenderData.BoundingBuildType);
+
+		void* LightData = m_RenderData.DirectionalLightBuffer->Map();
+		memcpy(LightData, m_RenderData.DirectionalLightSources.data(),
+			m_RenderData.DirectionalLightSources.size() * sizeof(DirectionalLightSource));
+		m_RenderData.DirectionalLightBuffer->UnMap();
+
 		//msaa -> plain
 
 		glNamedFramebufferReadBuffer(m_RenderData.RenderFramebuffer->Get(), GL_COLOR_ATTACHMENT0);
@@ -716,7 +751,7 @@ namespace TooGoodEngine {
 			m_RenderData.ResizedFramebuffer->Get(),
 			m_RenderData.DownSampledFramebuffer->Get(),
 			0, 0, m_RenderData.FramebufferWidth, m_RenderData.FramebufferHeight,
-			0, 0, m_RenderData.FramebufferWidth / m_RenderData.Scale, m_RenderData.FramebufferHeight / m_RenderData.Scale,
+			0, 0, m_RenderData.DownScaledWidth, m_RenderData.DownScaledHeight,
 			GL_COLOR_BUFFER_BIT, GL_LINEAR);
 
 
@@ -727,7 +762,7 @@ namespace TooGoodEngine {
 			m_RenderData.ResizedFramebuffer->Get(),
 			m_RenderData.DownSampledFramebuffer->Get(),
 			0, 0, m_RenderData.FramebufferWidth, m_RenderData.FramebufferHeight,
-			0, 0, m_RenderData.FramebufferWidth / m_RenderData.Scale, m_RenderData.FramebufferHeight / m_RenderData.Scale,
+			0, 0, m_RenderData.DownScaledWidth, m_RenderData.DownScaledHeight,
 			GL_COLOR_BUFFER_BIT, GL_NEAREST);
 
 		glNamedFramebufferReadBuffer(m_RenderData.ResizedFramebuffer->Get(), GL_COLOR_ATTACHMENT0 + 2);
@@ -737,7 +772,7 @@ namespace TooGoodEngine {
 			m_RenderData.ResizedFramebuffer->Get(),
 			m_RenderData.DownSampledFramebuffer->Get(),
 			0, 0, m_RenderData.FramebufferWidth, m_RenderData.FramebufferHeight,
-			0, 0, m_RenderData.FramebufferWidth / m_RenderData.Scale, m_RenderData.FramebufferHeight / m_RenderData.Scale,
+			0, 0, m_RenderData.DownScaledWidth, m_RenderData.DownScaledHeight,
 			GL_COLOR_BUFFER_BIT, GL_NEAREST);
 
 		glNamedFramebufferReadBuffer(m_RenderData.ResizedFramebuffer->Get(), GL_COLOR_ATTACHMENT0 + 3);
@@ -747,14 +782,14 @@ namespace TooGoodEngine {
 			m_RenderData.ResizedFramebuffer->Get(),
 			m_RenderData.DownSampledFramebuffer->Get(),
 			0, 0, m_RenderData.FramebufferWidth, m_RenderData.FramebufferHeight,
-			0, 0, m_RenderData.FramebufferWidth / m_RenderData.Scale, m_RenderData.FramebufferHeight / m_RenderData.Scale,
+			0, 0, m_RenderData.DownScaledWidth, m_RenderData.DownScaledHeight,
 			GL_COLOR_BUFFER_BIT, GL_NEAREST);
 
 		glBlitNamedFramebuffer(
 			m_RenderData.ResizedFramebuffer->Get(),
 			m_RenderData.DownSampledFramebuffer->Get(),
 			0, 0, m_RenderData.FramebufferWidth, m_RenderData.FramebufferHeight,
-			0, 0, m_RenderData.FramebufferWidth / m_RenderData.Scale, m_RenderData.FramebufferHeight / m_RenderData.Scale,
+			0, 0, m_RenderData.DownScaledWidth, m_RenderData.DownScaledHeight,
 			GL_DEPTH_BUFFER_BIT, GL_NEAREST);
 
 
@@ -762,6 +797,7 @@ namespace TooGoodEngine {
 
 		m_RenderData.ShadowPass->SetUniformMat4("InverseProjection", m_RenderData.ReferenceCamera->GetInverseProjection());
 		m_RenderData.ShadowPass->SetUniformMat4("InverseView", m_RenderData.ReferenceCamera->GetInverseView());
+		m_RenderData.ShadowPass->SetUniformInt("nLightSources", m_RenderData.DirectionalLightSources.size());
 
 		m_RenderData.DownSampledColorbuffer->BindImage(0);
 		m_RenderData.DownSampledDepthBuffer->Bind(1);
@@ -769,15 +805,17 @@ namespace TooGoodEngine {
 		m_RenderData.DownSampledNormal->BindImage(3);
 
 		m_RenderData.BoundingVolumeHierarchy->Dispatch(3, 4);
+		m_RenderData.DirectionalLightBuffer->BindBase(5);
 
-		m_RenderData.ShadowPass->Compute((m_RenderData.FramebufferWidth/m_RenderData.Scale) / 8, 
-			(m_RenderData.FramebufferHeight/m_RenderData.Scale) / 8, 1);
+		m_RenderData.ShadowPass->Compute(m_RenderData.DownScaledWidth / 8,
+			m_RenderData.DownScaledHeight / 8, 1);
 
 		m_RenderData.DirectLightingPass->Use();
 
 		m_RenderData.DirectLightingPass->SetUniformVec3("CameraPosition", m_RenderData.ReferenceCamera->GetPosition(), 1);
 		m_RenderData.DirectLightingPass->SetUniformMat4("InverseProjection", m_RenderData.ReferenceCamera->GetInverseProjection());
 		m_RenderData.DirectLightingPass->SetUniformMat4("InverseView", m_RenderData.ReferenceCamera->GetInverseView());
+		m_RenderData.DirectLightingPass->SetUniformInt("nLightSources", m_RenderData.DirectionalLightSources.size());
 
 		m_RenderData.DownSampledColorbuffer->BindImage(0);
 		m_RenderData.DownSampledReflectiveAndMetallic->BindImage(1);
@@ -785,9 +823,27 @@ namespace TooGoodEngine {
 		m_RenderData.DownSampledNormal->BindImage(3);
 		m_RenderData.DownSampledDepthBuffer->Bind(4);
 		m_RenderData.ShadowMap->BindImage(5);
+		m_RenderData.DirectionalLightBuffer->BindBase(6);
 
-		m_RenderData.DirectLightingPass->Compute((m_RenderData.FramebufferWidth / m_RenderData.Scale) / 8,
-			(m_RenderData.FramebufferHeight / m_RenderData.Scale) / 8, 1);
+		m_RenderData.DirectLightingPass->Compute(m_RenderData.DownScaledWidth / 8,
+			m_RenderData.DownScaledHeight / 8, 1);
+
+		m_RenderData.GlobalIlluminationPass->Use();
+		
+		m_RenderData.GlobalIlluminationPass->SetUniformMat4("InverseProjection", m_RenderData.ReferenceCamera->GetInverseProjection());
+		m_RenderData.GlobalIlluminationPass->SetUniformMat4("InverseView", m_RenderData.ReferenceCamera->GetInverseView());
+		m_RenderData.GlobalIlluminationPass->SetUniformMat4("ViewProjection", ViewProjectionMatrix);
+		m_RenderData.GlobalIlluminationPass->SetUniformInt("FrameIndex", m_RenderData.FrameIndex);
+
+		m_RenderData.DownSampledColorbuffer->BindImage(0);
+		m_RenderData.DownSampledReflectiveAndMetallic->BindImage(1);
+		m_RenderData.DownSampledEmissionAndRoughness->BindImage(2);
+		m_RenderData.DownSampledNormal->BindImage(3);
+		m_RenderData.DownSampledDepthBuffer->Bind(4);
+		m_RenderData.AccumulationBuffer->BindImage(5);
+
+		m_RenderData.GlobalIlluminationPass->Compute(m_RenderData.DownScaledWidth / 8,
+			m_RenderData.DownScaledHeight / 8, 1);
 
 		glNamedFramebufferReadBuffer(m_RenderData.DownSampledFramebuffer->Get(), GL_COLOR_ATTACHMENT0);
 		glNamedFramebufferDrawBuffer(m_RenderData.FinalFramebuffer->Get(), GL_COLOR_ATTACHMENT0 );
@@ -799,6 +855,10 @@ namespace TooGoodEngine {
 			0, 0, m_RenderData.FramebufferWidth, m_RenderData.FramebufferHeight, 
 			GL_COLOR_BUFFER_BIT, GL_LINEAR);
 
+
+		m_RenderData.DirectionalLightSources.clear();
+
+		m_RenderData.FrameIndex++;
 
 		glViewport(0, 0,
 			Application::GetMainWindow().GetWidth(),
@@ -863,6 +923,10 @@ namespace TooGoodEngine {
 	{
 		m_RenderData.Scale = std::max(NewScale, 1.0f);
 
+		m_RenderData.DownScaledWidth = m_RenderData.FramebufferWidth / m_RenderData.Scale;
+		m_RenderData.DownScaledHeight = m_RenderData.FramebufferHeight / m_RenderData.Scale;
+
+		m_RenderData.AccumulationBuffer = nullptr;
 		m_RenderData.DownSampledColorbuffer = nullptr;
 		m_RenderData.DownSampledEmissionAndRoughness = nullptr;
 		m_RenderData.DownSampledNormal = nullptr;
@@ -875,12 +939,13 @@ namespace TooGoodEngine {
 		{
 			TooGoodEngine::TextureData TextureData2;
 			TextureData2.InternalFormat = TooGoodEngine::TextureFormat::RGBA32F;
-			TextureData2.Width = m_RenderData.FramebufferWidth / m_RenderData.Scale;
-			TextureData2.Height = m_RenderData.FramebufferHeight / m_RenderData.Scale;
+			TextureData2.Width = m_RenderData.DownScaledWidth;
+			TextureData2.Height = m_RenderData.DownScaledHeight;
 
-			glm::vec4* TempData = new glm::vec4[(m_RenderData.FramebufferWidth / m_RenderData.Scale) * (m_RenderData.FramebufferHeight / m_RenderData.Scale)];
-			memset(TempData, 0, (m_RenderData.FramebufferWidth / m_RenderData.Scale) * (m_RenderData.FramebufferHeight / m_RenderData.Scale));
-
+			glm::vec4* TempData = new glm::vec4[m_RenderData.DownScaledWidth * m_RenderData.DownScaledHeight];
+			memset(TempData, 0, m_RenderData.DownScaledWidth * m_RenderData.DownScaledHeight);
+			
+			m_RenderData.AccumulationBuffer = Texture::GenerateShared(glm::value_ptr(*TempData), TextureData2);
 			m_RenderData.DownSampledColorbuffer = Texture::GenerateShared(glm::value_ptr(*TempData), TextureData2);
 			m_RenderData.DownSampledEmissionAndRoughness = Texture::GenerateShared(glm::value_ptr(*TempData), TextureData2);
 			m_RenderData.DownSampledNormal = Texture::GenerateShared(glm::value_ptr(*TempData), TextureData2);
@@ -896,11 +961,11 @@ namespace TooGoodEngine {
 		{
 			TooGoodEngine::TextureData TextureData2;
 			TextureData2.InternalFormat = TooGoodEngine::TextureFormat::RGBA8;
-			TextureData2.Width = m_RenderData.FramebufferWidth / m_RenderData.Scale;
-			TextureData2.Height = m_RenderData.FramebufferHeight / m_RenderData.Scale;
+			TextureData2.Width = m_RenderData.DownScaledWidth;
+			TextureData2.Height = m_RenderData.DownScaledHeight;
 
-			uint32_t* TempData = new uint32_t[(m_RenderData.FramebufferWidth / m_RenderData.Scale) * (m_RenderData.FramebufferHeight / m_RenderData.Scale)];
-			memset(TempData, 0, (m_RenderData.FramebufferWidth / m_RenderData.Scale) * (m_RenderData.FramebufferHeight / m_RenderData.Scale));
+			uint32_t* TempData = new uint32_t[m_RenderData.DownScaledWidth * m_RenderData.DownScaledHeight];
+			memset(TempData, 0, m_RenderData.DownScaledWidth * m_RenderData.DownScaledHeight);
 
 			m_RenderData.ShadowMap = Texture::GenerateShared(TempData, TextureData2);
 
@@ -911,13 +976,13 @@ namespace TooGoodEngine {
 			FramebufferData DownsampledFramebufferData;
 			DownsampledFramebufferData.AttachmentList =
 			{
-				{Attachment(AttachmentType::Color, m_RenderData.FramebufferWidth / m_RenderData.Scale, m_RenderData.FramebufferHeight / m_RenderData.Scale), m_RenderData.DownSampledColorbuffer},
-				{Attachment(AttachmentType::Color, m_RenderData.FramebufferWidth / m_RenderData.Scale, m_RenderData.FramebufferHeight / m_RenderData.Scale), m_RenderData.DownSampledReflectiveAndMetallic},
-				{Attachment(AttachmentType::Color, m_RenderData.FramebufferWidth / m_RenderData.Scale, m_RenderData.FramebufferHeight / m_RenderData.Scale), m_RenderData.DownSampledEmissionAndRoughness},
-				{Attachment(AttachmentType::Color, m_RenderData.FramebufferWidth / m_RenderData.Scale, m_RenderData.FramebufferHeight / m_RenderData.Scale), m_RenderData.DownSampledNormal},
+				{Attachment(AttachmentType::Color, m_RenderData.DownScaledWidth, m_RenderData.DownScaledHeight), m_RenderData.DownSampledColorbuffer},
+				{Attachment(AttachmentType::Color, m_RenderData.DownScaledWidth, m_RenderData.DownScaledHeight), m_RenderData.DownSampledReflectiveAndMetallic},
+				{Attachment(AttachmentType::Color, m_RenderData.DownScaledWidth, m_RenderData.DownScaledHeight), m_RenderData.DownSampledEmissionAndRoughness},
+				{Attachment(AttachmentType::Color, m_RenderData.DownScaledWidth, m_RenderData.DownScaledHeight), m_RenderData.DownSampledNormal},
 
 
-				{Attachment(AttachmentType::Depth, m_RenderData.FramebufferWidth / m_RenderData.Scale, m_RenderData.FramebufferHeight / m_RenderData.Scale), m_RenderData.DownSampledDepthBuffer}
+				{Attachment(AttachmentType::Depth, m_RenderData.DownScaledWidth, m_RenderData.DownScaledHeight), m_RenderData.DownSampledDepthBuffer}
 			};
 
 			m_RenderData.DownSampledFramebuffer = Framebuffer::GenerateShared(DownsampledFramebufferData);
@@ -940,6 +1005,17 @@ namespace TooGoodEngine {
 	void Renderer::ChangeBVHBuildType(BuildType NewBuildType)
 	{
 		m_RenderData.BoundingBuildType = NewBuildType;
+	}
+
+	void Renderer::AddDirectionalLight(const DirectionalLightSource& Src)
+	{
+		if (m_RenderData.CurrentLightBufferCapacity <= m_RenderData.DirectionalLightSources.size())
+		{
+			m_RenderData.CurrentLightBufferCapacity *= 2;
+			m_RenderData.DirectionalLightBuffer->Resize(m_RenderData.CurrentLightBufferCapacity * sizeof(DirectionalLightSource));
+		}
+
+		m_RenderData.DirectionalLightSources.push_back(Src);
 	}
 
 	//TESTING

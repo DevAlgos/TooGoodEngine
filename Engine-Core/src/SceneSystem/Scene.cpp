@@ -6,35 +6,6 @@
 
 namespace TooGoodEngine
 {
-	static glm::vec2 TestScale = { 1.0f, 1.0f };
-
-	static Ecs::TransformComponent TestInstanceTransform({ 0.0f, -2.0f, 0.0f },
-		{ 4.0f, 1.0f, 8.0f }, { 0.0f, 1.0f, 0.0f }, 0.0f);
-	static Ecs::MaterialComponent TestInstanceMaterial({ 0.0f, 0.7f, 0.4f, 0.5f }, { 0.0f, 0.0f, 0.0f },
-		{ 0.0f, 0.0f, 0.0f }, 0.0f, 0.0f, nullptr);
-
-
-	static Ecs::TransformComponent Test2InstanceTransform({ 1.0f, 2.0f, 0.0f },
-		{ 0.05f, 0.05f, 0.05f }, { 0.0f, 1.0f, 0.0f }, 0.0f);
-
-	static Ecs::MaterialComponent Test2InstanceMaterial({ 0.0f, 0.7f, 0.4f, 0.5f }, { 0.0f, 0.0f, 0.0f },
-		{ 0.0f, 0.0f, 0.0f }, 0.0f, 0.0f, nullptr);
-
-	static Ecs::TransformComponent Test3InstanceTransform({ 30.0f, 0.0f, 0.0f },
-		{ 0.1f, 0.1f, 0.1f }, { 0.0f, 1.0f, 0.0f }, 0.0f);
-
-	static Ecs::MaterialComponent Test3InstanceMaterial({ 0.0f, 0.7f, 0.4f, 0.5f }, { 0.0f, 0.0f, 0.0f },
-		{ 0.0f, 0.0f, 0.0f }, 0.0f, 0.0f, nullptr);
-
-	static std::shared_ptr<Texture> TestTexture;
-	static std::shared_ptr<Texture> TestTexture2;
-	static std::shared_ptr<Texture> TestTexture3;
-
-
-	static InstanceID TestInstance;
-	static InstanceID MrOscarMan;
-	static InstanceID ModelInstance;
-
 	Scene::Scene()
 		: m_DebugName("unamed scene"), m_SceneRegistry()
 	{
@@ -50,51 +21,11 @@ namespace TooGoodEngine
 		CamData.CameraSpeed = 10.0f;
 		m_SceneCamera.SetCam(CamData);
 
-		glm::vec3 Pos = { 0.0f, 0.0f, 0.0f };
-		glm::vec3 Scale = { 1.0f, 1.0f, 0.0f };
-		glm::vec3 RotationAxis = { 0.0f, 0.0f, 1.0f };
-
-		/*
-			const glm::vec4& Albedo, const glm::vec3& Reflectivity,
-						 const glm::vec3& EmissionColor, float EmissionPower,
-						 float Roughness, std::shared_ptr<TooGoodEngine::Texture> TextureRef
-		*/
-
-		glm::vec4 Albedo = { 1.0f, 0.0f, 1.0f, 1.0f };
-
-
 		Ecs::Entity testentity = m_SceneRegistry.CreateEntity("test entity");
 		//m_SceneRegistry.Insert<Ecs::TransformComponent>(testentity, Pos, Scale, RotationAxis, 0.0f);
 		//m_SceneRegistry.Insert<Ecs::MaterialComponent>(testentity, Albedo, glm::vec3(0.0f), glm::vec3(0.0f), 0.0f, 0.0f, nullptr);
 
 		m_SceneEntites.push_back(testentity);
-
-		TooGoodEngine::TextureData TextureData;
-		TextureData.InternalFormat = TooGoodEngine::TextureFormat::RGBA32F;
-		TestTexture = std::make_shared<Texture>("Background.png", TextureData, Format::RGBA);
-
-		Renderer2D::LoadInFont("../Resources/fonts/JetBrainsMono-Italic.ttf");
-
-		TestInstanceMaterial = Ecs::MaterialComponent({ 1.0f, 1.0f, 1.0f, 1.0f }, { 0.0f, 0.0f, 0.0f },
-			{ 0.0f, 0.0f, 0.0f }, 0.0f, 0.0f, TestTexture);
-
-		AssimpImporter importer;
-
-		Model TestModel = importer.ImportModel("block.obj");
-
-		TestInstance = Renderer::AddUniqueModel(TestModel);
-
-		TestTexture2 = std::make_shared<Texture>("BenIcon.png", TextureData, Format::RGBA);
-		Test2InstanceMaterial = Ecs::MaterialComponent({ 1.0f, 1.0f, 1.0f, 1.0f }, { 0.0f, 0.0f, 0.0f },
-			{ 0.0f, 0.0f, 0.0f }, 0.0f, 0.0f, nullptr);
-
-		Model CatModel = importer.ImportModel("cat.obj");
-		MrOscarMan = Renderer::AddUniqueModel(CatModel);
-
-		TestTexture3 = std::make_shared<Texture>("BenIcon.png", TextureData, Format::RGBA);
-
-		Test3InstanceMaterial = Ecs::MaterialComponent({ 0.0f, 0.4f, 0.5f, 1.0f }, { 0.0f, 0.0f, 0.0f },
-			{ 0.0f, 0.0f, 0.0f }, 0.0f, 0.0f, TestTexture3);
 	}
 	Scene::~Scene()
 	{
@@ -114,6 +45,13 @@ namespace TooGoodEngine
 	void Scene::SceneDisplay()
 	{
 		Renderer::Begin(m_SceneCamera);
+
+		m_SceneRegistry.View<Ecs::DirectionalLightComponent>([&](Ecs::DirectionalLightComponent& Component) 
+			{
+				DirectionalLightSource LightSrc{};
+				memcpy(&LightSrc, &Component, sizeof(DirectionalLightSource));
+				Renderer::AddDirectionalLight(LightSrc);
+			});
 
 		uint64_t Index = 0;
 		m_SceneRegistry.View<Ecs::ModelComponent>([&](Ecs::ModelComponent& Component)
@@ -170,8 +108,6 @@ namespace TooGoodEngine
 					m_ShowChangeEntityNamePopup = false;
 
 				}
-
-				
 
 				ImGui::End();
 			}
@@ -268,32 +204,34 @@ namespace TooGoodEngine
 						m_CurrentPopupEntity = entity;
 					}
 
+					if (ImGui::MenuItem("Add Directional Light Component"))
+					{
+						m_SceneRegistry.Insert<Ecs::DirectionalLightComponent>(entity, glm::vec3(0.0f, -1.0f, -1.0f), 
+							glm::vec3(1.0f, 1.0f, 1.0f), 
+							3.0f);
+					}
+
 					ImGui::EndPopup();
 				}
-
-				
-				//ImGui::SetCursorPosX(ImGui::GetCursorPosX());
 
 				ImGui::PushID(23432423);
 				DisplayComponent<Ecs::QuadComponent>(entity);
 				ImGui::PopID();
 
-				//ImGui::SetCursorPosX(ImGui::GetCursorPosX() + 5.0f);
-
 				ImGui::PushID(20540121);
 				DisplayComponent<Ecs::TransformComponent>(entity);
 				ImGui::PopID();
-
-				//ImGui::SetCursorPosX(ImGui::GetCursorPosX() + 5.0f);
 				
 				ImGui::PushID(14013);
 				DisplayComponent<Ecs::MaterialComponent>(entity);
 				ImGui::PopID();
-				
-				//ImGui::SetCursorPosX(ImGui::GetCursorPosX() + 5.0f);
 
 				ImGui::PushID(1053245);
 				DisplayComponent<Ecs::ModelComponent>(entity);
+				ImGui::PopID();
+
+				ImGui::PushID(3420786);
+				DisplayComponent<Ecs::DirectionalLightComponent>(entity);
 				ImGui::PopID();
 
 				ImGui::TreePop();
@@ -573,6 +511,54 @@ namespace TooGoodEngine
 				ImGui::SetCursorPosX(ImGui::GetCursorPosX() + self->labelOffset);
 
 				ImGui::Text("Model source file %s", Component.ModelSourceFile.c_str());
+
+				ImGui::TreePop();
+			}
+		}
+	}
+
+
+	template<>
+	static void Impl_DisplayComponent::Call<Ecs::DirectionalLightComponent>(Ecs::Entity entity, Scene* self)
+	{
+		if (self->m_SceneRegistry.HasComponent<Ecs::DirectionalLightComponent>(entity))
+		{
+			if (ImGui::TreeNodeEx("Directional Light"))
+			{
+				if (ImGui::BeginPopupContextWindow())
+				{
+					if (ImGui::MenuItem("Remove"))
+					{
+						self->m_SceneRegistry.Delete<Ecs::DirectionalLightComponent>(entity);
+						ImGui::EndPopup();
+						ImGui::TreePop();
+						return;
+					}
+					ImGui::EndPopup();
+				}
+
+				Ecs::DirectionalLightComponent& Component = self->m_SceneRegistry.Get<Ecs::DirectionalLightComponent>(entity);
+
+				ImGui::SetCursorPosY(ImGui::GetCursorPosY() + 10.0f);
+				ImGui::SetCursorPosX(ImGui::GetCursorPosX() + self->labelOffset);
+
+				ImGui::Text("Direction");
+				ImGui::SameLine(ImGui::GetCursorPosX() + self->labelWidth);
+				ImGui::SliderFloat3("##DirectionTag", glm::value_ptr(Component.Direction), -1.0f, 1.0f);
+
+				ImGui::SetCursorPosY(ImGui::GetCursorPosY() + 10.0f);
+				ImGui::SetCursorPosX(ImGui::GetCursorPosX() + self->labelOffset);
+
+				ImGui::Text("Color");
+				ImGui::SameLine(ImGui::GetCursorPosX() + self->labelWidth);
+				ImGui::SliderFloat3("##ColorTag", glm::value_ptr(Component.Color), 0.0f, 1.0f);
+
+				ImGui::SetCursorPosY(ImGui::GetCursorPosY() + 10.0f);
+				ImGui::SetCursorPosX(ImGui::GetCursorPosX() + self->labelOffset);
+
+				ImGui::Text("Intensity");
+				ImGui::SameLine(ImGui::GetCursorPosX() + self->labelWidth);
+				ImGui::SliderFloat("##IntensityTag", &Component.Intensity, 0.0f, 10.0f);
 
 				ImGui::TreePop();
 			}

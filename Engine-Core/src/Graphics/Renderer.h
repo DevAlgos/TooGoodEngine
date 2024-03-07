@@ -35,7 +35,15 @@ namespace TooGoodEngine {
 		float	  Metallic;
 		glm::vec3 Emission; //color and power
 		float	  Roughness;
-		float  TextureIndex;
+		float     TextureIndex;
+	};
+
+	//GPU side directional lighting information
+	struct DirectionalLightSource
+	{
+		glm::vec4 Direction;
+		glm::vec3 Color;
+		float Intensity;
 	};
 
 	struct MeshInstanceBufferData
@@ -120,15 +128,18 @@ namespace TooGoodEngine{
 	struct RenderData
 	{
 		static constexpr InstanceID QuadInstanceID = 0;
-		float Scale = 2.0f;
+		float Scale = 4.0f;
 
 		uint32_t FramebufferWidth = 0, FramebufferHeight = 0;
+		uint32_t DownScaledWidth = 0, DownScaledHeight = 0;
 
 		std::unique_ptr<BVHBuilder> BoundingVolumeHierarchy;
 		BuildType BoundingBuildType = BuildType::HLSplit;
 
 		std::shared_ptr<Texture> FinalImage;
 		std::shared_ptr<Framebuffer> FinalFramebuffer;
+
+		std::shared_ptr<Texture> AccumulationBuffer;
 
 		std::shared_ptr<Texture> ResizedColorbuffer;
 		std::shared_ptr<Texture> ResizedDepthBuffer;
@@ -152,6 +163,7 @@ namespace TooGoodEngine{
 		std::unique_ptr<Shader> GBufferPass;
 		std::unique_ptr<Shader> ShadowPass;
 		std::unique_ptr<Shader> DirectLightingPass;
+		std::unique_ptr<Shader> GlobalIlluminationPass;
 		
 		std::shared_ptr<Texture> TestTexture;
 
@@ -166,6 +178,15 @@ namespace TooGoodEngine{
 		std::vector<ModelInstanceBuffer> GroupedModelInstances;
 
 		BaseCamera* ReferenceCamera = nullptr;
+		glm::vec3 CurrentFront = glm::vec3(0.0, 0.0, 0.0);
+		glm::vec3 CurrentPosition = glm::vec3(0.0, 0.0, 0.0);
+
+		std::vector<DirectionalLightSource> DirectionalLightSources;
+		std::unique_ptr<OpenGLBuffer> DirectionalLightBuffer;
+
+		size_t CurrentLightBufferCapacity = 10;
+
+		int FrameIndex = 1;
 	};
 
 	class Renderer
@@ -193,6 +214,8 @@ namespace TooGoodEngine{
 		static void ChangeMultiSampleRate(int NewRate);
 
 		static void ChangeBVHBuildType(BuildType NewBuildType);
+
+		static void AddDirectionalLight(const DirectionalLightSource& Src);
 
 		static void End();
 

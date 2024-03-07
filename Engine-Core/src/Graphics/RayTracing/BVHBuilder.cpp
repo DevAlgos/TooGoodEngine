@@ -56,7 +56,6 @@ namespace TooGoodEngine {
 				tri.Normal = glm::normalize(Normal);
 				tri.Centroid = ComputeCentroid(tri);
 
-
 				m_TriangleData.push_back(tri);
 			};
 

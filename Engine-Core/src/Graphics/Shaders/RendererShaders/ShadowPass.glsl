@@ -18,6 +18,14 @@ layout(rgba32f, binding = 3) uniform image2D NormalBuffer;
 uniform mat4 InverseProjection;
 uniform mat4 InverseView;
 
+uniform int nLightSources;
+
+struct DirectionalLightSource
+{
+    vec4 Direction;
+    vec4 ColorAndIntensity;
+};
+
 struct AABB
 {
 	vec4 MinValue;
@@ -52,6 +60,11 @@ readonly layout(std430, binding = 4) buffer AccelerationStructure
 	BVHNode nodes[];
 
 } BVHStructure;
+
+readonly layout(std430, binding = 5) buffer LightSources
+{
+    DirectionalLightSource Sources[];
+} LightData;
 
 struct RayPayload 
 {
@@ -279,13 +292,24 @@ void main()
 {
 	ivec2 Coordinate = ivec2(gl_GlobalInvocationID.xy);
 
-	vec3 LightDirection = vec3(0.0, -1.0, -1.0);
+    bool InShadow = true;
 
-	RayPayload Payload = DispatchShadowRay(Coordinate, LightDirection);
+    for(int i = 0; i < nLightSources; i++)
+    {
+        vec3 LightDirection = LightData.Sources[i].Direction.xyz;
 
-    float ShadowVal = 0.0;
+        RayPayload Payload = DispatchShadowRay(Coordinate, LightDirection);
+        
+        if(Payload.InLight)
+        {
+            InShadow = false;
+            break;
+        }
+    }
 
-    if(!Payload.InLight)
+     float ShadowVal = 0.0;
+
+     if(InShadow)
         ShadowVal = 0.5;
     
      imageStore(ShadowBuffer, Coordinate, vec4(ShadowVal));

@@ -62,7 +62,7 @@ namespace TooGoodEngine
 		uint32_t NewBuffer;
 
 		glCreateBuffers(1, &NewBuffer);
-		glNamedBufferStorage(NewBuffer, size, nullptr, masks);  // Allocate memory, but don't copy data yet
+		glNamedBufferStorage(NewBuffer, size, nullptr, masks);  
 		glCopyNamedBufferSubData(m_Buffer, NewBuffer, 0, 0, (GLsizeiptr)std::min((size_t)size, m_Size));
 
 		glDeleteBuffers(1, &m_Buffer);

@@ -75,4 +75,16 @@ namespace Ecs
 		size_t InstanceID;
 		std::string ModelSourceFile;
 	};
+
+	struct DirectionalLightComponent
+	{
+		DirectionalLightComponent() = default;
+		DirectionalLightComponent(const glm::vec3& Dir, const glm::vec3& Col, float LightIntensity)
+			: Direction(glm::normalize(Dir), 1.0f), Color(Col), Intensity(LightIntensity)
+		{};
+
+		glm::vec4 Direction;
+		glm::vec3 Color;
+		float Intensity;
+	};
 }

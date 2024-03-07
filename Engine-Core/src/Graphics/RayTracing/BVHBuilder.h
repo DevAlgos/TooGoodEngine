@@ -12,6 +12,7 @@
 #include "Utils/Threading/ThreadPool.h"
 
 namespace TooGoodEngine {
+
 	struct AABB
 	{
 		glm::vec4 MinValue = glm::vec4(FLT_MAX);
@@ -62,7 +63,7 @@ namespace TooGoodEngine {
 	{
 		glm::vec4 Vertices[3];
 		glm::vec4 Normal;
-		glm::vec4 Centroid;
+		glm::vec4 Centroid;	
 
 		AABB Bounds() const
 		{

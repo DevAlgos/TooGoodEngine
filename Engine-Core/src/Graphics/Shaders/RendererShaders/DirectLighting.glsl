@@ -16,8 +16,22 @@ uniform vec3 CameraPosition;
 uniform mat4 InverseProjection;
 uniform mat4 InverseView;
 
+uniform int nLightSources;
+
 #define Pi 3.14159265359f
 #define EPSILON 1.192092896e-07f
+
+struct DirectionalLightSource
+{
+    vec4 Direction;
+    vec4 ColorAndIntensity;
+};
+
+readonly layout(std430, binding = 6) buffer LightSources
+{
+    DirectionalLightSource Sources[];
+
+} LightData;
 
 /*
 Trowbridge-Reitz GGX
@@ -60,8 +74,7 @@ float GeometryFun(float NdotV, float NdotL, float Roughness)
 
 /*
 the fresnel equation dictates how much reflection there is based on
-the view angle. The actual fresnel equation is complicated but
-this is a sufficient approximation for graphics use.
+the view angle.
 */
 
 vec3 FresnelApproximation(float VdotH, vec3 BaseReflectivity)
@@ -119,7 +132,7 @@ vec4 ShadePixel(in ivec2 Coordinate,
 
 	vec3 BRDF = Kd * LambertionDiffuse + CookTorrance; 
 
-	vec3 FinalColor = EmissionValue + BRDF * Radiance * NdotL;
+	vec3 FinalColor = BRDF * Radiance * NdotL;
 	
 	return vec4(FinalColor.xyz, 1.0);
 }
@@ -127,8 +140,6 @@ vec4 ShadePixel(in ivec2 Coordinate,
 void main()
 {
 	ivec2 Coordinate = ivec2(gl_GlobalInvocationID.xy);
-
-	vec3 LightDirection = vec3(0.0, -1.0, -1.0); //TODO Turn into Shader Storage Buffer for multiple Directional Lights
 	
 	vec2 NormalizedCoord = (vec2(Coordinate)) / imageSize(ColorBuffer);
 
@@ -145,11 +156,26 @@ void main()
 
     vec4 WorldSpace = InverseView * ViewSpace;
 
-	vec4 Color = ShadePixel(Coordinate, 
-							NormalizedCoord, 
-							LightDirection, 
-							vec3(1.0, 1.0, 1.0) * 3.0,
-							WorldSpace.xyz);
 
-	imageStore(ColorBuffer, Coordinate, Color);
+	vec4 AvgColor = vec4(0.0);
+	for(int i = 0; i < nLightSources; i++)
+	{	
+		vec3  LightDirection = LightData.Sources[i].Direction.xyz;
+		vec3  LightColor = LightData.Sources[i].ColorAndIntensity.rgb;
+		float Intensity = LightData.Sources[i].ColorAndIntensity.a;
+
+
+
+		vec4 Color = ShadePixel(Coordinate, 
+								NormalizedCoord, 
+								LightDirection, 
+								LightColor * Intensity,
+								WorldSpace.xyz);
+
+		AvgColor += Color;
+	}
+
+	AvgColor /= nLightSources;
+
+	imageStore(ColorBuffer, Coordinate, AvgColor);
 }
