@@ -15,9 +15,8 @@ function findPython()
    
    if pythonDir then
        includedirs { pythonDir .. "/include" }
-       libdirs { pythonDir .. "/libs" } -- Change this according to your Python installation structure
-       links { "python3" } -- Adjust the Python library name as needed
-       links { "python310" }
+       libdirs { pythonDir .. "/libs" } 
+       links { "python3" } 
    else
        -- Handle the case when Python directory is not found
        print("Python directory not found in environment variables.")
