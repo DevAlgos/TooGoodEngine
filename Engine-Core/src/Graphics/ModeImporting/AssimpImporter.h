@@ -4,10 +4,12 @@
 #include <assimp/scene.h>           // Output data structure
 #include <assimp/postprocess.h>     // Post processing flags
 
-#include "Importer.h"
 
 #include <concurrent_vector.h>
 #include <ppl.h>
+
+#include "Importer.h"
+
 
 namespace TooGoodEngine {
 

@@ -35,8 +35,6 @@ namespace TooGoodEngine
 
 		s_MainWindow.Init();
 
-		Renderer2D::Init();
-		Raytracing2D::Init();
 		Renderer::Init();
 
 		glEnable(GL_BLEND);
@@ -52,8 +50,6 @@ namespace TooGoodEngine
 		Renderer::Shutdown();
 		Scripting::PythonScriptingEngine::Shutdown();
 		Audio::Shutdown();
-		Renderer2D::ShutDown();
-		Raytracing2D::Shutdown();
 	}
 
 	void Application::Run()

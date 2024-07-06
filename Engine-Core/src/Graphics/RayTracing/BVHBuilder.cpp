@@ -9,9 +9,6 @@ namespace TooGoodEngine {
 		: m_TriangleBuffer(BufferType::ShaderStorageBuffer, {nullptr, m_TriangleBufferSize, GL_DYNAMIC_DRAW}), 
 		  m_NodeBuffer(BufferType::ShaderStorageBuffer, {nullptr, m_NodeBufferSize, GL_DYNAMIC_DRAW})
 	{
-		m_CachedIndicesIndex.push_back(0);
-		m_CachedIndicesIndex.push_back(3);
-		m_CachedIndicesIndex.push_back(6);
 	}
 
 	BVHBuilder::~BVHBuilder()
@@ -19,14 +16,9 @@ namespace TooGoodEngine {
 		
 	}
 	 
-	void BVHBuilder::AddMesh(const Mesh& mesh, const glm::mat4& Transform)
+	void BVHBuilder::AddMesh(const Mesh& mesh, const glm::mat4& Transform, int MaterialIndex)
 	{
 		constexpr size_t VertexSize = 8;
-
-		for (size_t i = m_CachedIndicesIndex.back(); i < mesh.Indicies.size(); i += 3)
-			m_CachedIndicesIndex.push_back(i);
-
-		size_t LastIndex = std::min(m_CachedIndicesIndex.size(), mesh.Indicies.size() / 3);
 
 		auto ProcessTriangle = [&](size_t i) 
 			{
@@ -59,16 +51,15 @@ namespace TooGoodEngine {
 				m_TriangleData.push_back(tri);
 			};
 
-		concurrency::parallel_for_each(
-			m_CachedIndicesIndex.begin(),
-			m_CachedIndicesIndex.begin() + LastIndex,
-			ProcessTriangle);
+		for (auto& i : mesh.Indicies)
+			ProcessTriangle(i);
+
 	}
 
 	void BVHBuilder::AddModel(const Model& model, const glm::mat4& Transform)
 	{
 		for (size_t i = 0; i < model.MeshList.size(); i++)
-			AddMesh(model.MeshList[i], Transform);
+			AddMesh(model.MeshList[i], Transform, 5);
 	}
 
 	void BVHBuilder::Build(BuildType Type)
@@ -131,10 +122,17 @@ namespace TooGoodEngine {
 			memmove(nodes, m_Nodes.data(), m_Nodes.size() * sizeof(BVHNode));
 			m_NodeBuffer.UnMap();
 
+
 		}
+
+		if (Type == BuildType::SAHSplit)
+			TGE_FORCE_ASSERT(m_DebugCount == m_TriangleData.size(), "changed");
+
+		m_CurrentNumberOfNodes = (int)m_Nodes.size();
 
 		m_TriangleData.clear();
 		m_Nodes.clear();
+		m_DebugCount = 0;
 	}
 
 	void BVHBuilder::Dispatch(int TriangleBindingIndex, int BVHBindingIndex)
@@ -257,6 +255,7 @@ namespace TooGoodEngine {
 			{
 				leafNode.Primitive[k++] = i;
 				leafNode.NumberOfPrims++;
+				m_DebugCount++;
 			}
 
 			leafNode.IsLeaf = true;
@@ -271,6 +270,7 @@ namespace TooGoodEngine {
 			{
 				leftleafNode.Primitive[k++] = i;
 				leftleafNode.NumberOfPrims++;
+				m_DebugCount++;
 			}
 
 			leftleafNode.IsLeaf = true;
@@ -357,7 +357,7 @@ namespace TooGoodEngine {
 		}
 		
 
-		auto pMid = std::partition(std::execution::par, m_TriangleData.begin() + min, m_TriangleData.begin() + max,
+		auto pMid = std::partition(m_TriangleData.begin() + min, m_TriangleData.begin() + max,
 			[&](const Triangle& Other) 
 			{
 				int b = nBuckets * CentroidBounds.Offset(Other.Centroid)[Dim];
@@ -386,7 +386,6 @@ namespace TooGoodEngine {
 		
 		if (Mid - min > 0)
 			BuildSAHBVH(m_Nodes[NodeIndex].LeftNode, min, Mid);
-		
 		
 		if (max - Mid > 0)
 			BuildSAHBVH(m_Nodes[NodeIndex].RightNode, Mid, max);

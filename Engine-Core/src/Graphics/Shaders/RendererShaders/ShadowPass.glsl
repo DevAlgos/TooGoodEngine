@@ -2,21 +2,22 @@
 
 layout(local_size_x = 8, local_size_y = 8, local_size_z = 1) in;
 
-layout(rgba32f, binding = 0) uniform image2D ColorBuffer;
-layout (binding = 1) uniform sampler2D DepthBuffer;
-
-layout(rgba8, binding = 2) writeonly uniform image2D ShadowBuffer;
-layout(rgba32f, binding = 3) uniform image2D NormalBuffer;
+layout(rgba32f, binding = 0)    uniform image2D ColorBuffer;
+layout(binding = 1)             uniform sampler2D DepthBuffer;
+layout(rgba8,   binding = 2)    writeonly uniform image2D ShadowBuffer;
+layout(rgba32f, binding = 3)    uniform image2D NormalBuffer;
+layout(rgba32f, binding = 4)    uniform image2D PositionBuffer;
 
 
 #define EPSILON 1.192092896e-07f
 #define FLOAT_MAX 3.402823466e+38f
+#define FLOAT_MIN 1.175494351e-38F  
 
 #define MAX_STACK_SIZE 1000
-#define SHADOW_BIAS 0.05
+#define SHADOW_BIAS 0.5
 
-uniform mat4 InverseProjection;
-uniform mat4 InverseView;
+//uniform mat4 InverseProjection;
+//uniform mat4 InverseView;
 
 uniform int nLightSources;
 
@@ -196,6 +197,13 @@ void TraceRay(inout RayPayload Payload)
 
     while (StackPtr > 0)
     {
+        if(Payload.Direction.x == 0)
+            Payload.Direction.x = FLOAT_MIN;
+        if(Payload.Direction.y == 0)
+            Payload.Direction.y = FLOAT_MIN;
+        if(Payload.Direction.z == 0)
+            Payload.Direction.z = FLOAT_MIN;
+
         int CurrentNode = Stack[--StackPtr];
 
         if (BVHStructure.nodes[CurrentNode].IsLeaf)
@@ -270,12 +278,11 @@ RayPayload DispatchShadowRay(in ivec2 Coordinate, in vec3 LightDirection)
     if(DepthValue == 1.0)
         return Payload;
         
-    vec4 WorldSpace = InverseView * InverseProjection * vec4(NormalizedCoord * 2.0 - 1.0, 
-                                                             DepthValue * 2.0 - 1.0, 1.0);
-    
-
-    WorldSpace /= WorldSpace.w;
-
+//    vec4 ClipSpace = vec4(NormalizedCoord * 2.0 - 1.0, DepthValue * 2.0 - 1.0, 1.0);
+//    vec4 ViewSpace = InverseProjection * ClipSpace;
+//    ViewSpace /= ViewSpace.w;
+//    vec4 WorldSpace = InverseView * ViewSpace;
+    vec4 WorldSpace = imageLoad(PositionBuffer, Coordinate);
 
     vec3 Normal = imageLoad(NormalBuffer, Coordinate).rgb;
 
@@ -291,7 +298,7 @@ RayPayload DispatchShadowRay(in ivec2 Coordinate, in vec3 LightDirection)
 void main()
 {
 	ivec2 Coordinate = ivec2(gl_GlobalInvocationID.xy);
-
+  
     bool InShadow = true;
 
     for(int i = 0; i < nLightSources; i++)

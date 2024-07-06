@@ -17,7 +17,6 @@ function findPython()
         includedirs { pythonDir .. "/include" }
         libdirs { pythonDir .. "/libs" }
         links { "python3" } 
-        links { "python310" }
     else
  
         print("Python directory not found in environment variables.")

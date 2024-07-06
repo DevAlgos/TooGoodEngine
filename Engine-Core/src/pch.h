@@ -37,9 +37,6 @@
 #include <Scripting/ScriptComponent.h>
 #include <Scripting/PythonScripting/PythonScriptingEngine.h>
 
-#include <Physics/PhysicsScene.h>
-#include <Particles/ParticleScene.h>
-
 #include <Audio/Audio.h>
 
 #include <Utils/RandomNumbers.h>
@@ -59,7 +56,6 @@
 #include <Graphics/VertexArray.h>
 #include <Graphics/Texture.h>
 #include <Graphics/Buffers.h>
-#include <Graphics/Renderer2D.h>
 
 #include <Application.h>
 

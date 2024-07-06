@@ -168,9 +168,6 @@ namespace Utils
 			ImGui::GetContentRegionAvail().y },
 				{ 0,1 }, { 1,0 });
 
-
-			TooGoodEngine::Raytracing2D::SetImageResolution(ImGui::GetWindowWidth(), 
-				ImGui::GetWindowHeight());
 		}
 
 		ImGui::End();

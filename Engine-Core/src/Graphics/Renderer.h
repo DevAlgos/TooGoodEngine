@@ -74,6 +74,7 @@ namespace TooGoodEngine {
 		inline const Mesh& GetCopy() const { return m_MeshCopy; }
 		inline const uint32_t GetNumberOfInstances() const { return m_InstanceCount; }
 		inline const uint32_t GetCount() const { return m_Count; }
+		inline const std::shared_ptr<Texture>& GetDefaultTexture() const { return m_DefaultTexture; }
 
 	private:
 		const size_t m_SizeOfSlot = sizeof(glm::mat4) + sizeof(OpenGLMaterial);
@@ -96,7 +97,7 @@ namespace TooGoodEngine {
 
 		OpenGLBuffer m_InstanceVertexBuffer; //static data
 		
-		OpenGLBuffer m_MeshInstanceBuffer; //per instance data (double buffering strategy
+		OpenGLBuffer m_MeshInstanceBuffer; //per instance data (triple buffering strategy)
 		OpenGLBuffer m_InstanceSecondBuffer;
 		OpenGLBuffer m_InstanceThirdBuffer;
 
@@ -146,6 +147,7 @@ namespace TooGoodEngine{
 		std::shared_ptr<Texture> ResizedNormalBuffer;
 		std::shared_ptr<Texture> ResizedReflectiveAndMetallic;
 		std::shared_ptr<Texture> ResizedEmissionAndRoughness;
+		std::shared_ptr<Texture> ResizedPositionBuffer;
 
 
 		std::shared_ptr<Texture> DownSampledColorbuffer;
@@ -153,6 +155,8 @@ namespace TooGoodEngine{
 		std::shared_ptr<Texture> DownSampledNormal;
 		std::shared_ptr<Texture> DownSampledReflectiveAndMetallic;
 		std::shared_ptr<Texture> DownSampledEmissionAndRoughness;
+		std::shared_ptr<Texture> DownSampledPositionBuffer;
+
 
 		std::shared_ptr<Texture> ShadowMap;
 
@@ -163,7 +167,6 @@ namespace TooGoodEngine{
 		std::unique_ptr<Shader> GBufferPass;
 		std::unique_ptr<Shader> ShadowPass;
 		std::unique_ptr<Shader> DirectLightingPass;
-		std::unique_ptr<Shader> GlobalIlluminationPass;
 		
 		std::shared_ptr<Texture> TestTexture;
 
@@ -171,8 +174,17 @@ namespace TooGoodEngine{
 		std::shared_ptr<Texture> ColorBuffer;
 		std::shared_ptr<Texture> ReflectiveAndMetallic;
 		std::shared_ptr<Texture> EmissionAndRoughnessBuffer;
+		std::shared_ptr<Texture> PositionBuffer;
 
 		std::shared_ptr<Texture> DepthBuffer;
+
+		//these will be for the triangles in global illumination
+		std::unique_ptr<OpenGLBuffer> TextureBuffer;
+		std::vector<GLuint64>         Textures;
+		std::unordered_map<GLuint64, size_t> TextureSlots; 
+
+		std::unique_ptr<OpenGLBuffer> MaterialBuffer;
+		std::vector<OpenGLMaterial> Materials;
 
 		std::vector<MeshInstanceBuffer> GroupedMeshInstances;
 		std::vector<ModelInstanceBuffer> GroupedModelInstances;
@@ -224,6 +236,13 @@ namespace TooGoodEngine{
 		//TODO: remove when finished debugging
 		static std::shared_ptr<Texture> GetColorBuffer() { return m_RenderData.FinalImage; }
 		static std::shared_ptr<Texture> GetDepthBuffer() { return m_RenderData.DepthBuffer; }
+
+
+	private:
+		static OpenGLMaterial ConstructMaterial(const MeshInstanceBuffer& Buffer, const Ecs::MaterialComponent& Material);
+		static void CreateTextures();
+
+		static void DownSample();
 
 	private:
 		static RenderData m_RenderData;

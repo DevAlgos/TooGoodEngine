@@ -20,7 +20,6 @@ namespace TooGoodEngine
 		glm::vec3 Velocity = { 0.0f, 0.0f, 0.0f };
 	};
 
-
 	struct Source
 	{
 		ALuint Handle;

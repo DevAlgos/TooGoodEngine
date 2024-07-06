@@ -418,7 +418,7 @@ namespace TooGoodEngine
 					Handles.push_back(Sources[i].Handle);
 				}
 
-				alSourcePlayv(Handles.size(), Handles.data());
+				alSourcePlayv((ALsizei)Handles.size(), Handles.data());
 			} });
 	}
 
@@ -479,7 +479,7 @@ namespace TooGoodEngine
 					SourceHandle.push_back(Src.Handle);
 				}
 
-				alSourceStopv(SourceHandle.size(), SourceHandle.data());
+				alSourceStopv((ALsizei)SourceHandle.size(), SourceHandle.data());
 		} });
 	}
 

@@ -95,7 +95,7 @@ namespace TooGoodEngine {
 	struct BVHTreeletNode
 	{
 		BVHNode Node;
-		int TreeletIndex;
+		int TreeletIndex = 0;
 	};
 
 	struct BucketInfo
@@ -165,11 +165,13 @@ namespace TooGoodEngine {
 		BVHBuilder();
 		~BVHBuilder();
 
-		void AddMesh(const Mesh& mesh, const glm::mat4& Transform);
+		void AddMesh(const Mesh& mesh, const glm::mat4& Transform, int MaterialIndex);
 		void AddModel(const Model& model, const glm::mat4& Transform);
 
 		void Build(BuildType Type);
 		void Dispatch(int TriangleBindingIndex, int BVHBindingIndex);
+
+		inline const int GetCurrentNumberOfNodes() const { return m_CurrentNumberOfNodes; }
 
 	private:
 		glm::vec4 ComputeCentroid(const Triangle& tri);
@@ -225,7 +227,6 @@ namespace TooGoodEngine {
 
 	private:
 		ConcurrentVector<Triangle> m_TriangleData;
-		ConcurrentVector<size_t> m_CachedIndicesIndex;
 		std::vector<BVHNode> m_Nodes;
 
 		size_t m_TriangleBufferSize = sizeof(Triangle) * 100;
@@ -235,6 +236,9 @@ namespace TooGoodEngine {
 		OpenGLBuffer m_NodeBuffer;	
 
 		size_t m_Axis = 0; 
+		size_t m_DebugCount = 0;
+
+		int m_CurrentNumberOfNodes = 0; //debug
 	};
 
 }

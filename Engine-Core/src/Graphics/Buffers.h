@@ -57,7 +57,7 @@ namespace TooGoodEngine
 		void BindBase(GLuint index);
 
 		inline const uint32_t Get() const { return m_Buffer; }
-
+		inline const size_t GetSize() const { return m_Size; }
 
 	private:
 		uint32_t m_Buffer = 0;

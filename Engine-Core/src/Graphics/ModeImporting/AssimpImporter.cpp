@@ -28,11 +28,14 @@ namespace TooGoodEngine {
 		for (size_t i = 0; i < node->mNumChildren; i++)
 			ProcessNode(node->mChildren[i], scene);
 
-		concurrency::parallel_for(0u, (uint32_t)node->mNumMeshes, 1u, 
+		/*concurrency::parallel_for(0u, (uint32_t)node->mNumMeshes, 1u, 
 			[&](uint32_t i) 
 			{
 				ProcessMesh(scene->mMeshes[node->mMeshes[i]], scene);
-			});
+			});*/
+
+		for (size_t i = 0; i < node->mNumMeshes; i++)
+			ProcessMesh(scene->mMeshes[node->mMeshes[i]], scene);
 		
 	}
 	void AssimpImporter::ProcessMesh(const aiMesh* mesh, const aiScene* scene)

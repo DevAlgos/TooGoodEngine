@@ -22,6 +22,7 @@ layout(location = 0) out vec4 Albedo;
 layout(location = 1) out vec4 ReflectAndMetallic;
 layout(location = 2) out vec4 EmissionAndRoughness;
 layout(location = 3) out vec3 Normal;
+layout(location = 4) out vec4 Position;
 
 void main()
 {
@@ -32,4 +33,5 @@ void main()
 	ReflectAndMetallic		= vec4(o_Reflectivity, o_Metallic);
 	EmissionAndRoughness	= vec4(o_Emission, o_Roughness);
 	Normal = o_Normal;
+	Position = vec4(o_WorldPosition, 1.0);
 }

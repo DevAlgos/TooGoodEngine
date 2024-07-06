@@ -8,10 +8,6 @@
 
 namespace TooGoodEngine
 {
-
-
-
-
 	UIManager::UIManager()
 		: m_FaceCount(1)
 	{

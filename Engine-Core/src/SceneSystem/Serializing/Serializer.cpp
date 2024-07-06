@@ -1,5 +1,6 @@
 #include "pch.h"
 #include "Serializer.h"
+#include "ECS/BaseComponents.h"
 
 #include "Utils/Log.h"
 

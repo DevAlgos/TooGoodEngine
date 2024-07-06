@@ -33,7 +33,7 @@ void main()
 
 	mat3 InvTrans = mat3(inverse(transpose(Transform)));
 
-	o_Normal =   InvTrans * VertexNormal.xyz;
+	o_Normal =   normalize(InvTrans * VertexNormal.xyz);
 	o_TexCoord = VertexTextureCoordinate;
 
 	gl_Position = ViewProjection * WorldPosition;

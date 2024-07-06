@@ -6,8 +6,8 @@ namespace TooGoodEngine
 {
 	int Main(const UserApplication& UserApp)
 	{
-		std::unique_ptr<Application> App = std::make_unique<Application>(UserApp);
-		App->Run();
+		Application App(UserApp); 
+		App.Run();
 		return 0;
 	}
 }
