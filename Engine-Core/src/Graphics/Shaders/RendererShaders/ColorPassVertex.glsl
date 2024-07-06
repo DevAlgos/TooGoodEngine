@@ -14,7 +14,6 @@ layout(location = 7) in float  Roughness;
 layout(location = 8) in float  TextureIndex;
 layout(location = 9) in mat4   Transform;
 
-out vec3	o_WorldPosition;
 out vec3    o_Normal;
 out vec2	o_TexCoord;
 out vec4    o_Albedo;
@@ -38,7 +37,6 @@ void main()
 
 	gl_Position = ViewProjection * WorldPosition;
 
-	o_WorldPosition = WorldPosition.xyz;
 	o_Albedo = Albedo;
 	o_Reflectivity = Reflectivity;
 	o_Metallic = Metallic;

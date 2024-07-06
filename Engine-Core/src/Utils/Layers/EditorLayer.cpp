@@ -138,15 +138,6 @@ namespace Utils
 				if (Previous != CurrentScale)
 					TooGoodEngine::Renderer::ChangeScaledResolution((float)CurrentScale);
 
-				if (ImGui::Button("Median Split"))
-					TooGoodEngine::Renderer::ChangeBVHBuildType(TooGoodEngine::BuildType::MedianSplit);
-
-				if (ImGui::Button("SAH Split"))
-					TooGoodEngine::Renderer::ChangeBVHBuildType(TooGoodEngine::BuildType::SAHSplit);
-
-				if (ImGui::Button("Morton Split"))
-					TooGoodEngine::Renderer::ChangeBVHBuildType(TooGoodEngine::BuildType::HLSplit);
-
 				ImGui::EndMenu();
 			}
 

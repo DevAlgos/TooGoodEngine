@@ -5,7 +5,6 @@
 #include "Buffers.h"
 #include "ECS/BaseComponents.h"
 #include "ModeImporting/Importer.h"
-#include "RayTracing/BVHBuilder.h"
 
 #include <unordered_map>
 #include <xhash>
@@ -87,8 +86,8 @@ namespace TooGoodEngine {
 		uint32_t m_InstanceCount = 0;
 		uint32_t m_CurrentTextureSlot = 1;
 		uint32_t m_Count = 0;
-		uint32_t m_MeshInstanceBufferSize = m_SizeOfSlot * 10;
-		uint64_t m_TextureBufferSize = 32 * sizeof(uint64_t);
+		uint32_t m_MeshInstanceBufferSize = (uint32_t)m_SizeOfSlot * 10;
+		uint32_t m_TextureBufferSize = 32 * sizeof(uint64_t);
 
 
 		AttribBufferReturnData m_AttributeDataCopy;
@@ -134,9 +133,6 @@ namespace TooGoodEngine{
 		uint32_t FramebufferWidth = 0, FramebufferHeight = 0;
 		uint32_t DownScaledWidth = 0, DownScaledHeight = 0;
 
-		std::unique_ptr<BVHBuilder> BoundingVolumeHierarchy;
-		BuildType BoundingBuildType = BuildType::HLSplit;
-
 		std::shared_ptr<Texture> FinalImage;
 		std::shared_ptr<Framebuffer> FinalFramebuffer;
 
@@ -157,15 +153,11 @@ namespace TooGoodEngine{
 		std::shared_ptr<Texture> DownSampledEmissionAndRoughness;
 		std::shared_ptr<Texture> DownSampledPositionBuffer;
 
-
-		std::shared_ptr<Texture> ShadowMap;
-
 		std::shared_ptr<Framebuffer> RenderFramebuffer;
 		std::shared_ptr<Framebuffer> ResizedFramebuffer;
 		std::shared_ptr<Framebuffer> DownSampledFramebuffer;
 
 		std::unique_ptr<Shader> GBufferPass;
-		std::unique_ptr<Shader> ShadowPass;
 		std::unique_ptr<Shader> DirectLightingPass;
 		
 		std::shared_ptr<Texture> TestTexture;
@@ -178,7 +170,6 @@ namespace TooGoodEngine{
 
 		std::shared_ptr<Texture> DepthBuffer;
 
-		//these will be for the triangles in global illumination
 		std::unique_ptr<OpenGLBuffer> TextureBuffer;
 		std::vector<GLuint64>         Textures;
 		std::unordered_map<GLuint64, size_t> TextureSlots; 
@@ -225,8 +216,6 @@ namespace TooGoodEngine{
 		static void ChangeScaledResolution(float NewScale);
 		static void ChangeMultiSampleRate(int NewRate);
 
-		static void ChangeBVHBuildType(BuildType NewBuildType);
-
 		static void AddDirectionalLight(const DirectionalLightSource& Src);
 
 		static void End();
@@ -240,7 +229,9 @@ namespace TooGoodEngine{
 
 	private:
 		static OpenGLMaterial ConstructMaterial(const MeshInstanceBuffer& Buffer, const Ecs::MaterialComponent& Material);
+		
 		static void CreateTextures();
+		static void CreateFramebuffers();
 
 		static void DownSample();
 

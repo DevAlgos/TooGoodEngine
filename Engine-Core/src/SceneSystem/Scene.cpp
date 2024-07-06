@@ -56,8 +56,7 @@ namespace TooGoodEngine
 		uint64_t Index = 0;
 		m_SceneRegistry.View<Ecs::ModelComponent>([&](Ecs::ModelComponent& Component)
 			{
-				Ecs::Entity CurrentEntity("loop entity", 
-				m_SceneRegistry.GetEntityFromComponent<Ecs::ModelComponent>(Index));
+				Ecs::Entity CurrentEntity("loop entity", m_SceneRegistry.GetEntityFromComponent<Ecs::ModelComponent>(Index));
 
 				if (!m_SceneRegistry.HasComponent<Ecs::MaterialComponent>(CurrentEntity) ||
 					!m_SceneRegistry.HasComponent<Ecs::TransformComponent>(CurrentEntity))
@@ -65,7 +64,7 @@ namespace TooGoodEngine
 					return;
 				}
 
-				auto& MaterialComponent = m_SceneRegistry.Get<Ecs::MaterialComponent>(CurrentEntity);
+				auto& MaterialComponent  = m_SceneRegistry.Get<Ecs::MaterialComponent>(CurrentEntity);
 				auto& TransformComponent = m_SceneRegistry.Get<Ecs::TransformComponent>(CurrentEntity);
 
 				Renderer::DrawModelInstance(Component.InstanceID, TransformComponent.Transform, MaterialComponent);

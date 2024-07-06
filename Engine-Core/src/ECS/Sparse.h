@@ -109,6 +109,7 @@ namespace Ecs
 				return *ptr;
 
 			TGE_HALT();
+			return *(Type*)m_Block;
 		}
 
 		template<class Type>

@@ -94,11 +94,11 @@ namespace std {
 	template <>
 	struct hash<TooGoodEngine::Face> {
 		size_t operator()(const TooGoodEngine::Face& obj) const {
-			uint32_t result = 0x23F13452EE;
+			uint64_t result = 0x23F13452EE;
 			result ^= obj.a + 0x9e3779b9 + (result << 5) + (result >> 2);
 			result ^= obj.b + 0x9e3779b9 + (result << 5) + (result >> 2);
 			result ^= obj.c + 0x9e3779b9 + (result << 5) + (result >> 2);
-			return std::hash<uint32_t>()(result);
+			return std::hash<uint64_t>()(result);
 		}
 	};
 

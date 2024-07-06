@@ -92,7 +92,7 @@ vec4 ShadePixel(in ivec2 Coordinate,
 	
 	vec3  Normal       = normalize(imageLoad(NormalBuffer, Coordinate).xyz);
 	
-	vec3  AlbedoValue    = imageLoad(ColorBuffer, Coordinate).xyz;
+	vec4  AlbedoValue    = imageLoad(ColorBuffer, Coordinate);
 	
 	vec3  Reflectivity   = imageLoad(ReflectAndMetallicBuffer, Coordinate).xyz;
 	float Metallic       = imageLoad(ReflectAndMetallicBuffer, Coordinate).w;
@@ -113,9 +113,9 @@ vec4 ShadePixel(in ivec2 Coordinate,
 	float VdotH = max(dot(ViewDir, HalfwayDir), 0.0);
 
 	vec3 BaseReflectivity = vec3(0.04);
-	BaseReflectivity = mix(BaseReflectivity, AlbedoValue, Metallic);
+	BaseReflectivity = mix(BaseReflectivity, AlbedoValue.rgb, Metallic);
 
-	vec3 LambertionDiffuse = AlbedoValue / Pi;
+	vec4 LambertionDiffuse = AlbedoValue / Pi;
 	LambertionDiffuse *= (1.0 - (ShadowVal));
 
 	vec3 Ks = FresnelApproximation(VdotH, BaseReflectivity);
@@ -130,11 +130,11 @@ vec4 ShadePixel(in ivec2 Coordinate,
 
 	vec3 CookTorrance = CookTorranceNum / CookTorranceDenom;
 
-	vec3 BRDF = Kd * LambertionDiffuse + CookTorrance; 
+	vec4 BRDF = vec4(Kd, 1.0) * LambertionDiffuse + vec4(CookTorrance, 1.0); 
 
-	vec3 FinalColor = BRDF * Radiance * NdotL;
+	vec4 FinalColor = vec4(EmissionValue, 0.0) + BRDF * vec4(Radiance, 1.0) * NdotL;
 	
-	return vec4(FinalColor.xyz, 1.0);
+	return vec4(FinalColor);
 }
 
 void main()

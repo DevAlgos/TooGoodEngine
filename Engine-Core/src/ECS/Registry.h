@@ -47,6 +47,10 @@ namespace Ecs
 
 			TGE_CLIENT_ERROR("Not a valid type", DataType.name());
 			TGE_HALT();
+
+			Ecs::Entity Null("Null", NullEntity);
+
+			return m_TypeSet[DataType].Get<Type>(Null);
 		}
 
 		template<class Type>
